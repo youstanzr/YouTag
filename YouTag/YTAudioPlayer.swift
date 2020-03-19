@@ -12,21 +12,23 @@ import MediaPlayer
 
 protocol YTAudioPlayerDelegate: class {
 	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float)
+	func audioPlayerPayingStatusChanged(playingStatus: Bool)
 }
 
 class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	weak var delegate: YTAudioPlayerDelegate?
 
-	private var nowPlayingView: NowPlayingView!
+	private var playlistManager: PlaylistManager!
 	private var audioPlayer: AVAudioPlayer!
 	private var songsPlaylist: NSMutableArray!
 	private var songDict: Dictionary<String, Any>!
 	private var currentSongIndex: Int!
 	private var updater = CADisplayLink()
+	private var isSuspended: Bool = false
 	
-	init(nowPlayingView: NowPlayingView) {
+	init(playlistManager: PlaylistManager) {
 		super.init()
-		self.nowPlayingView = nowPlayingView
+		self.playlistManager = playlistManager
 		setupRemoteTransportControls()
 		setupInterreuptionsNotifications()
 		setupRouteChangeNotifications()
@@ -62,8 +64,8 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			audioPlayer.delegate = self
 			audioPlayer.enableRate = true
 			audioPlayer.prepareToPlay()
-			nowPlayingView.refreshPausePlayButton()
 			setupNowPlaying()
+			delegate?.audioPlayerPayingStatusChanged(playingStatus: false)
 			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
 			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 			return true
@@ -80,34 +82,49 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
 		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
 	}
+	
+	func suspend() {
+		pause()
+		isSuspended = true
+	}
+
+	func unsuspend() {
+		isSuspended = false
+	}
 
 	func play() {
-		audioPlayer.play()
-		updateNowPlaying(isPause: false)
-		nowPlayingView.refreshPausePlayButton()
+		if !isSuspended {
+			audioPlayer.play()
+			updateNowPlaying(isPause: false)
+			delegate?.audioPlayerPayingStatusChanged(playingStatus: true)
+		}
 	}
 
 	func pause() {
-		audioPlayer.pause()
-		updateNowPlaying(isPause: true)
-		nowPlayingView.refreshPausePlayButton()
+		if !isSuspended {
+			audioPlayer.pause()
+			updateNowPlaying(isPause: true)
+			delegate?.audioPlayerPayingStatusChanged(playingStatus: false)
+		}
 	}
 	
 	func next() {
-		let currentController = nowPlayingView.getCurrentViewController() as? ViewController
-		currentController?.nowPlayingLibraryView.movePlaylistForward()
-		currentSongIndex = currentSongIndex % songsPlaylist.count
-		if setupPlayer(withSongAtindex: currentSongIndex) {
-			play()
+		if !isSuspended {
+			playlistManager.movePlaylistForward()
+			currentSongIndex = currentSongIndex % songsPlaylist.count
+			if setupPlayer(withSongAtindex: currentSongIndex) {
+				play()
+			}
 		}
 	}
 	
 	func prev() {
-		let currentController = nowPlayingView.getCurrentViewController() as? ViewController
-		currentController?.nowPlayingLibraryView.movePlaylistBackward()
-		currentSongIndex = currentSongIndex % songsPlaylist.count
-		if setupPlayer(withSongAtindex: currentSongIndex) {
-			play()
+		if !isSuspended {
+			playlistManager.movePlaylistBackward()
+			currentSongIndex = currentSongIndex % songsPlaylist.count
+			if setupPlayer(withSongAtindex: currentSongIndex) {
+				play()
+			}
 		}
 	}
 
@@ -203,7 +220,6 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
 		print("Audio player did finish playing: \(flag)")
 		if (flag) {
-			updateNowPlaying(isPause: true)
 			next()
 		}
 	}

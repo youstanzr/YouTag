@@ -23,6 +23,10 @@ class LibraryManager {
 		libraryArray = NSMutableArray(array: UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray())
 	}
 
+	static func getLibraryArray() -> NSMutableArray {
+		return NSMutableArray(array: UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray())
+	}
+	
     func addSongToLibrary(songTitle: String, videoUrl: URL, thumbnailUrl: URL, duration: String, songID: String) -> Bool {
         if self.checkSongExistInLibrary(songID: songID) {
             return false

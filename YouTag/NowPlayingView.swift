@@ -8,8 +8,8 @@
 import UIKit
 
 class NowPlayingView: UIView, YTAudioPlayerDelegate {
+
 	var audioPlayer: YTAudioPlayer!
-	var songDict = Dictionary<String, Any>()
 	let thumbnailImageView = UIImageView()
 	let titleLabel: UILabel = {
 		let lbl = UILabel()
@@ -68,11 +68,11 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
         super.init(coder: aDecoder)
     }
 
-    override init(frame: CGRect) {
+	init(frame: CGRect, audioPlayer: YTAudioPlayer) {
 		super.init(frame: frame)
-		audioPlayer = YTAudioPlayer(nowPlayingView: self)
-		audioPlayer.delegate = self
-		
+		self.audioPlayer = audioPlayer
+		self.audioPlayer.delegate = self
+
 		controlView.addBorder(side: .top, color: .lightGray, width: 1.0)
 		self.addSubview(controlView)
 		controlView.translatesAutoresizingMaskIntoConstraints = false
@@ -166,36 +166,6 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		artistLabel.heightAnchor.constraint(equalTo: titleLabel.heightAnchor).isActive = true
 	}
 	
-	func updateSongDict(to newSongDict: Dictionary<String, Any>) {
-		self.songDict = newSongDict
-		self.refreshView()
-	}
-	
-	func refreshView() {
-		let songID = songDict["songID"] as? String ?? ""
-		self.titleLabel.text = songDict["songTitle"] as? String
-		self.artistLabel.text = songDict["artistName"] as? String
-		self.artistLabel.text = songDict["duration"] as? String
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
-		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
-		
-		let currentController = self.getCurrentViewController() as? ViewController
-		if let c = currentController?.nowPlayingLibraryView.playlistArray {
-			_ = audioPlayer.setupPlayer(withPlaylist: c)
-		} else {
-			_ = audioPlayer.setupPlayer(withSong: songDict)
-		}
-		self.refreshPausePlayButton()
-	}
-	
-	func refreshPausePlayButton() {
-		if self.audioPlayer.isPlaying() {
-			self.pausePlayButton.setImage(UIImage(named: "Pause_Image"), for: UIControl.State.normal)
-		} else {
-			self.pausePlayButton.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
-		}
-	}
-
     @objc func pausePlayButtonAction(sender: UIButton?) {
 		if self.audioPlayer.isPlaying() {
 			print("Paused")
@@ -243,8 +213,9 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 					isProgressBarSliding = false
 				case .moved:
 				// handle drag moved
-					let selectedTime = slider.value * Float((songDict["duration"] as? String ?? "").convertToTimeInterval())
-					let timeLeft = Float((songDict["duration"] as? String ?? "").convertToTimeInterval()) - selectedTime
+					let songDuration = Float(currentTimeLabel.text?.convertToTimeInterval() ?? 0) + Float(timeLeftLabel.text?.convertToTimeInterval() ?? 0)
+					let selectedTime = slider.value * songDuration
+					let timeLeft = songDuration - selectedTime
 					currentTimeLabel.text = TimeInterval(exactly: selectedTime)?.stringFromTimeInterval()
 					timeLeftLabel.text = TimeInterval(exactly: timeLeft)?.stringFromTimeInterval()
 				break
@@ -266,6 +237,14 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		}
 	}
 	
+	func audioPlayerPayingStatusChanged(playingStatus: Bool) {
+		if playingStatus {
+			self.pausePlayButton.setImage(UIImage(named: "Pause_Image"), for: UIControl.State.normal)
+		} else {
+			self.pausePlayButton.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
+		}
+	}
+
 	fileprivate func makeCircleImage(radius: CGFloat, backgroundColor: UIColor) -> UIImage? {
 		let size = CGSize(width: radius, height: radius)
 		UIGraphicsBeginImageContextWithOptions(size, false, 0.0)

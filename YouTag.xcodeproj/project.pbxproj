@@ -14,7 +14,7 @@
 		2B61796424088E1C009149CB /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796324088E1C009149CB /* LibraryManager.swift */; };
 		2B6179662408985C009149CB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6179652408985C009149CB /* Extensions.swift */; };
 		2B61796824097147009149CB /* SongDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796724097147009149CB /* SongDetailViewController.swift */; };
-		2B61796C2409F837009149CB /* NowPlayingLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796B2409F837009149CB /* NowPlayingLibraryView.swift */; };
+		2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796B2409F837009149CB /* PlaylistLibraryView.swift */; };
 		2B7863832301AE56001DD6FD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863822301AE56001DD6FD /* AppDelegate.swift */; };
 		2B7863852301AE56001DD6FD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863842301AE56001DD6FD /* ViewController.swift */; };
 		2B7863882301AE56001DD6FD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B7863862301AE56001DD6FD /* Main.storyboard */; };
@@ -58,7 +58,7 @@
 		2B61796324088E1C009149CB /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		2B6179652408985C009149CB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		2B61796724097147009149CB /* SongDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetailViewController.swift; sourceTree = "<group>"; };
-		2B61796B2409F837009149CB /* NowPlayingLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingLibraryView.swift; sourceTree = "<group>"; };
+		2B61796B2409F837009149CB /* PlaylistLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistLibraryView.swift; sourceTree = "<group>"; };
 		2B78637F2301AE56001DD6FD /* YouTag.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YouTag.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B7863822301AE56001DD6FD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2B7863842301AE56001DD6FD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -140,7 +140,7 @@
 				2B157C2C24208369001DB815 /* DownloadWebViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
-				2B61796B2409F837009149CB /* NowPlayingLibraryView.swift */,
+				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
 				2B61795D24072CCB009149CB /* LibraryTableView.swift */,
 				2B61796124087FBF009149CB /* LibraryCell.swift */,
 				2B810F42241DB156002FA583 /* TagPickerView.swift */,
@@ -322,7 +322,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B6179662408985C009149CB /* Extensions.swift in Sources */,
-				2B61796C2409F837009149CB /* NowPlayingLibraryView.swift in Sources */,
+				2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */,
 				2BA6246C240C3F1C002D6670 /* YTAudioPlayer.swift in Sources */,
 				2B810EF8241ABB0A002FA583 /* YTTagView.swift in Sources */,
 				2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */,

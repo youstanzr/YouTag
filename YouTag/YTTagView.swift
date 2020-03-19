@@ -88,7 +88,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 				let actionSheet = UIAlertController(title: "Are you sure to delete '\(tagTitle)'?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
 				actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
 				actionSheet.addAction(UIAlertAction(title: "Delete", style: .default, handler:{ (UIAlertAction) in
-					print("User requested delete for \(tagTitle)")
+					print("User requested delete for tag: \(tagTitle)")
 					self.removeTag(at: index.row)
 				}))
 				let currentController = self.getCurrentViewController()

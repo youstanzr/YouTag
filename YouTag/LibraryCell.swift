@@ -9,7 +9,7 @@
 import UIKit
 
 class LibraryCell : UITableViewCell {
-    var songID = String()
+    var songDict = Dictionary<String, Any>()
     let thumbnailImageView = UIImageView()
 	let titleLabel: UILabel = {
 		let lbl = UILabel()
@@ -68,4 +68,12 @@ class LibraryCell : UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+	
+	func refreshCell() {
+		self.titleLabel.text = songDict["songTitle"] as? String
+		self.artistLabel.text = songDict["artistName"] as? String
+		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["songID"] as? String ?? "").jpg"))
+		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		self.durationLabel.text = songDict["duration"] as? String
+	}
 }

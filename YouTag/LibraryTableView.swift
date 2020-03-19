@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
     var LM: LibraryManager!
 
@@ -38,12 +39,8 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
         cell.backgroundColor = UIColor.clear
         
 		let songDict = LM.libraryArray.object(at: indexPath.row) as! Dictionary<String, Any>
-		cell.songID = songDict["songID"] as! String
-		cell.titleLabel.text = songDict["songTitle"] as? String
-		cell.artistLabel.text = songDict["artistName"] as? String
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(cell.songID).jpg"))
-		cell.thumbnailImageView.image = UIImage(data: imageData ?? Data())
-		cell.durationLabel.text = songDict["duration"] as? String
+		cell.songDict = songDict
+		cell.refreshCell()
         return cell
     }
     
@@ -62,8 +59,8 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
 		let songDetail_vc: SongDetailViewController = storyboard.instantiateViewController(withIdentifier: "SongDetailViewController") as! SongDetailViewController
         songDetail_vc.modalPresentationStyle = .fullScreen
         songDetail_vc.modalTransitionStyle = .coverVertical
-		#warning("Can change the cell to have the song dict so we remove the getSong by id func call")
-        songDetail_vc.songDict = LM.getSong(forID: cell.songID)
+
+		songDetail_vc.songDict = cell.songDict
 
         let currentController = self.getCurrentViewController()
         currentController?.present(songDetail_vc, animated: true, completion: nil)
@@ -72,7 +69,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == .delete) {
             let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
-            LM.deleteSongFromLibrary(songID: cell.songID)
+			LM.deleteSongFromLibrary(songID: cell.songDict["songID"] as? String ?? "")
             LM.refreshLibraryArray()
             tableView.reloadData()
         }
