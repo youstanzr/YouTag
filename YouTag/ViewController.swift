@@ -33,7 +33,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200318"
+		lbl.text = "v20200319"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
@@ -95,7 +95,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		nowPlayingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		nowPlayingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 		nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-		nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.225).isActive = true
+		nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.3).isActive = true
 		
 		nowPlayingLibraryView = NowPlayingLibraryView(frame: .zero)
         self.view.addSubview(nowPlayingLibraryView)
@@ -119,12 +119,6 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
     
     override func viewWillAppear(_ animated: Bool) {
 		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
-		if self.nowPlayingLibraryView.playlistArray.count > 0 {
-			let sd = self.nowPlayingLibraryView.playlistArray.object(at: 0) as! Dictionary<String, Any>
-			nowPlayingView.updateSongDict(to: sd)
-		} else {
-			nowPlayingView.updateSongDict(to: Dictionary<String, Any>())
-		}
     }
 	
     @objc func menuButtonAction(sender: UIButton!) {
@@ -141,6 +135,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagPickerView.show(withAnimation: true)
     }
 	
+	//For the tag list the are added
 	func processAddedTags(addedTagsList: NSMutableArray) {
 		//Remove the tags already present in the tagsView
 		var i = 0
@@ -156,6 +151,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
 	}
 	
+	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
 		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
 	}

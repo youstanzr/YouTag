@@ -10,19 +10,30 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
+protocol YTAudioPlayerDelegate: class {
+	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float)
+}
+
 class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
+	weak var delegate: YTAudioPlayerDelegate?
+
 	private var nowPlayingView: NowPlayingView!
 	private var audioPlayer: AVAudioPlayer!
 	private var songsPlaylist: NSMutableArray!
 	private var songDict: Dictionary<String, Any>!
 	private var currentSongIndex: Int!
-
+	private var updater = CADisplayLink()
+	
 	init(nowPlayingView: NowPlayingView) {
 		super.init()
 		self.nowPlayingView = nowPlayingView
 		setupRemoteTransportControls()
 		setupInterreuptionsNotifications()
 		setupRouteChangeNotifications()
+	}
+	
+	@objc func updateDelegate() {
+		delegate?.audioPlayerPeriodicUpdate(currentTime: Float(audioPlayer?.currentTime ?? 0) , duration: Float(audioPlayer?.duration ?? 0))
 	}
 	
 	// MARK: Basics
@@ -44,11 +55,17 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		let songID = songDict["songID"] as? String ?? ""
 		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).m4a")
 		do {
+			if audioPlayer != nil {
+				updater.invalidate()
+			}
 			audioPlayer = try AVAudioPlayer(contentsOf: url)
 			audioPlayer.delegate = self
+			audioPlayer.enableRate = true
 			audioPlayer.prepareToPlay()
 			nowPlayingView.refreshPausePlayButton()
 			setupNowPlaying()
+			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
+			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 			return true
 		} catch {
 			print("Error: \(error.localizedDescription)")
@@ -56,6 +73,14 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		}
 	}
 	
+	func setPlayerRate(to rate: Float) {
+		self.audioPlayer.rate = rate
+	}
+		
+	func setPlayerCurrentTime(withPercentage percenatge: Float) {
+		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
+	}
+
 	func play() {
 		audioPlayer.play()
 		updateNowPlaying(isPause: false)
@@ -201,7 +226,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
 				return
 		}
-		#warning("This interupption end handling is not working when phone call hang off")
+		#warning("This interruption end handling is not working when phone call hang off")
 		if type == .began {
 			print("Interruption began")
 			// Interruption began, take appropriate actions

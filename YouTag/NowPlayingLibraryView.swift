@@ -38,10 +38,12 @@ class NowPlayingLibraryView: LibraryTableView {
 				playlistArray.add(songDict)
 			}
 		}
+		let currentController = self.getCurrentViewController() as? ViewController
 		if playlistArray.count > 0 {
 			songDict = playlistArray.object(at: 0) as! Dictionary<String, AnyObject>
-			let currentController = self.getCurrentViewController() as? ViewController
 			currentController?.nowPlayingView.updateSongDict(to: songDict)
+		} else {
+			currentController?.nowPlayingView.updateSongDict(to: Dictionary<String, Any>())
 		}
 		self.reloadData()
 	}
@@ -85,6 +87,7 @@ class NowPlayingLibraryView: LibraryTableView {
 	
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
+		#warning("Can change the cell to have the song dict so we remove the getSong by id func call")
 		let songDict = LM.getSong(forID: cell.songID)
 		print("Selected cell number \(indexPath.row) -> \(songDict["songTitle"] ?? "")")
 

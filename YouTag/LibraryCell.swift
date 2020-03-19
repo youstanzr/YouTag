@@ -41,7 +41,7 @@ class LibraryCell : UITableViewCell {
 		thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true
 		thumbnailImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
 		thumbnailImageView.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -15).isActive = true
-		thumbnailImageView.widthAnchor.constraint(equalTo: self.heightAnchor, multiplier: 1.25).isActive = true
+		thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
 		
         self.contentView.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
