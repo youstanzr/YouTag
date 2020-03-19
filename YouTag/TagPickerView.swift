@@ -129,13 +129,4 @@ class TagPickerView: UIView {
 		self.tagView.deselectAllItems()
 		self.isHidden = true
 	}
-	
-//	override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-//		if isHidden || alpha == 0 || clipsToBounds { return super.hitTest(point, with: event) }
-//		// convert the point into subview's coordinate system
-//		let subviewPoint = self.convert(point, to: self.closeButton)
-//		// if the converted point lies in subview's bound, tell UIKit that subview should be the one that receives this event
-//		if !self.closeButton.isHidden && self.closeButton.bounds.contains(subviewPoint) { return self.closeButton }
-//		return super.hitTest(point, with: event)
-//	}
 }

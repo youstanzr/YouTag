@@ -10,8 +10,7 @@ import UIKit
 
 class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate{
 	var tagsView: YTTagView!
-	var nowPlayingView: NowPlayingView!
-    var nowPlayingLibraryView: NowPlayingLibraryView!
+	var playlistManager = PlaylistManager()
 	var tagPickerView: TagPickerView!
 	var menuButton: UIButton = {
 		let btn = UIButton()
@@ -33,7 +32,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200318"
+		lbl.text = "v20200319"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
@@ -87,23 +86,21 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
 		tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 		
-		nowPlayingView = NowPlayingView(frame: .zero)
-		nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
-		nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
-        self.view.addSubview(nowPlayingView)
-		nowPlayingView.translatesAutoresizingMaskIntoConstraints = false
-		nowPlayingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-		nowPlayingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-		nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-		nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.225).isActive = true
+		playlistManager.nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
+		playlistManager.nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
+        self.view.addSubview(playlistManager.nowPlayingView)
+		playlistManager.nowPlayingView.translatesAutoresizingMaskIntoConstraints = false
+		playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+		playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+		playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
+		playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.3).isActive = true
 		
-		nowPlayingLibraryView = NowPlayingLibraryView(frame: .zero)
-        self.view.addSubview(nowPlayingLibraryView)
-		nowPlayingLibraryView.translatesAutoresizingMaskIntoConstraints = false
-		nowPlayingLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5).isActive = true
-		nowPlayingLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5).isActive = true
-		nowPlayingLibraryView.topAnchor.constraint(equalTo: nowPlayingView.bottomAnchor, constant: 10).isActive = true
-		nowPlayingLibraryView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30).isActive = true
+        self.view.addSubview(playlistManager.playlistLibraryView)
+		playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
+		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5).isActive = true
+		playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5).isActive = true
+		playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 10).isActive = true
+		playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30).isActive = true
 
 		self.view.addSubview(versionLabel)
 		versionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -117,15 +114,9 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		self.view.addSubview(tagPickerView)
 	}
     
-    override func viewWillAppear(_ animated: Bool) {
-		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
-		if self.nowPlayingLibraryView.playlistArray.count > 0 {
-			let sd = self.nowPlayingLibraryView.playlistArray.object(at: 0) as! Dictionary<String, Any>
-			nowPlayingView.updateSongDict(to: sd)
-		} else {
-			nowPlayingView.updateSongDict(to: Dictionary<String, Any>())
-		}
-    }
+//    override func viewWillAppear(_ animated: Bool) {
+//		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+//    }
 	
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")
@@ -141,6 +132,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagPickerView.show(withAnimation: true)
     }
 	
+	//For the tag list the are added
 	func processAddedTags(addedTagsList: NSMutableArray) {
 		//Remove the tags already present in the tagsView
 		var i = 0
@@ -153,10 +145,11 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		}
 		//Add the newly added tags
 		self.tagsView.addTags(tagList: addedTagsList)
-		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
+		playlistManager.updateTagsList(to: self.tagsView.tagsList)
 	}
 	
+	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
-		self.nowPlayingLibraryView.updateTagsList(to: self.tagsView.tagsList)
+		playlistManager.updateTagsList(to: self.tagsView.tagsList)
 	}
 }
