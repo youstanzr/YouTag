@@ -37,6 +37,8 @@ class MenuViewController: UIViewController, DownloadWebViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		
 		libraryTableView.backgroundColor = .clear
 		self.view.addSubview(libraryTableView)
 		libraryTableView.translatesAutoresizingMaskIntoConstraints = false

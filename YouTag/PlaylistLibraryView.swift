@@ -14,6 +14,7 @@ protocol PlaylistLibraryViewDelegate: class {
 
 class PlaylistLibraryView: LibraryTableView {
 	weak var PLDelegate: PlaylistLibraryViewDelegate?
+	
 	var playlistArray = NSMutableArray()
 	
     required init?(coder aDecoder: NSCoder) {
@@ -35,7 +36,7 @@ class PlaylistLibraryView: LibraryTableView {
     
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
-		cell.backgroundColor = UIColor.clear
+
 		let songDict = playlistArray.object(at: (indexPath.row+1) % playlistArray.count) as! Dictionary<String, Any>
 		cell.songDict = songDict
 		cell.refreshCell()

@@ -523,6 +523,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -545,6 +546,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;

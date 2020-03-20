@@ -12,7 +12,7 @@ import MediaPlayer
 
 protocol YTAudioPlayerDelegate: class {
 	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float)
-	func audioPlayerPayingStatusChanged(playingStatus: Bool)
+	func audioPlayerPlayingStatusChanged(isPlaying: Bool)
 }
 
 class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
@@ -65,7 +65,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			audioPlayer.enableRate = true
 			audioPlayer.prepareToPlay()
 			setupNowPlaying()
-			delegate?.audioPlayerPayingStatusChanged(playingStatus: false)
+			delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
 			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
 			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 			return true
@@ -96,15 +96,15 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		if !isSuspended {
 			audioPlayer.play()
 			updateNowPlaying(isPause: false)
-			delegate?.audioPlayerPayingStatusChanged(playingStatus: true)
+			delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
 		}
 	}
 
 	func pause() {
-		if !isSuspended {
+		if !isSuspended && isPlaying() {
 			audioPlayer.pause()
 			updateNowPlaying(isPause: true)
-			delegate?.audioPlayerPayingStatusChanged(playingStatus: false)
+			delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
 		}
 	}
 	

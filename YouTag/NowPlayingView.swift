@@ -239,8 +239,8 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		}
 	}
 	
-	func audioPlayerPayingStatusChanged(playingStatus: Bool) {
-		if playingStatus {
+	func audioPlayerPlayingStatusChanged(isPlaying: Bool) {
+		if isPlaying {
 			self.pausePlayButton.setImage(UIImage(named: "Pause_Image"), for: UIControl.State.normal)
 		} else {
 			self.pausePlayButton.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)

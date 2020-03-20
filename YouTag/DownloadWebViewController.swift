@@ -21,6 +21,8 @@ class DownloadWebViewController: UIViewController {
 		
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+
 		webToolbar.barStyle = .default
 		webToolbar.isTranslucent = true
 		webToolbar.tintColor = .black
