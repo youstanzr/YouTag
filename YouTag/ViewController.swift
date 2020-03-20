@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate{
+class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate {
 	var tagsView: YTTagView!
 	var playlistManager = PlaylistManager()
 	var tagPickerView: TagPickerView!
@@ -43,10 +43,11 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		imgView.contentMode = .scaleAspectFit
 		return imgView
 	}()
-	
-    override func viewDidLoad() {
+
+	override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		
 		self.view.addSubview(logoImageView)
 		logoImageView.translatesAutoresizingMaskIntoConstraints = false
 		logoImageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
@@ -86,6 +87,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
 		tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 		
+		playlistManager.nowPlayingView.backgroundColor = .clear
 		playlistManager.nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
 		playlistManager.nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
         self.view.addSubview(playlistManager.nowPlayingView)
@@ -95,6 +97,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
 		playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.3).isActive = true
 		
+		playlistManager.playlistLibraryView.backgroundColor = .clear
         self.view.addSubview(playlistManager.playlistLibraryView)
 		playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
 		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5).isActive = true
@@ -113,11 +116,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagPickerView.delegate = self
 		self.view.addSubview(tagPickerView)
 	}
-    
-//    override func viewWillAppear(_ animated: Bool) {
-//		playlistManager.updateTagsList(to: self.tagsView.tagsList)
-//    }
-	
+    	
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")
         let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)

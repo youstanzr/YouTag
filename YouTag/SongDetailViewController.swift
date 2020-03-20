@@ -54,14 +54,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UIGesture
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let screenSize = UIScreen.main.bounds
+		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+
 		let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.view.addGestureRecognizer(tap)
 		
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["songID"] as! String).jpg"))
 		thumbnailImageView.image = UIImage(data: imageData ?? Data())
-        thumbnailImageView.frame = CGRect(x: 50, y: 75, width: screenSize.width-100, height: screenSize.width-150)
         self.view.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 70).isActive = true
@@ -87,7 +87,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UIGesture
 		artistTextField.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		artistTextField.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
-		dismissButton.frame = CGRect(x: screenSize.width*0.01, y: screenSize.height*0.9, width: screenSize.width*0.47, height: screenSize.height*0.045)
         dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         self.view.addSubview(dismissButton)
 		dismissButton.translatesAutoresizingMaskIntoConstraints = false

@@ -19,8 +19,8 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
 		super.init(frame: frame, style: style)
         LM = LibraryManager.init()
         self.layer.cornerRadius = 2.5
-        self.backgroundColor = UIColor.clear
-        self.register(LibraryCell.self, forCellReuseIdentifier: "LibraryCell")
+
+		self.register(LibraryCell.self, forCellReuseIdentifier: "LibraryCell")
         self.delegate = self
         self.dataSource = self
     }
@@ -36,7 +36,6 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
-        cell.backgroundColor = UIColor.clear
         
 		let songDict = LM.libraryArray.object(at: indexPath.row) as! Dictionary<String, Any>
 		cell.songDict = songDict

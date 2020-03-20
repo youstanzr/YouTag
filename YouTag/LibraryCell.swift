@@ -32,6 +32,7 @@ class LibraryCell : UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+		self.backgroundColor = .clear
 		thumbnailImageView.layer.cornerRadius = 5.0
 		thumbnailImageView.layer.borderWidth = 1.0
 		thumbnailImageView.layer.borderColor = UIColor.lightGray.cgColor

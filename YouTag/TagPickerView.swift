@@ -25,7 +25,7 @@ class TagPickerView: UIView {
 		let s = UISegmentedControl(items: ["Tags","Artist","Length"])
 		s.selectedSegmentIndex = 0
 		s.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.init(name: "DINCondensed-Bold", size: 20)!], for: .normal)
-		s.backgroundColor = .white
+		s.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
 		if #available(iOS 13.0, *) {
 			s.selectedSegmentTintColor = UIColor.orange.withAlphaComponent(0.8)
 			s.layer.maskedCorners = .init()
@@ -36,7 +36,7 @@ class TagPickerView: UIView {
 	}()
 	let pickerView: UIView = {
 		let v = UIView()
-		v.backgroundColor = .white
+		v.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
 		return v
 	}()
 	let closeButton = UIButton()
