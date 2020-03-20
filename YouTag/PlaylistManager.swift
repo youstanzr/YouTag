@@ -62,7 +62,6 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		let songID = songDict["songID"] as? String ?? ""
 		nowPlayingView.titleLabel.text = songDict["songTitle"] as? String
 		nowPlayingView.artistLabel.text = songDict["artistName"] as? String
-		nowPlayingView.artistLabel.text = songDict["duration"] as? String
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		

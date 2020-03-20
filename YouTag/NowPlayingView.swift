@@ -208,14 +208,14 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 					isProgressBarSliding = true
 				break
 				case .ended:
-					// handle drag ended
+				// handle drag ended
 					audioPlayer.setPlayerCurrentTime(withPercentage: slider.value)
 					isProgressBarSliding = false
 				case .moved:
 				// handle drag moved
-					let songDuration = Float(currentTimeLabel.text?.convertToTimeInterval() ?? 0) + Float(timeLeftLabel.text?.convertToTimeInterval() ?? 0)
-					let selectedTime = slider.value * songDuration
-					let timeLeft = songDuration - selectedTime
+					let songDuration = Float((currentTimeLabel.text?.convertToTimeInterval())! + (timeLeftLabel.text?.convertToTimeInterval())!)
+					let selectedTime = (songDuration * slider.value).rounded(.toNearestOrAwayFromZero)
+					let timeLeft = (songDuration * (1 - slider.value)).rounded(.toNearestOrAwayFromZero)
 					currentTimeLabel.text = TimeInterval(exactly: selectedTime)?.stringFromTimeInterval()
 					timeLeftLabel.text = TimeInterval(exactly: timeLeft)?.stringFromTimeInterval()
 				break
@@ -226,13 +226,15 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	}
 	
 	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float) {
-		currentTimeLabel.text = TimeInterval(exactly: currentTime)?.stringFromTimeInterval()
-		timeLeftLabel.text = TimeInterval(exactly: duration-currentTime)?.stringFromTimeInterval()
 		if !isProgressBarSliding {
 			if duration == 0 {
+				currentTimeLabel.text = "00:00"
+				timeLeftLabel.text = "00:00"
 				progressBar.value = 0.0
 				return
 			}
+			currentTimeLabel.text = TimeInterval(exactly: currentTime)?.stringFromTimeInterval()
+			timeLeftLabel.text = TimeInterval(exactly: duration-currentTime)?.stringFromTimeInterval()
 			self.progressBar.value = currentTime/duration
 		}
 	}
