@@ -128,10 +128,10 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")
         let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        let menu_vc: MenuViewController = storyboard.instantiateViewController(withIdentifier: "MenuViewController") as! MenuViewController
-        menu_vc.modalPresentationStyle = .fullScreen
-        menu_vc.modalTransitionStyle = .coverVertical
-        self.present(menu_vc, animated: true, completion: nil)
+        let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
+        LVC.modalPresentationStyle = .fullScreen
+        LVC.modalTransitionStyle = .coverVertical
+        self.present(LVC, animated: true, completion: nil)
     }
 
     @objc func filterButtonAction(sender: UIButton!) {

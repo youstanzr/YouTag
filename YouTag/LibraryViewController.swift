@@ -1,5 +1,5 @@
 //
-//  MenuViewController.swift
+//  LibraryViewController.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 8/13/19.
@@ -9,7 +9,7 @@
 import UIKit
 import XCDYouTubeKit
 
-class MenuViewController: UIViewController, DownloadWebViewDelegate {
+class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	let addButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)

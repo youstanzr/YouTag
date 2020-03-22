@@ -23,10 +23,10 @@
             </objects>
             <point key="canvasLocation" x="279.71014492753625" y="111.83035714285714"/>
         </scene>
-        <!--Menu View Controller-->
+        <!--Library View Controller-->
         <scene sceneID="A7g-sh-mWU">
             <objects>
-                <viewController storyboardIdentifier="MenuViewController" id="twG-1K-nGF" customClass="MenuViewController" customModule="YouTag" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LibraryViewController" id="twG-1K-nGF" customClass="LibraryViewController" customModule="YouTag" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="3Bo-BL-dgF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
