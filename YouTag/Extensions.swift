@@ -35,6 +35,30 @@ extension UIViewController {
             spinner_view = nil
         }
     }
+	
+	func getSelectedTextField() -> UITextField? {
+		let totalTextFields = getTextFieldsInView(view: self.view)
+		
+		for textField in totalTextFields {
+			if textField.isFirstResponder {
+				return textField
+			}
+		}
+		return nil
+	}
+	
+	func getTextFieldsInView(view: UIView) -> [UITextField] {
+		var totalTextFields = [UITextField]()
+		
+		for subview in view.subviews as [UIView] {
+			if let textField = subview as? UITextField {
+				totalTextFields += [textField]
+			} else {
+				totalTextFields += getTextFieldsInView(view: subview)
+			}
+		}
+		return totalTextFields
+	}
 }
 
 // MARK: UIView

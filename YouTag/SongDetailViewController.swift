@@ -27,7 +27,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.enablesReturnKeyAutomatically = true
 		txtField.autocorrectionType = .no
 		txtField.placeholder = "Title"
 		txtField.addPadding(padding: .equalSpacing(5))
@@ -42,7 +41,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.enablesReturnKeyAutomatically = true
 		txtField.autocorrectionType = .no
 		txtField.placeholder = "Album"
 		txtField.addPadding(padding: .equalSpacing(5))
@@ -56,7 +54,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.enablesReturnKeyAutomatically = true
 		txtField.autocorrectionType = .no
 		txtField.placeholder = "Release Year"
 		txtField.addPadding(padding: .equalSpacing(5))
@@ -71,7 +68,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtView = UITextView()
 		txtView.textAlignment = .left
 		txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtView.enablesReturnKeyAutomatically = true
 		txtView.autocorrectionType = .no
 		txtView.text = "Lyrics"
 		txtView.textColor = UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0)
@@ -84,6 +80,9 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     override func viewDidLoad() {
         super.viewDidLoad()
 		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+
+		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
 
 		let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
@@ -165,7 +164,12 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
     }
-
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+		NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+	}
+	
 	@objc func dismiss(sender: UIButton) {
 		if releaseYrTextField.text!.isNumeric || releaseYrTextField.text == "" {
 			self.updateSong()
@@ -201,5 +205,38 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 			textView.text = "Lyrics"
 			textView.textColor = UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0)
 		}
+	}
+		
+	@objc func keyboardWillShow(notification: NSNotification) {
+		guard let userInfo = notification.userInfo else {return}
+		guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
+		let keyboardFrame = keyboardSize.cgRectValue
+		if self.view.frame.origin.y == 0 {
+			self.view.frame.origin.y -= getMoveableDistance(keyboarHeight: keyboardFrame.height)
+		}
+	}
+	
+	@objc func keyboardWillHide(notification: NSNotification) {
+		if self.view.frame.origin.y != 0 {
+			self.view.frame.origin.y = 0
+		}
+	}
+
+	func getMoveableDistance(keyboarHeight: CGFloat) ->  CGFloat{
+		var y:CGFloat = 0.0
+		if let activeTF = getSelectedTextField() {
+			var tfMaxY = activeTF.frame.maxY
+			var containerView = activeTF.superview!
+			while containerView.frame.maxY != self.view.frame.maxY {
+				let contViewFrm = containerView.convert(activeTF.frame, to: containerView.superview)
+				tfMaxY = tfMaxY + contViewFrm.minY
+				containerView = containerView.superview!
+			}
+			let keyboardMinY = self.view.frame.height - keyboarHeight
+			if tfMaxY > keyboardMinY {
+				y = (tfMaxY - keyboardMinY) + 10.0
+			}
+		}
+		return y
 	}
 }
