@@ -59,6 +59,31 @@ extension UIViewController {
 		}
 		return totalTextFields
 	}
+	
+	func getSelectedTextView() -> UITextView? {
+		let totalTextViews = getTextViewsInView(view: self.view)
+		
+		for textView in totalTextViews {
+			if textView.isFirstResponder {
+				return textView
+			}
+		}
+		return nil
+	}
+	
+	func getTextViewsInView(view: UIView) -> [UITextView] {
+		var totalTextViews = [UITextView]()
+		
+		for subview in view.subviews as [UIView] {
+			if let textView = subview as? UITextView {
+				totalTextViews += [textView]
+			} else {
+				totalTextViews += getTextViewsInView(view: subview)
+			}
+		}
+		return totalTextViews
+	}
+
 }
 
 // MARK: UIView

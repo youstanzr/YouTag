@@ -233,8 +233,20 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 				containerView = containerView.superview!
 			}
 			let keyboardMinY = self.view.frame.height - keyboarHeight
-			if tfMaxY > keyboardMinY {
+			if tfMaxY + 10.0 > keyboardMinY {
 				y = (tfMaxY - keyboardMinY) + 10.0
+			}
+		} else if let activeTV = getSelectedTextView() {
+			var tvMaxY = activeTV.frame.maxY
+			var containerView = activeTV.superview!
+			while containerView.frame.maxY != self.view.frame.maxY {
+				let contViewFrm = containerView.convert(activeTV.frame, to: containerView.superview)
+				tvMaxY = tvMaxY + contViewFrm.minY
+				containerView = containerView.superview!
+			}
+			let keyboardMinY = self.view.frame.height - keyboarHeight
+			if tvMaxY + 10.0 > keyboardMinY {
+				y = (tvMaxY - keyboardMinY) + 10.0
 			}
 		}
 		return y
