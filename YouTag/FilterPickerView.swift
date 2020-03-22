@@ -1,5 +1,5 @@
 //
-//  TagPickerView.swift
+//  FilterPickerView.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 3/15/20.
@@ -8,12 +8,12 @@
 
 import UIKit
 
-protocol TagPickerViewDelegate: class {
+protocol FilterPickerViewDelegate: class {
 	func processAddedTags(addedTagsList: NSMutableArray)
 }
 
-class TagPickerView: UIView {
-	weak var delegate: TagPickerViewDelegate?
+class FilterPickerView: UIView {
+	weak var delegate: FilterPickerViewDelegate?
 	
 	var tagView: YTTagView!
 	let contentView: UIView = {
@@ -22,7 +22,7 @@ class TagPickerView: UIView {
 		return v
 	}()
 	let segmentControl: UISegmentedControl = {
-		let s = UISegmentedControl(items: ["Tags","Artists","Length"])
+		let s = UISegmentedControl(items: ["Tags","Artists","Album","Released","Length"])
 		s.selectedSegmentIndex = 0
 		s.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.init(name: "DINCondensed-Bold", size: 20)!], for: .normal)
 		s.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)

@@ -27,8 +27,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.clearButtonMode = UITextField.ViewMode.whileEditing
 		txtField.enablesReturnKeyAutomatically = true
+		txtField.autocorrectionType = .no
 		txtField.placeholder = "Title"
 		txtField.addPadding(padding: .equalSpacing(5))
 		txtField.returnKeyType = .done
@@ -42,8 +42,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.clearButtonMode = UITextField.ViewMode.whileEditing
 		txtField.enablesReturnKeyAutomatically = true
+		txtField.autocorrectionType = .no
 		txtField.placeholder = "Album"
 		txtField.addPadding(padding: .equalSpacing(5))
 		txtField.returnKeyType = .done
@@ -56,8 +56,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let txtField = UITextField()
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-		txtField.clearButtonMode = UITextField.ViewMode.whileEditing
 		txtField.enablesReturnKeyAutomatically = true
+		txtField.autocorrectionType = .no
 		txtField.placeholder = "Release Year"
 		txtField.addPadding(padding: .equalSpacing(5))
 		txtField.keyboardType = .numberPad
@@ -72,6 +72,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		txtView.textAlignment = .left
 		txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtView.enablesReturnKeyAutomatically = true
+		txtView.autocorrectionType = .no
 		txtView.text = "Lyrics"
 		txtView.textColor = UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0)
 		txtView.layer.cornerRadius = 5
@@ -156,6 +157,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
 		tagsView = YTTagView(frame: .zero, tagsList: songTags, isAddable: true, isMultiSelection: false)
+		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
 		tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 15).isActive = true

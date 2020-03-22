@@ -8,10 +8,10 @@
 
 import UIKit
 
-class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate {
+class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDelegate {
 	var tagsView: YTTagView!
 	var playlistManager = PlaylistManager()
-	var tagPickerView: TagPickerView!
+	var filterPickerView: FilterPickerView!
 	var menuButton: UIButton = {
 		let btn = UIButton()
 		btn.imageView!.contentMode = .scaleAspectFit
@@ -112,9 +112,9 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		versionLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -1).isActive = true
 		versionLabel.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.075).isActive = true
 
-		tagPickerView = TagPickerView()
-		tagPickerView.delegate = self
-		self.view.addSubview(tagPickerView)
+		filterPickerView = FilterPickerView()
+		filterPickerView.delegate = self
+		self.view.addSubview(filterPickerView)
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -136,7 +136,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 
     @objc func filterButtonAction(sender: UIButton!) {
         print("Filter Button tapped")
-		tagPickerView.show(withAnimation: true)
+		filterPickerView.show(withAnimation: true)
     }
 	
 	//For the tag list the are added
