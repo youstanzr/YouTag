@@ -116,6 +116,14 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		tagPickerView.delegate = self
 		self.view.addSubview(tagPickerView)
 	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+	}
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		playlistManager.audioPlayer.pause()
+	}
     	
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")

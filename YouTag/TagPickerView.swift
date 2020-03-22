@@ -125,8 +125,10 @@ class TagPickerView: UIView {
 	
 	@objc func add() {
 		print("Add button pressed")
-		delegate?.processAddedTags(addedTagsList: self.tagView.selectedTagList)
-		self.tagView.deselectAllItems()
+		if self.tagView.selectedTagList.count > 0 {
+			delegate?.processAddedTags(addedTagsList: self.tagView.selectedTagList)
+			self.tagView.deselectAllItems()
+		}
 		self.isHidden = true
 	}
 }
