@@ -22,7 +22,7 @@ class TagPickerView: UIView {
 		return v
 	}()
 	let segmentControl: UISegmentedControl = {
-		let s = UISegmentedControl(items: ["Tags","Artist","Length"])
+		let s = UISegmentedControl(items: ["Tags","Artists","Length"])
 		s.selectedSegmentIndex = 0
 		s.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.init(name: "DINCondensed-Bold", size: 20)!], for: .normal)
 		s.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)

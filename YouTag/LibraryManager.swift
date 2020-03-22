@@ -31,7 +31,8 @@ class LibraryManager {
         if self.checkSongExistInLibrary(songID: songID) {
             return false
         } else {
-			let songDict = ["songTitle": songTitle, "artistName": "", "songID": songID, "duration": duration, "songTags": NSMutableArray()] as [String : Any]
+			let songDict = ["id": songID, "title": songTitle, "artists": NSMutableArray(), "album": "",
+							"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray()] as [String : Any]
 			libraryArray.add(songDict)
 			UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
 
@@ -48,7 +49,7 @@ class LibraryManager {
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			if songDict["songID"] as! String == songID {
+			if songDict["id"] as! String == songID {
 				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).m4a") &&
 					LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg"){
 					libraryArray.remove(songDict)
@@ -64,7 +65,7 @@ class LibraryManager {
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			if songDict["songID"] as! String == songID {
+			if songDict["id"] as! String == songID {
 				return true
 			}
 		}
@@ -76,7 +77,7 @@ class LibraryManager {
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			if songDict["songID"] as! String == songID {
+			if songDict["id"] as! String == songID {
 				return songDict
 			}
 		}
@@ -88,7 +89,7 @@ class LibraryManager {
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			if songDict["songID"] as! String == newSong["songID"] as! String {
+			if songDict["id"] as! String == newSong["id"] as! String {
 				libraryArray.replaceObject(at: i, with: newSong)
 				UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
 				break
@@ -103,7 +104,7 @@ class LibraryManager {
 		var songTags = NSMutableArray()
 		for i in 0 ..< songArr.count {
 			songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
-			songTags = NSMutableArray(array: songDict["songTags"] as? NSArray ?? NSArray())
+			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
 			for j in 0 ..< songTags.count {
 				if !tagsList.contains(songTags[j]) {
 					tagsList.add(songTags[j])

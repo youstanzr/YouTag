@@ -66,7 +66,6 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         self.LM.refreshLibraryArray()
-        self.libraryTableView.LM.refreshLibraryArray()
         self.libraryTableView.refreshTableView()
     }
 

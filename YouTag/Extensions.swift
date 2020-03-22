@@ -233,6 +233,10 @@ extension String {
 		
 		return interval
 	}
+	
+	var isNumeric : Bool {
+		return Double(self) != nil
+	}
 }
 
 // MARK: NSArray

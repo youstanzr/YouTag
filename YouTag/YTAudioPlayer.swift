@@ -54,7 +54,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool{
 		self.songDict = songDict
-		let songID = songDict["songID"] as? String ?? ""
+		let songID = songDict["id"] as? String ?? ""
 		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).m4a")
 		do {
 			if audioPlayer != nil {
@@ -187,9 +187,9 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func setupNowPlaying() {
 		// Define Now Playing Info
 		var nowPlayingInfo = [String : Any]()
-		nowPlayingInfo[MPMediaItemPropertyTitle] = songDict["songTitle"] as? String
+		nowPlayingInfo[MPMediaItemPropertyTitle] = songDict["title"] as? String
 
-		let songID = songDict["songID"] as? String ?? ""
+		let songID = songDict["id"] as? String ?? ""
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		if let image = UIImage(data: imageData ?? Data()) {
 			nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { size in

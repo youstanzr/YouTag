@@ -14,6 +14,7 @@ protocol YTTagViewDelegate: class {
 
 class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
 	weak var ytdelegate: YTTagViewDelegate?
+	var addTagPlaceHolder: String!
 	var isAddable: Bool!
 	var tagsList: NSMutableArray!
 	var selectedTagList: NSMutableArray!
@@ -67,11 +68,6 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		for indexPath in selectedItems { collectionView(self, didDeselectItemAt: indexPath) }
 	}
 
-	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-		return UIEdgeInsets (top: 5, left: 5, bottom: 5, right: 5)
-	}
-
-	
 	// MARK: Long Press Gesture Recognizer
 	@objc func handleLongPress(gestureReconizer: UILongPressGestureRecognizer) {
 		if gestureReconizer.state != .began {
@@ -97,7 +93,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		}
 	}
 
-	// MARK: Collection View Data Source
+	// MARK: Collection View
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return isAddable ? tagsList.count+1:tagsList.count
 	}
@@ -108,8 +104,9 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		if isAddable && indexPath.row == 0 {
 			tagCell.backgroundColor = UIColor(red:0.000, green:0.802, blue:0.041, alpha:1.00)
 			tagCell.layer.borderColor = UIColor(red:0.000, green:0.6, blue:0.041, alpha:1.00).cgColor
-			tagCell.titleLabel.textColor = .white
 			tagCell.textField.textColor = .white
+			tagCell.textField.placeholder = addTagPlaceHolder
+			tagCell.titleLabel.textColor = .white
 			tagCell.titleLabel.text = "+"
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
 		} else {
@@ -143,6 +140,10 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		}
 		titleWidth = titleWidth > collectionView.frame.width*0.475 ? collectionView.frame.width*0.475:titleWidth
 		return CGSize(width: titleWidth, height: 32)
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+		return UIEdgeInsets (top: 5, left: 5, bottom: 5, right: 5)
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

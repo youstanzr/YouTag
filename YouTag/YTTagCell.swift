@@ -18,7 +18,8 @@ class YTTagCell: UICollectionViewCell {
 	}()
 	let textField: UITextField = {
 		let txtfld = UITextField()
-		txtfld.addPadding(padding: .equalSpacing(5))
+		txtfld.addPadding(padding: .equalSpacing(7.5))
+		txtfld.tintColor = .white
 		txtfld.backgroundColor = UIColor.clear
 		txtfld.returnKeyType = .done
 		txtfld.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
@@ -30,19 +31,21 @@ class YTTagCell: UICollectionViewCell {
 		super.init(frame: frame)
 		self.layer.cornerRadius = self.frame.height/2.0
 		self.layer.borderWidth = 2.0
+		
 		self.contentView.addSubview(titleLabel)
 		self.titleLabel.translatesAutoresizingMaskIntoConstraints = false
 		self.titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -2.5).isActive = true
 		self.titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5).isActive = true
 		self.titleLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
-		self.titleLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 2.5).isActive = true
+		self.titleLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 6).isActive = true  // Because the font is shifted upward
+		
 		self.contentView.addSubview(textField)
 		textField.isHidden = true
 		self.textField.translatesAutoresizingMaskIntoConstraints = false
 		self.textField.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -2.5).isActive = true
 		self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5).isActive = true
 		self.textField.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
-		self.textField.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 2.5).isActive = true
+		self.textField.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 6).isActive = true  // Because the font is shifted upward
 	}
 	
 	required init?(coder: NSCoder) {

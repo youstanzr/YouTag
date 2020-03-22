@@ -36,7 +36,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		var songTags = NSMutableArray()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			songTags = NSMutableArray(array: songDict["songTags"] as? NSArray ?? NSArray())
+			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
 			if newTagsList.isSubset(arr: songTags) {
 				newPlaylist.add(songDict)
 			}
@@ -59,9 +59,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 			songDict = Dictionary<String, AnyObject>()
 		}
 
-		let songID = songDict["songID"] as? String ?? ""
-		nowPlayingView.titleLabel.text = songDict["songTitle"] as? String
-		nowPlayingView.artistLabel.text = songDict["artistName"] as? String
+		let songID = songDict["id"] as? String ?? ""
+		nowPlayingView.titleLabel.text = songDict["title"] as? String
+		nowPlayingView.artistLabel.text = (songDict["artists"] as? NSArray)!.componentsJoined(by: ", ")
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		
