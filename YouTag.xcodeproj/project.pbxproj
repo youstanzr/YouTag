@@ -28,7 +28,7 @@
 		2B810EFC241D31AE002FA583 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EFB241D31AE002FA583 /* Song.swift */; };
 		2B810F43241DB156002FA583 /* TagPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810F42241DB156002FA583 /* TagPickerView.swift */; };
 		2B81A6DD23020DD800B584E8 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */; };
-		2B81A6DF23030B2D00B584E8 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B81A6DE23030B2D00B584E8 /* MenuViewController.swift */; };
+		2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */; };
 		2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */; };
 		2BA6246C240C3F1C002D6670 /* YTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
@@ -78,7 +78,7 @@
 		2B810EFB241D31AE002FA583 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		2B810F42241DB156002FA583 /* TagPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagPickerView.swift; sourceTree = "<group>"; };
 		2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
-		2B81A6DE23030B2D00B584E8 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
+		2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFilesManager.swift; sourceTree = "<group>"; };
 		2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
@@ -135,7 +135,7 @@
 			children = (
 				2B7863822301AE56001DD6FD /* AppDelegate.swift */,
 				2B7863842301AE56001DD6FD /* ViewController.swift */,
-				2B81A6DE23030B2D00B584E8 /* MenuViewController.swift */,
+				2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */,
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2B157C2C24208369001DB815 /* DownloadWebViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
@@ -331,7 +331,7 @@
 				2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */,
 				2B7863852301AE56001DD6FD /* ViewController.swift in Sources */,
 				2B810F43241DB156002FA583 /* TagPickerView.swift in Sources */,
-				2B81A6DF23030B2D00B584E8 /* MenuViewController.swift in Sources */,
+				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
 				2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */,
 				2B61796824097147009149CB /* SongDetailViewController.swift in Sources */,
