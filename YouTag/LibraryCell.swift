@@ -72,7 +72,7 @@ class LibraryCell : UITableViewCell {
 	
 	func refreshCell() {
 		self.titleLabel.text = songDict["title"] as? String
-		self.artistLabel.text = (songDict["artists"] as? NSArray)!.componentsJoined(by: ", ")
+		self.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as? String ?? "").jpg"))
 		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		self.durationLabel.text = songDict["duration"] as? String
