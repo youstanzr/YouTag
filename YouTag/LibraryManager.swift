@@ -9,8 +9,24 @@
 import Foundation
 
 class LibraryManager {
+
+	enum SongProperties: String {
+		case id = "id"
+		case title = "title"
+		case artists = "artists"
+		case album = "album"
+		case releaseYear = "releaseYear"
+		case duration = "duration"
+		case lyrics = "lyrics"
+		case tags = "tags"
+	}
+	enum ValueType {
+		case min
+		case max
+	}
 	var libraryArray: NSMutableArray!
 
+	
     init() {
         self.refreshLibraryArray()
     }
@@ -97,20 +113,83 @@ class LibraryManager {
 		}
     }
 	
-	static func getAllTags() -> NSMutableArray {
-		let tagsList = NSMutableArray()
+	static func getAll(_ type: SongProperties) -> NSMutableArray {
+		let list = NSMutableArray()
 		let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
 		var songDict = Dictionary<String, Any>()
-		var songTags = NSMutableArray()
+		var songArrProperty = NSMutableArray()
+		var songStrProperty = String()
 		for i in 0 ..< songArr.count {
 			songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
-			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-			for j in 0 ..< songTags.count {
-				if !tagsList.contains(songTags[j]) {
-					tagsList.add(songTags[j])
+			if type == .artists || type == .tags {
+				songArrProperty = NSMutableArray(array: songDict[type.rawValue] as? NSArray ?? NSArray())
+				for j in 0 ..< songArrProperty.count {
+					if !list.contains(songArrProperty[j]) && (songArrProperty[j] as? String ?? "") != "" {
+						list.add(songArrProperty[j])
+					}
+				}
+			} else {
+				songStrProperty = songDict[type.rawValue] as? String ?? ""
+				if !list.contains(songStrProperty) && songStrProperty != "" {
+					list.add(songStrProperty)
 				}
 			}
 		}
-		return tagsList
+		return list
 	}
+	
+	static func getDuration(_ durType: ValueType) -> Double {
+		if durType == .min {
+			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+			var songDict = Dictionary<String, Any>()
+			var min: TimeInterval = TimeInterval.infinity
+			for i in 0 ..< songArr.count {
+				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				if (songDict["duration"] as! String).convertToTimeInterval() < min {
+					min = (songDict["duration"] as! String).convertToTimeInterval()
+				}
+			}
+			return min == TimeInterval.infinity ? 0 : min
+		} else if durType == .max {
+			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+			var songDict = Dictionary<String, Any>()
+			var max: TimeInterval = 0
+			for i in 0 ..< songArr.count {
+				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				if (songDict["duration"] as! String).convertToTimeInterval() > max {
+					max = (songDict["duration"] as! String).convertToTimeInterval()
+				}
+			}
+			return max
+		}
+		return 0
+	}
+	
+	static func getReleaseYear(_ durType: ValueType) -> Int {
+		if durType == .min {
+			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+			var songDict = Dictionary<String, Any>()
+			var min: Int = Int.max
+			for i in 0 ..< songArr.count {
+				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				if Int(songDict["releaseYear"] as? String ?? "") ?? Int.max < min {
+					min = Int(songDict["releaseYear"] as? String ?? "") ?? Int.max
+				}
+			}
+			return min == Int.max ? 0 : min
+		} else if durType == .max {
+			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+			var songDict = Dictionary<String, Any>()
+			var max: Int = 0
+			for i in 0 ..< songArr.count {
+				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				if Int(songDict["releaseYear"] as? String ?? "") ?? 0 > max {
+					max = Int(songDict["releaseYear"] as? String ?? "") ?? 0
+				}
+			}
+			return max
+		}
+		return 0
+	}
+	
 }

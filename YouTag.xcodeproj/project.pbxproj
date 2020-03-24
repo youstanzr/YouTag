@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1356242853C70061F3FE /* YTRangeSlider.swift */; };
+		2B0F1359242858AE0061F3FE /* YTRangeSliderTrackLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */; };
 		2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B157C2C24208369001DB815 /* DownloadWebViewController.swift */; };
 		2B61795C24070CE0009149CB /* XCDYouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B61795B24070CE0009149CB /* XCDYouTubeKit */; };
 		2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61795D24072CCB009149CB /* LibraryTableView.swift */; };
@@ -52,6 +54,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B0F1356242853C70061F3FE /* YTRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSlider.swift; sourceTree = "<group>"; };
+		2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSliderTrackLayer.swift; sourceTree = "<group>"; };
 		2B157C2C24208369001DB815 /* DownloadWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadWebViewController.swift; sourceTree = "<group>"; };
 		2B61795D24072CCB009149CB /* LibraryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTableView.swift; sourceTree = "<group>"; };
 		2B61796124087FBF009149CB /* LibraryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryCell.swift; sourceTree = "<group>"; };
@@ -148,6 +152,8 @@
 				2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */,
 				2B810EFB241D31AE002FA583 /* Song.swift */,
 				2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */,
+				2B0F1356242853C70061F3FE /* YTRangeSlider.swift */,
+				2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */,
 				2B810EF7241ABB0A002FA583 /* YTTagView.swift */,
 				2B810EF9241ACD1C002FA583 /* YTTagCell.swift */,
 				2B6179652408985C009149CB /* Extensions.swift */,
@@ -332,11 +338,13 @@
 				2B7863852301AE56001DD6FD /* ViewController.swift in Sources */,
 				2B810F43241DB156002FA583 /* FilterPickerView.swift in Sources */,
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
+				2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
 				2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */,
 				2B61796824097147009149CB /* SongDetailViewController.swift in Sources */,
 				2B78638B2301AE56001DD6FD /* YouTag.xcdatamodeld in Sources */,
 				2B810EFC241D31AE002FA583 /* Song.swift in Sources */,
+				2B0F1359242858AE0061F3FE /* YTRangeSliderTrackLayer.swift in Sources */,
 				2B81A6DD23020DD800B584E8 /* NowPlayingView.swift in Sources */,
 				2B810EFA241ACD1C002FA583 /* YTTagCell.swift in Sources */,
 				2B7863832301AE56001DD6FD /* AppDelegate.swift in Sources */,

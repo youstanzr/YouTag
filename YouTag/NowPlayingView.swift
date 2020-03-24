@@ -39,7 +39,11 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		return btn
 	}()
 	let controlView = UIView()
-	let progressBar = UISlider()
+	let progressBar: UISlider = {
+		let pBar = UISlider()
+		pBar.tintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		return pBar
+	}()
 	var isProgressBarSliding = false
 	let playbackRateButton: UIButton = {
 		let btn = UIButton()
@@ -64,6 +68,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		return lbl
 	}()
 
+	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -81,9 +86,10 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		controlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
 		controlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.2).isActive = true
 		
-		progressBar.tintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
-		progressBar.setThumbImage(makeCircleImage(radius: 15.0, backgroundColor: .lightGray), for: .normal)
-		progressBar.setThumbImage(makeCircleImage(radius: 20.0, backgroundColor: .lightGray), for: .highlighted)
+		let thumbImage = makeCircleImage(radius: 15.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
+		let selectedThumbImage = makeCircleImage(radius: 20.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
+		progressBar.setThumbImage(thumbImage, for: .normal)
+		progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
 		progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
 		controlView.addSubview(progressBar)
 		progressBar.translatesAutoresizingMaskIntoConstraints = false
@@ -247,17 +253,25 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		}
 	}
 
-	fileprivate func makeCircleImage(radius: CGFloat, backgroundColor: UIColor) -> UIImage? {
-		let size = CGSize(width: radius, height: radius)
-		UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+	fileprivate func makeCircleImage(radius: CGFloat, color: UIColor,
+									 borderColor: UIColor, borderWidth: CGFloat) -> UIImage? {
+		let outerSize = CGSize(width: radius, height: radius)
+		let innerSize = CGSize(width: radius - 2.0 * borderWidth, height: radius - 2.0 * borderWidth)
+		UIGraphicsBeginImageContextWithOptions(outerSize, false, 0.0)
 		let context = UIGraphicsGetCurrentContext()
-		context?.setFillColor(backgroundColor.cgColor)
+		let outerBounds = CGRect(origin: .zero, size: outerSize)
+		context?.setFillColor(borderColor.cgColor)
 		context?.setStrokeColor(UIColor.clear.cgColor)
-		let bounds = CGRect(origin: .zero, size: size)
-		context?.addEllipse(in: bounds)
+		context?.addEllipse(in: outerBounds)
+		context?.drawPath(using: .fill)
+		let innerBounds = CGRect(x: borderWidth, y: borderWidth, width: innerSize.width, height: innerSize.height)
+		context?.setFillColor(color.cgColor)
+		context?.setStrokeColor(UIColor.clear.cgColor)
+		context?.addEllipse(in: innerBounds)
 		context?.drawPath(using: .fill)
 		let image = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 		return image
 	}
+	
 }

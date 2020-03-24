@@ -13,14 +13,17 @@ protocol YTTagViewDelegate: class {
 }
 
 class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
+
 	weak var ytdelegate: YTTagViewDelegate?
 	var addTagPlaceHolder: String!
-	var isAddable: Bool!
+	var isAddEnabled: Bool!
+	var isDeleteEnabled: Bool!
 	var tagsList: NSMutableArray!
 	var selectedTagList: NSMutableArray!
 	private var isEditing: Bool!
 	
-	init(frame: CGRect, tagsList: NSMutableArray, isAddable: Bool, isMultiSelection: Bool) {
+	
+	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
 		super.init(frame: frame, collectionViewLayout: UICollectionViewFlowLayout())
 		self.register(YTTagCell.self, forCellWithReuseIdentifier: "TagCell")
 		self.delegate = self
@@ -30,17 +33,20 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		self.layer.borderColor = UIColor.lightGray.cgColor
 		self.backgroundColor = UIColor.clear
 		self.allowsMultipleSelection = isMultiSelection
-		self.isAddable = isAddable
+		self.isAddEnabled = isAddEnabled
+		self.isDeleteEnabled = isDeleteEnabled
 		self.isEditing = false
 		self.tagsList = tagsList
 		self.selectedTagList = NSMutableArray()
 		let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.addGestureRecognizer(tap)
-		let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
-		lpgr.minimumPressDuration = 0.5
-		lpgr.delegate = self
-		self.addGestureRecognizer(lpgr)
+		if isDeleteEnabled {
+			let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+			lpgr.minimumPressDuration = 0.5
+			lpgr.delegate = self
+			self.addGestureRecognizer(lpgr)
+		}
 	}
 
 	required init?(coder: NSCoder) {
@@ -54,7 +60,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	}
 	
 	func removeTag(at index: Int) {
-		if isAddable {
+		if isAddEnabled {
 			self.tagsList.removeObject(at: index-1)
 		} else {
 			self.tagsList.removeObject(at: index)
@@ -78,7 +84,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		
 		//check if the long press was into the collection view or the cells
 		if let index = indexPath {
-			if !isAddable || index.row != 0 {
+			if !isAddEnabled || index.row != 0 {
 				let tagCell = self.cellForItem(at: index) as! YTTagCell
 				let tagTitle = tagCell.titleLabel.text ?? ""
 				let actionSheet = UIAlertController(title: "Are you sure to delete '\(tagTitle)'?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
@@ -95,13 +101,13 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 
 	// MARK: Collection View
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return isAddable ? tagsList.count+1:tagsList.count
+		return isAddEnabled ? tagsList.count+1:tagsList.count
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YTTagCell
 		tagCell.textField.delegate = self
-		if isAddable && indexPath.row == 0 {
+		if isAddEnabled && indexPath.row == 0 {
 			tagCell.backgroundColor = UIColor(red:0.000, green:0.802, blue:0.041, alpha:1.00)
 			tagCell.layer.borderColor = UIColor(red:0.000, green:0.6, blue:0.041, alpha:1.00).cgColor
 			tagCell.textField.textColor = .white
@@ -115,7 +121,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			tagCell.textField.textColor = .darkGray
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.layer.borderColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0).cgColor
-			if isAddable {
+			if isAddEnabled {
 				tagCell.titleLabel.text = tagsList.object(at: indexPath.row-1) as? String
 			} else {
 				tagCell.titleLabel.text = tagsList.object(at: indexPath.row) as? String
@@ -127,13 +133,13 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	func collectionView(_ collectionView: UICollectionView,
 						layout collectionViewLayout: UICollectionViewLayout,
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
-		if isAddable && indexPath.row == 0 {
+		if isAddEnabled && indexPath.row == 0 {
 			let cellSize = isEditing ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
 			isEditing = false
 			return cellSize
 		}
 		var titleWidth: CGFloat
-		if isAddable {
+		if isAddEnabled {
 			titleWidth = (tagsList.object(at: indexPath.row-1) as! String).estimateSizeWidth(font: UIFont.systemFont(ofSize: 17), padding: 20)
 		} else {
 			titleWidth = (tagsList.object(at: indexPath.row) as! String).estimateSizeWidth(font: UIFont.systemFont(ofSize: 17), padding: 20)
@@ -148,7 +154,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		let cell = collectionView.cellForItem(at: indexPath) as! YTTagCell
-		if isAddable && indexPath.row == 0 {
+		if isAddEnabled && indexPath.row == 0 {
 			print("Add Tag Button tapped")
 			isEditing = true
 			cell.switchMode(enableEditing: true)
@@ -189,5 +195,5 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		(textField.superview?.superview as! YTTagCell).switchMode(enableEditing: false)
 		self.performBatchUpdates(nil, completion: nil)
 	}
-
+	
 }

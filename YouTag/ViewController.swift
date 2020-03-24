@@ -9,6 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDelegate {
+	
 	var tagsView: YTTagView!
 	var playlistManager = PlaylistManager()
 	var filterPickerView: FilterPickerView!
@@ -44,6 +45,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		return imgView
 	}()
 
+	
 	override func viewDidLoad() {
         super.viewDidLoad()
 		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
@@ -78,7 +80,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 
-		tagsView = YTTagView(frame: .zero, tagsList: NSMutableArray(), isAddable: false, isMultiSelection: false)
+		tagsView = YTTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.ytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -115,8 +117,13 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		filterPickerView = FilterPickerView()
 		filterPickerView.delegate = self
 		self.view.addSubview(filterPickerView)
+		filterPickerView.translatesAutoresizingMaskIntoConstraints = false
+		filterPickerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+		filterPickerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+		filterPickerView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+		filterPickerView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 	}
-	
+		
 	override func viewWillAppear(_ animated: Bool) {
 		playlistManager.updateTagsList(to: self.tagsView.tagsList)
 	}
@@ -159,4 +166,5 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	func tagsListChanged(newTagsList: NSMutableArray) {
 		playlistManager.updateTagsList(to: self.tagsView.tagsList)
 	}
+	
 }

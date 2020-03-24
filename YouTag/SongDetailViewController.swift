@@ -9,6 +9,7 @@
 import UIKit
 
 class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate {
+
 	var songDict: Dictionary<String, Any>!
 	let LM = LibraryManager()
 	var tagsView: YTTagView!
@@ -77,6 +78,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		return txtView
 	}()
 
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
@@ -107,7 +109,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		titleTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.8).isActive = true
 
 		let artistsTags = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
-		artistsTagsView = YTTagView(frame: .zero, tagsList: artistsTags, isAddable: true, isMultiSelection: false)
+		artistsTagsView = YTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		artistsTagsView.addTagPlaceHolder = "Artist"
 		self.view.addSubview(artistsTagsView)
 		artistsTagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -135,7 +137,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		releaseYrTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.35, constant: -2.5).isActive = true
 
 		lyricsTextView.delegate = self
-		if songDict["lyrics"] as? String ?? "" != "" {
+		if songDict["lyrics"] as! String != "" {
 			lyricsTextView.text = songDict["lyrics"] as? String
 			lyricsTextView.textColor = .black
 		}
@@ -155,7 +157,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 		
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-		tagsView = YTTagView(frame: .zero, tagsList: songTags, isAddable: true, isMultiSelection: false)
+		tagsView = YTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -183,7 +185,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		songDict["artists"] = artistsTagsView.tagsList
 		songDict["album"] = albumTextField.text
 		songDict["releaseYear"] = releaseYrTextField.text
-		songDict["lyrics"] = lyricsTextView.text
+		songDict["lyrics"] = lyricsTextView.text != "Lyrics" ? lyricsTextView.text : ""
 		songDict["tags"] = tagsView.tagsList
     }
 	
@@ -251,4 +253,5 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		}
 		return y
 	}
+	
 }
