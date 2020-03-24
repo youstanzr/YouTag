@@ -16,6 +16,7 @@ protocol YTAudioPlayerDelegate: class {
 }
 
 class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
+
 	weak var delegate: YTAudioPlayerDelegate?
 
 	private var playlistManager: PlaylistManager!
@@ -307,4 +308,5 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			default: ()
 		}
 	}
+	
 }

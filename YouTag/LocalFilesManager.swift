@@ -88,4 +88,5 @@ class LocalFilesManager {
 		}
 		return true
 	}
+	
 }

@@ -9,6 +9,7 @@
 import UIKit
 
 class YTTagCell: UICollectionViewCell {
+
 	let titleLabel: UILabel = {
 		let label = UILabel()
 		label.textAlignment = .center
@@ -64,4 +65,5 @@ class YTTagCell: UICollectionViewCell {
 			self.textField.isHidden = true
 		}
 	}
+	
 }

@@ -10,6 +10,7 @@ import UIKit
 import XCDYouTubeKit
 
 class LibraryViewController: UIViewController, DownloadWebViewDelegate {
+
 	let addButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
@@ -35,6 +36,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	let libraryTableView = LibraryTableView()
 	let LM = LibraryManager()
 
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
@@ -129,4 +131,5 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
         print("dismiss tapped")
         dismiss(animated: true, completion: nil)
     }
+	
 }

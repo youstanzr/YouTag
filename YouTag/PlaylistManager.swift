@@ -14,6 +14,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 	var playlistLibraryView: PlaylistLibraryView!
 	var audioPlayer: YTAudioPlayer!
 
+	
 	override init() {
 		super.init()
 		audioPlayer = YTAudioPlayer(playlistManager: self)
@@ -93,4 +94,5 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		refreshNowPlayingView()
 		nowPlayingView.pausePlayButtonAction(sender: nil)
 	}
+	
 }

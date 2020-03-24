@@ -9,8 +9,10 @@
 import UIKit
 
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
-    var LM: LibraryManager!
+ 
+	var LM: LibraryManager!
 
+	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -72,4 +74,5 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
             tableView.reloadData()
         }
     }
+	
 }

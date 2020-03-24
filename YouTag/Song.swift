@@ -9,6 +9,7 @@
 import Foundation
 
 struct Song : Codable{
+
 	var title: String
 	var artist: String
 	var id: String
@@ -30,4 +31,5 @@ struct Song : Codable{
 		self.duration = duration
 		self.tags = tags
 	}
+	
 }

@@ -14,7 +14,8 @@ var spinner_view : UIView?
  
 // MARK: UIViewController
 extension UIViewController {
-    func showSpinner(onView : UIView) {
+ 
+	func showSpinner(onView : UIView) {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
         let ai = UIActivityIndicatorView.init(style: .whiteLarge)
@@ -88,6 +89,7 @@ extension UIViewController {
 
 // MARK: UIView
 extension UIView{
+
 	enum BorderSide {
 		case top, bottom, left, right
 	}
@@ -128,10 +130,12 @@ extension UIView{
 				NSLayoutConstraint.activate([bottomConstraint, leftConstraint, topConstraint, widthConstraint])
 		}
 	}
+	
 }
 
 // MARK: TimeInterval
 extension TimeInterval{
+
 	func stringFromTimeInterval() -> String {
 		
 		let time = NSInteger(self)
@@ -140,11 +144,13 @@ extension TimeInterval{
 		
 		return String(format: "%0.2d:%0.2d",minutes,seconds)
 	}
+	
 }
 
 // MARK: AVAsset
 extension AVAsset {
-    // Provide a URL for where you wish to write
+
+	// Provide a URL for where you wish to write
     // the audio file if successful
     func writeAudioTrack(to url: URL,
                          success: @escaping () -> (),
@@ -214,11 +220,13 @@ extension AVAsset {
         }
         return composition
     }
+	
 }
 
 
 // MARK: UITextField
 extension UITextField {
+
 	enum PaddingSpace {
 		case left(CGFloat)
 		case right(CGFloat)
@@ -252,10 +260,12 @@ extension UITextField {
 				self.rightViewMode = .always
 		}
 	}
+	
 }
 
 // MARK: String
 extension NSString {
+
 	func estimateSizeWidth(font: UIFont, padding: CGFloat) -> CGFloat{
 		let size = CGSize(width: 200, height: 1000) // temporary size
 		let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
@@ -265,9 +275,11 @@ extension NSString {
 									context: nil)
 		return ceil(rect.width) + padding
 	}
+	
 }
 
 extension String {
+
 	func convertToTimeInterval() -> TimeInterval {
 		guard self != "" else {
 			return 0
@@ -286,10 +298,12 @@ extension String {
 	var isNumeric : Bool {
 		return Double(self) != nil
 	}
+	
 }
 
 // MARK: NSArray
 extension NSArray {
+
 	func isSubset(arr: NSArray) -> Bool{
 		for i in 0 ..< self.count {
 			if !arr.contains(self.object(at: i)) {
@@ -298,4 +312,5 @@ extension NSArray {
 		}
 		return true
 	}
+	
 }

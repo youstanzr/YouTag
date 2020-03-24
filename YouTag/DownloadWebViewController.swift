@@ -14,11 +14,13 @@ protocol DownloadWebViewDelegate: class {
 }
 
 class DownloadWebViewController: UIViewController {
+
 	weak var delegate: DownloadWebViewDelegate!
 	let webView = WKWebView()
 	let webToolbar = UIToolbar()
 	let startUrl = URL(string: "https://www.youtube.com")
-		
+
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
@@ -70,4 +72,5 @@ class DownloadWebViewController: UIViewController {
 		delegate?.retrievedVideoLink(videoLink: webView.url!.absoluteString)
 		self.dismiss(animated: true, completion: nil)
 	}
+	
 }

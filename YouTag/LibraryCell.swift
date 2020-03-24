@@ -9,7 +9,8 @@
 import UIKit
 
 class LibraryCell : UITableViewCell {
-    var songDict = Dictionary<String, Any>()
+  
+	var songDict = Dictionary<String, Any>()
     let thumbnailImageView = UIImageView()
 	let titleLabel: UILabel = {
 		let lbl = UILabel()
@@ -30,6 +31,7 @@ class LibraryCell : UITableViewCell {
 		return lbl
 	}()
 
+	
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 		self.backgroundColor = .clear
@@ -77,4 +79,5 @@ class LibraryCell : UITableViewCell {
 		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		self.durationLabel.text = songDict["duration"] as? String
 	}
+	
 }

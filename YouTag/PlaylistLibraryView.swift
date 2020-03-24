@@ -13,9 +13,11 @@ protocol PlaylistLibraryViewDelegate: class {
 }
 
 class PlaylistLibraryView: LibraryTableView {
+
 	weak var PLDelegate: PlaylistLibraryViewDelegate?
 	
 	var playlistArray = NSMutableArray()
+
 	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -63,4 +65,5 @@ class PlaylistLibraryView: LibraryTableView {
 			tableView.reloadData()
 		}
 	}
+	
 }
