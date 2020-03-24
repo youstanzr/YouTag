@@ -113,7 +113,8 @@ class YTRangeSlider: UIControl {
 	}
 	
 	var highlightedThumbSize: CGFloat = 25.0
-		
+	var isPushEnabled = true
+	
 	private let trackLayer = YTRangeSliderTrackLayer()
 	private let lowerThumbImageView = UIImageView()
 	private let upperThumbImageView = UIImageView()
@@ -228,16 +229,38 @@ extension YTRangeSlider {
 		let deltaLocation = location.x - previousLocation.x
 		let deltaValue = (maximumValue - minimumValue) * deltaLocation / bounds.width
 		
+		let thumbSizeToTrackRatio = thumbSize / bounds.width * (maximumValue - minimumValue)
+		let upperBoundForLower = upperValue - thumbSizeToTrackRatio
+		let lowerBoundForUpper = lowerValue + thumbSizeToTrackRatio
+
 		previousLocation = location
-		
-		if lowerThumbImageView.isHighlighted {
+
+		if !isPushEnabled && upperThumbImageView.isHighlighted {
+			upperValue += deltaValue
+			upperValue = boundValue(upperValue, toLowerValue: lowerBoundForUpper,
+									upperValue: maximumValue)
+		} else if !isPushEnabled && lowerThumbImageView.isHighlighted {
 			lowerValue += deltaValue
 			lowerValue = boundValue(lowerValue, toLowerValue: minimumValue,
-									upperValue: upperValue - (thumbSize / bounds.width * (maximumValue - minimumValue)))
-		} else if upperThumbImageView.isHighlighted {
+									upperValue: upperBoundForLower)
+		} else if isPushEnabled && upperThumbImageView.isHighlighted {
 			upperValue += deltaValue
-			upperValue = boundValue(upperValue, toLowerValue: lowerValue + (thumbSize / bounds.width * (maximumValue - minimumValue)),
-									upperValue: maximumValue)
+			if upperValue <= lowerBoundForUpper && lowerValue + deltaValue > minimumValue {
+				lowerValue += deltaValue
+			} else if upperValue >= maximumValue {
+				upperValue = maximumValue
+			} else if upperValue < lowerBoundForUpper {
+				upperValue -= deltaValue
+			}
+		} else if isPushEnabled && lowerThumbImageView.isHighlighted {
+			lowerValue += deltaValue
+			if lowerValue >= upperBoundForLower && upperValue + deltaValue < maximumValue {
+				upperValue += deltaValue
+			} else if lowerValue <= minimumValue {
+				lowerValue = minimumValue
+			} else if lowerValue > upperBoundForLower {
+				lowerValue -= deltaValue
+			}
 		}
 
 		updateLayerFrames()
