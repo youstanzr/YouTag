@@ -41,13 +41,13 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	let controlView = UIView()
 	let progressBar: UISlider = {
 		let pBar = UISlider()
-		pBar.tintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		pBar.tintColor = GraphicColors.orange
 		return pBar
 	}()
 	var isProgressBarSliding = false
 	let playbackRateButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
 		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
 		btn.setTitle("x1", for: .normal)
@@ -93,12 +93,12 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
 		controlView.addSubview(progressBar)
 		progressBar.translatesAutoresizingMaskIntoConstraints = false
-		progressBar.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 2.5).isActive = true
+		progressBar.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 6.0).isActive = true
 		progressBar.widthAnchor.constraint(equalTo: controlView.widthAnchor, multiplier: 0.7, constant: -2.5).isActive = true
 		progressBar.centerYAnchor.constraint(equalTo: controlView.centerYAnchor).isActive = true
 		progressBar.heightAnchor.constraint(equalTo: controlView.heightAnchor).isActive = true
 		
-		currentTimeLabel.addBorder(side: .right, color: UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0), width: 0.5)
+		currentTimeLabel.addBorder(side: .right, color: GraphicColors.orange, width: 0.5)
 		controlView.addSubview(currentTimeLabel)
 		currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
 		currentTimeLabel.leadingAnchor.constraint(equalTo: progressBar.trailingAnchor, constant: 2.5).isActive = true
@@ -106,7 +106,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		currentTimeLabel.centerYAnchor.constraint(equalTo: controlView.centerYAnchor).isActive = true
 		currentTimeLabel.heightAnchor.constraint(equalTo: controlView.heightAnchor).isActive = true
 
-		timeLeftLabel.addBorder(side: .left, color: UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0), width: 0.5)
+		timeLeftLabel.addBorder(side: .left, color: GraphicColors.orange, width: 0.5)
 		controlView.addSubview(timeLeftLabel)
 		timeLeftLabel.translatesAutoresizingMaskIntoConstraints = false
 		timeLeftLabel.widthAnchor.constraint(equalTo: controlView.widthAnchor, multiplier: 0.1, constant: -2.5).isActive = true

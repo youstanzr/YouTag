@@ -13,7 +13,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 
 	let addButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
 		btn.titleLabel?.font = .boldSystemFont(ofSize: 50)
 		btn.setTitle("+", for: .normal)
@@ -24,7 +24,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	}()
 	let dismissButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
 		btn.titleLabel?.font = .boldSystemFont(ofSize: 30)
 		btn.setTitle("✔︎", for: .normal)
@@ -39,7 +39,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		self.view.backgroundColor = GraphicColors.backgroundWhite
 		
 		libraryTableView.backgroundColor = .clear
 		self.view.addSubview(libraryTableView)

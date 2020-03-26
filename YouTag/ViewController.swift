@@ -48,8 +48,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
-		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
-		
+		self.view.backgroundColor = GraphicColors.backgroundWhite
 		self.view.addSubview(logoImageView)
 		logoImageView.translatesAutoresizingMaskIntoConstraints = false
 		logoImageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
@@ -125,7 +124,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	}
 		
 	override func viewWillAppear(_ animated: Bool) {
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+		playlistManager.computePlaylist()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -145,26 +144,18 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
         print("Filter Button tapped")
 		filterPickerView.show(withAnimation: true)
     }
-	
-	//For the tag list the are added
-	func processAddedTags(addedTagsList: NSMutableArray) {
-		//Remove the tags already present in the tagsView
-		var i = 0
-		while i < addedTagsList.count {
-			if self.tagsView.tagsList.contains(addedTagsList.object(at: i)) {
-				addedTagsList.removeObject(at: i)
-				i -= 1
-			}
-			i += 1
-		}
-		//Add the newly added tags
-		self.tagsView.addTags(tagList: addedTagsList)
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
-	}
-	
+
+	// MARK: YTTagViewDelegate
 	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+//		playlistManager.updateTagsList(to: self.tagsView.tagsList)
 	}
 	
+	// MARK: FilterPickerViewDelegate
+	//For the tag list the are added
+	func processNewFilter(type: String, filters: NSMutableArray) {
+		playlistManager.playlistFilters.addUniqueFilter(filters, type: PlaylistFilters.FilterType(rawValue: type)!)
+		playlistManager.computePlaylist()
+	}
+
 }

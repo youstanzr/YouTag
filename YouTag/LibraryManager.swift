@@ -64,7 +64,7 @@ class LibraryManager {
 	func deleteSongFromLibrary(songID: String) {
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
+			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
 			if songDict["id"] as! String == songID {
 				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).m4a") &&
 					LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg"){
@@ -80,7 +80,7 @@ class LibraryManager {
 		self.refreshLibraryArray()
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
+			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
 			if songDict["id"] as! String == songID {
 				return true
 			}
@@ -92,7 +92,7 @@ class LibraryManager {
 		self.refreshLibraryArray()
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
+			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
 			if songDict["id"] as! String == songID {
 				return songDict
 			}
@@ -104,7 +104,7 @@ class LibraryManager {
 		self.refreshLibraryArray()
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
+			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
 			if songDict["id"] as! String == newSong["id"] as! String {
 				libraryArray.replaceObject(at: i, with: newSong)
 				UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
@@ -120,7 +120,7 @@ class LibraryManager {
 		var songArrProperty = NSMutableArray()
 		var songStrProperty = String()
 		for i in 0 ..< songArr.count {
-			songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+			songDict = songArr.object(at: i) as! Dictionary<String, Any>
 			if type == .artists || type == .tags {
 				songArrProperty = NSMutableArray(array: songDict[type.rawValue] as? NSArray ?? NSArray())
 				for j in 0 ..< songArrProperty.count {
@@ -144,7 +144,7 @@ class LibraryManager {
 			var songDict = Dictionary<String, Any>()
 			var min: TimeInterval = TimeInterval.infinity
 			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				songDict = songArr.object(at: i) as! Dictionary<String, Any>
 				if (songDict["duration"] as! String).convertToTimeInterval() < min {
 					min = (songDict["duration"] as! String).convertToTimeInterval()
 				}
@@ -155,7 +155,7 @@ class LibraryManager {
 			var songDict = Dictionary<String, Any>()
 			var max: TimeInterval = 0
 			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				songDict = songArr.object(at: i) as! Dictionary<String, Any>
 				if (songDict["duration"] as! String).convertToTimeInterval() > max {
 					max = (songDict["duration"] as! String).convertToTimeInterval()
 				}
@@ -171,7 +171,7 @@ class LibraryManager {
 			var songDict = Dictionary<String, Any>()
 			var min: Int = Int.max
 			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				songDict = songArr.object(at: i) as! Dictionary<String, Any>
 				if Int(songDict["releaseYear"] as? String ?? "") ?? Int.max < min {
 					min = Int(songDict["releaseYear"] as? String ?? "") ?? Int.max
 				}
@@ -182,7 +182,7 @@ class LibraryManager {
 			var songDict = Dictionary<String, Any>()
 			var max: Int = 0
 			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, AnyObject>
+				songDict = songArr.object(at: i) as! Dictionary<String, Any>
 				if Int(songDict["releaseYear"] as? String ?? "") ?? 0 > max {
 					max = Int(songDict["releaseYear"] as? String ?? "") ?? 0
 				}

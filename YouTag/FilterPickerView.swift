@@ -9,7 +9,7 @@
 import UIKit
 
 protocol FilterPickerViewDelegate: class {
-	func processAddedTags(addedTagsList: NSMutableArray)
+	func processNewFilter(type: String, filters: NSMutableArray)
 }
 
 class FilterPickerView: UIView {
@@ -26,9 +26,9 @@ class FilterPickerView: UIView {
 		let s = UISegmentedControl(items: ["Tag","Artist","Album","Year","Length"])
 		s.selectedSegmentIndex = 0
 		s.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.init(name: "DINCondensed-Bold", size: 20)!], for: .normal)
-		s.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		s.backgroundColor = GraphicColors.backgroundWhite
 		if #available(iOS 13.0, *) {
-			s.selectedSegmentTintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+			s.selectedSegmentTintColor = GraphicColors.orange
 			s.layer.maskedCorners = .init()
 		} else {
 			s.layer.cornerRadius = 0
@@ -39,9 +39,9 @@ class FilterPickerView: UIView {
 		let s = UISegmentedControl(items: ["Year range", "Exact year"])
 		s.selectedSegmentIndex = 0
 		s.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.init(name: "DINCondensed-Bold", size: 20)!], for: .normal)
-		s.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		s.backgroundColor = GraphicColors.backgroundWhite
 		if #available(iOS 13.0, *) {
-			s.selectedSegmentTintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+			s.selectedSegmentTintColor = GraphicColors.orange
 			s.layer.maskedCorners = .init()
 		} else {
 			s.layer.cornerRadius = 0
@@ -50,13 +50,13 @@ class FilterPickerView: UIView {
 	}()
 	let pickerView: UIView = {
 		let v = UIView()
-		v.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		v.backgroundColor = GraphicColors.backgroundWhite
 		return v
 	}()
 	let closeButton = UIButton()
 	let addButton: UIButton = {
 		let button = UIButton()
-		button.backgroundColor = UIColor(red:0.000, green:0.802, blue:0.041, alpha:1.00)
+		button.backgroundColor = GraphicColors.green
 		button.titleLabel?.textColor = .white
 		button.titleLabel?.font = .boldSystemFont(ofSize: 32)
 		button.setTitle("+", for: .normal)
@@ -71,8 +71,8 @@ class FilterPickerView: UIView {
 	}()
 	let rangeSlider: YTRangeSlider = {
 		let rSlider = YTRangeSlider(frame: .zero)
-		rSlider.trackTintColor = UIColor(red: 0.886, green: 0.886, blue: 0.886, alpha: 1.0)
-		rSlider.trackHighlightTintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		rSlider.trackTintColor = GraphicColors.trackGray
+		rSlider.trackHighlightTintColor = GraphicColors.orange
 		rSlider.thumbColor = .lightGray
 		return rSlider
 	}()
@@ -216,10 +216,30 @@ class FilterPickerView: UIView {
 	
 	@objc func add() {
 		print("Add button pressed")
-		if self.tagView.selectedTagList.count > 0 {
-			delegate?.processAddedTags(addedTagsList: self.tagView.selectedTagList)
-			self.tagView.deselectAllItems()
+		if filterSegment.selectedSegmentIndex == 0 && tagView.selectedTagList.count > 0 {
+			// selected tags filter
+			delegate?.processNewFilter(type: "tags", filters: tagView.selectedTagList)
+		} else if filterSegment.selectedSegmentIndex == 1 && tagView.selectedTagList.count > 0 {
+			// selected artists filter
+			delegate?.processNewFilter(type: "artists", filters: tagView.selectedTagList)
+		} else if filterSegment.selectedSegmentIndex == 2 && tagView.selectedTagList.count > 0 {
+			// selected album filter
+			delegate?.processNewFilter(type: "album", filters: tagView.selectedTagList)
+		} else if filterSegment.selectedSegmentIndex == 3 && releaseYrSegment.selectedSegmentIndex == 0 {
+			// selected year range filter
+			delegate?.processNewFilter(type: "releaseYearRange",
+									   filters: NSMutableArray(objects: Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
+										, Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero))))
+		} else if filterSegment.selectedSegmentIndex == 3 && releaseYrSegment.selectedSegmentIndex == 1 && tagView.selectedTagList.count > 0 {
+			// selected exact year filter
+			delegate?.processNewFilter(type: "releaseYear", filters: tagView.selectedTagList)
+		} else if filterSegment.selectedSegmentIndex == 4 {
+			// selected duration filter
+			delegate?.processNewFilter(type: "duration",
+									   filters: NSMutableArray(objects: TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
+										, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
 		}
+		self.tagView.deselectAllItems()
 		self.isHidden = true
 	}
 	
@@ -290,12 +310,12 @@ class FilterPickerView: UIView {
 	}
 	
 	@objc func rangeSliderValueChanged(_ sender: YTRangeSlider) {
-		if filterSegment.selectedSegmentIndex == 3 {	//length selected
+		if filterSegment.selectedSegmentIndex == 3 {	// release year selected
 			rangeSliderLowerLabel.text = String(Int(sender.lowerValue.rounded(.toNearestOrAwayFromZero)))
 			rangeSliderUpperLabel.text = String(Int(sender.upperValue.rounded(.toNearestOrAwayFromZero)))
-		} else { // release year selected
-			rangeSliderLowerLabel.text = Double(sender.lowerValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
-			rangeSliderUpperLabel.text = Double(sender.upperValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
+		} else {	//length selected
+			rangeSliderLowerLabel.text = TimeInterval(sender.lowerValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
+			rangeSliderUpperLabel.text = TimeInterval(sender.upperValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
 		}
 	}
 	

@@ -13,7 +13,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 	var nowPlayingView: NowPlayingView!
 	var playlistLibraryView: PlaylistLibraryView!
 	var audioPlayer: YTAudioPlayer!
-
+	var playlistFilters = PlaylistFilters(tags: [], artists: [], album: [], releaseYearRange: [], releaseYear: [], duration: [])
 	
 	override init() {
 		super.init()
@@ -23,28 +23,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
 		refreshNowPlayingView()
 	}
-	
-	func updateTagsList(to newTagsList: NSMutableArray) {
-		let newPlaylist = computePlaylist(fromTags: newTagsList)
-		updatePlaylistLibrary(toPlaylist: newPlaylist)
-		refreshNowPlayingView()
-	}
-		
-	func computePlaylist(fromTags newTagsList: NSMutableArray) -> NSMutableArray{
-		let libraryArray = LibraryManager.getLibraryArray()
-		let newPlaylist = NSMutableArray()
-		var songDict = Dictionary<String, Any>()
-		var songTags = NSMutableArray()
-		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, AnyObject>
-			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-			if newTagsList.isSubset(arr: songTags) {
-				newPlaylist.add(songDict)
-			}
-		}
-		return newPlaylist
-	}
-	
+				
 	func updatePlaylistLibrary(toPlaylist newPlaylist: NSMutableArray) {
 		playlistLibraryView.playlistArray = newPlaylist
 		playlistLibraryView.refreshTableView()
@@ -54,10 +33,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		let songDict: Dictionary<String, Any>
 		if playlistLibraryView.playlistArray.count > 0 {
 			audioPlayer.unsuspend()
-			songDict = playlistLibraryView.playlistArray.object(at: 0) as! Dictionary<String, AnyObject>
+			songDict = playlistLibraryView.playlistArray.object(at: 0) as! Dictionary<String, Any>
 		} else {
 			audioPlayer.suspend()
-			songDict = Dictionary<String, AnyObject>()
+			songDict = Dictionary<String, Any>()
 		}
 
 		let songID = songDict["id"] as? String ?? ""
@@ -95,4 +74,136 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		nowPlayingView.pausePlayButtonAction(sender: nil)
 	}
 	
+	// MARK: Filter processing functions
+	func computePlaylist() {
+		var newPlaylist = LibraryManager.getLibraryArray()
+		newPlaylist = applyTagFilter(on: newPlaylist)
+		newPlaylist = applyArtistFilter(on: newPlaylist)
+		newPlaylist = applyAlbumFilter(on: newPlaylist)
+		newPlaylist = applyReleaseYearFilter(on: newPlaylist)
+		newPlaylist = applyReleaseYearRangeFilter(on: newPlaylist)
+		newPlaylist = applyDurationFilter(on: newPlaylist)
+
+		updatePlaylistLibrary(toPlaylist: newPlaylist)
+		refreshNowPlayingView()
+	}
+	
+	func applyTagFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.tags.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songTags: NSMutableArray
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
+			if playlistFilters.tags.isSubset(of: songTags) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+
+	func applyArtistFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.artists.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songArtists: NSMutableArray
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songArtists = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
+			if playlistFilters.artists.hasIntersect(with: songArtists) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+
+	func applyAlbumFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.album.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songAlbum: String
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songAlbum = songDict["album"] as? String ?? ""
+			if playlistFilters.album.contains(songAlbum) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+	
+	func applyReleaseYearFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.releaseYear.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songReleaseYear: String
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songReleaseYear = songDict["releaseYear"] as? String ?? ""
+			if playlistFilters.releaseYear.contains(songReleaseYear) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+
+	func applyReleaseYearRangeFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.releaseYearRange.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songReleaseYear: Int
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songReleaseYear = Int(songDict["releaseYear"] as? String ?? "-1") ?? -1
+			if isValue(Double(songReleaseYear), inBoundList: playlistFilters.releaseYearRange) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+
+	
+	func applyDurationFilter(on playlist: NSMutableArray) -> NSMutableArray {
+		if playlistFilters.duration.count == 0 {
+			return playlist
+		}
+		var songDict: Dictionary<String, Any>
+		var songDuration: TimeInterval
+		let newPlaylist = NSMutableArray()
+		for i in 0 ..< playlist.count {
+			songDict = playlist.object(at: i) as! Dictionary<String, Any>
+			songDuration = (songDict["duration"] as! String).convertToTimeInterval()
+			if isValue(songDuration, inBoundList: playlistFilters.duration) {
+				newPlaylist.add(songDict)
+			}
+		}
+		return newPlaylist
+	}
+	
+	fileprivate func isValue(_ val: Double, inBoundList durationList: NSMutableArray) -> Bool {
+		var durationBound: NSMutableArray
+		var lowerBound: Double
+		var upperBound: Double
+		for j in 0 ..< durationList.count {
+			durationBound = durationList.object(at: j) as! NSMutableArray
+			lowerBound = durationBound.object(at: 0) as! Double
+			upperBound = durationBound.object(at: 1) as! Double
+			if val < lowerBound || val > upperBound {
+				return false
+			}
+		}
+		return true
+	}
+			
 }

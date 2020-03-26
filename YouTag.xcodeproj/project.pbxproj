@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */; };
+		2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */; };
 		2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1356242853C70061F3FE /* YTRangeSlider.swift */; };
 		2B0F1359242858AE0061F3FE /* YTRangeSliderTrackLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */; };
 		2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B157C2C24208369001DB815 /* DownloadWebViewController.swift */; };
@@ -54,6 +56,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistFilters.swift; sourceTree = "<group>"; };
+		2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicColors.swift; sourceTree = "<group>"; };
 		2B0F1356242853C70061F3FE /* YTRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSlider.swift; sourceTree = "<group>"; };
 		2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSliderTrackLayer.swift; sourceTree = "<group>"; };
 		2B157C2C24208369001DB815 /* DownloadWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadWebViewController.swift; sourceTree = "<group>"; };
@@ -143,6 +147,7 @@
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2B157C2C24208369001DB815 /* DownloadWebViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
+				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
 				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
 				2B61795D24072CCB009149CB /* LibraryTableView.swift */,
@@ -156,6 +161,7 @@
 				2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */,
 				2B810EF7241ABB0A002FA583 /* YTTagView.swift */,
 				2B810EF9241ACD1C002FA583 /* YTTagCell.swift */,
+				2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */,
 				2B6179652408985C009149CB /* Extensions.swift */,
 				2B7863862301AE56001DD6FD /* Main.storyboard */,
 				2B78638C2301AE57001DD6FD /* Assets.xcassets */,
@@ -340,7 +346,9 @@
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
 				2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
+				2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */,
 				2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */,
+				2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */,
 				2B61796824097147009149CB /* SongDetailViewController.swift in Sources */,
 				2B78638B2301AE56001DD6FD /* YouTag.xcdatamodeld in Sources */,
 				2B810EFC241D31AE002FA583 /* Song.swift in Sources */,

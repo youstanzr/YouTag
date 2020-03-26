@@ -15,7 +15,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	var tagsView: YTTagView!
 	let dismissButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
 		btn.titleLabel?.font = .boldSystemFont(ofSize: 32)
 		btn.setTitle("✔︎", for: .normal)
@@ -71,7 +71,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtView.autocorrectionType = .no
 		txtView.text = "Lyrics"
-		txtView.textColor = UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0)
+		txtView.textColor = GraphicColors.placeholderGray
 		txtView.layer.cornerRadius = 5
 		txtView.layer.borderWidth = 1.0
 		txtView.layer.borderColor = UIColor.lightGray.cgColor
@@ -81,7 +81,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		self.view.backgroundColor = GraphicColors.backgroundWhite
 
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -194,8 +194,12 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		return true
 	}
 	
+	func textFieldDidEndEditing(_ textField: UITextField) {
+		textField.text = textField.text!.capitalized
+	}
+	
 	func textViewDidBeginEditing(_ textView: UITextView) {
-		if textView.textColor == UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0) {
+		if textView.textColor == GraphicColors.placeholderGray {
 			textView.text = nil
 			textView.textColor = UIColor.black
 		}
@@ -205,7 +209,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		textView.contentOffset = .zero
 		if textView.text == "" || textView.text.replacingOccurrences(of: "\n", with: "") == "" {
 			textView.text = "Lyrics"
-			textView.textColor = UIColor(red: 0.765, green: 0.765, blue: 0.765, alpha: 1.0)
+			textView.textColor = GraphicColors.placeholderGray
 		}
 	}
 		

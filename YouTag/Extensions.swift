@@ -304,13 +304,22 @@ extension String {
 // MARK: NSArray
 extension NSArray {
 
-	func isSubset(arr: NSArray) -> Bool{
+	func isSubset(of arr: NSArray) -> Bool{
 		for i in 0 ..< self.count {
 			if !arr.contains(self.object(at: i)) {
 				return false
 			}
 		}
 		return true
+	}
+	
+	func hasIntersect(with arr: NSArray) -> Bool {
+		for i in 0 ..< self.count {
+			if arr.contains(self.object(at: i)) {
+				return true
+			}
+		}
+		return false
 	}
 	
 }

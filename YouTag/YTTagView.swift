@@ -53,8 +53,8 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-	func addTags(tagList: NSMutableArray!) {
-		self.tagsList.addObjects(from: tagList as! [Any])
+	func addTags(_ tagsList: NSMutableArray!) {
+		self.tagsList.addObjects(from: tagsList as! [Any])
 		ytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
@@ -108,8 +108,8 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YTTagCell
 		tagCell.textField.delegate = self
 		if isAddEnabled && indexPath.row == 0 {
-			tagCell.backgroundColor = UIColor(red:0.000, green:0.802, blue:0.041, alpha:1.00)
-			tagCell.layer.borderColor = UIColor(red:0.000, green:0.6, blue:0.041, alpha:1.00).cgColor
+			tagCell.backgroundColor = GraphicColors.green
+			tagCell.layer.borderColor = GraphicColors.darkGreen.cgColor
 			tagCell.textField.textColor = .white
 			tagCell.textField.placeholder = addTagPlaceHolder
 			tagCell.titleLabel.textColor = .white
@@ -120,7 +120,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			tagCell.titleLabel.textColor = .darkGray
 			tagCell.textField.textColor = .darkGray
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-			tagCell.layer.borderColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0).cgColor
+			tagCell.layer.borderColor = GraphicColors.orange.cgColor
 			if isAddEnabled {
 				tagCell.titleLabel.text = tagsList.object(at: indexPath.row-1) as? String
 			} else {
@@ -168,7 +168,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 		if self.allowsMultipleSelection {
 			let cell = collectionView.cellForItem(at: indexPath) as! YTTagCell
-			cell.backgroundColor = .gray
+			cell.backgroundColor = .white
 			selectedTagList.remove(cell.titleLabel.text!)
 		}
 	}
