@@ -25,17 +25,17 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	}()
 	let previousButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Previous_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "previous"), for: UIControl.State.normal)
 		return btn
 	}()
 	let pausePlayButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "play"), for: UIControl.State.normal)
 		return btn
 	}()
 	let nextButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Next_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "next"), for: UIControl.State.normal)
 		return btn
 	}()
 	let controlView = UIView()
@@ -144,7 +144,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		pausePlayButton.addTarget(self, action: #selector(pausePlayButtonAction), for: .touchUpInside)
 		self.addSubview(pausePlayButton)
 		pausePlayButton.translatesAutoresizingMaskIntoConstraints = false
-		pausePlayButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -5).isActive = true
+		pausePlayButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -2.5).isActive = true
 		pausePlayButton.centerYAnchor.constraint(equalTo: nextButton.centerYAnchor).isActive = true
 		pausePlayButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
 		pausePlayButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
@@ -152,7 +152,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		previousButton.addTarget(self, action: #selector(previousButtonAction), for: .touchUpInside)
 		self.addSubview(previousButton)
 		previousButton.translatesAutoresizingMaskIntoConstraints = false
-		previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -5).isActive = true
+		previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -2.5).isActive = true
 		previousButton.centerYAnchor.constraint(equalTo: pausePlayButton.centerYAnchor).isActive = true
 		previousButton.heightAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
 		previousButton.widthAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
@@ -247,9 +247,9 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	
 	func audioPlayerPlayingStatusChanged(isPlaying: Bool) {
 		if isPlaying {
-			self.pausePlayButton.setImage(UIImage(named: "Pause_Image"), for: UIControl.State.normal)
+			self.pausePlayButton.setImage(UIImage(named: "pause"), for: UIControl.State.normal)
 		} else {
-			self.pausePlayButton.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
+			self.pausePlayButton.setImage(UIImage(named: "play"), for: UIControl.State.normal)
 		}
 	}
 

@@ -16,12 +16,12 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	var menuButton: UIButton = {
 		let btn = UIButton()
 		btn.imageView!.contentMode = .scaleAspectFit
-		btn.setImage(UIImage(named: "List_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "list"), for: UIControl.State.normal)
 		return btn
 	}()
 	var filterButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Filter_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "filter"), for: UIControl.State.normal)
 		return btn
 	}()
 	let titleLabel: UILabel = {
@@ -40,7 +40,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		return lbl
 	}()
 	let logoImageView: UIImageView = {
-		let imgView = UIImageView(image: UIImage(named: "Logo_Image"))
+		let imgView = UIImageView(image: UIImage(named: "logo"))
 		imgView.contentMode = .scaleAspectFit
 		return imgView
 	}()
