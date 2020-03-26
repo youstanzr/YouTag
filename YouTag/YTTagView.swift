@@ -69,6 +69,12 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		self.reloadData()
 	}
 
+	func removeAllTags() {
+		self.tagsList.removeAllObjects()
+		ytdelegate?.tagsListChanged(newTagsList: self.tagsList)
+		self.reloadData()
+	}
+
 	func deselectAllItems() {
 		guard let selectedItems = indexPathsForSelectedItems else { return }
 		for indexPath in selectedItems { collectionView(self, didDeselectItemAt: indexPath) }
@@ -96,6 +102,15 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 				let currentController = self.getCurrentViewController()
 				currentController?.present(actionSheet, animated: true, completion: nil)
 			}
+		} else {
+			let actionSheet = UIAlertController(title: "Are you sure to delete all tags?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
+			actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
+			actionSheet.addAction(UIAlertAction(title: "Delete", style: .default, handler:{ (UIAlertAction) in
+				print("User requested delete for all tags")
+				self.removeAllTags()
+			}))
+			let currentController = self.getCurrentViewController()
+			currentController?.present(actionSheet, animated: true, completion: nil)
 		}
 	}
 
