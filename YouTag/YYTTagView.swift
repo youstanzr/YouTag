@@ -1,5 +1,5 @@
 //
-//  YTTagView.swift
+//  YYTTagView.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 3/12/20.
@@ -8,13 +8,13 @@
 
 import UIKit
 
-protocol YTTagViewDelegate: class {
+protocol YYTTagViewDelegate: class {
 	func tagsListChanged(newTagsList: NSMutableArray)
 }
 
-class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
+class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
 
-	weak var ytdelegate: YTTagViewDelegate?
+	weak var yytdelegate: YYTTagViewDelegate?
 	var addTagPlaceHolder: String!
 	var isAddEnabled: Bool!
 	var isDeleteEnabled: Bool!
@@ -25,7 +25,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	
 	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
 		super.init(frame: frame, collectionViewLayout: UICollectionViewFlowLayout())
-		self.register(YTTagCell.self, forCellWithReuseIdentifier: "TagCell")
+		self.register(YYTTagCell.self, forCellWithReuseIdentifier: "TagCell")
 		self.delegate = self
 		self.dataSource = self
 		self.layer.cornerRadius = 5
@@ -59,13 +59,13 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		} else {
 			self.tagsList.removeObject(at: index)
 		}
-		ytdelegate?.tagsListChanged(newTagsList: self.tagsList)
+		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
 
 	func removeAllTags() {
 		self.tagsList.removeAllObjects()
-		ytdelegate?.tagsListChanged(newTagsList: self.tagsList)
+		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
 
@@ -85,7 +85,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 		//check if the long press was into the collection view or the cells
 		if let index = indexPath {
 			if !isAddEnabled || index.row != 0 {
-				let tagCell = self.cellForItem(at: index) as! YTTagCell
+				let tagCell = self.cellForItem(at: index) as! YYTTagCell
 				let tagTitle = tagCell.titleLabel.text ?? ""
 				let actionSheet = UIAlertController(title: "Are you sure to delete '\(tagTitle)'?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
 				actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
@@ -114,7 +114,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YTTagCell
+		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YYTTagCell
 		tagCell.textField.delegate = self
 		if isAddEnabled && indexPath.row == 0 {
 			tagCell.backgroundColor = GraphicColors.green
@@ -124,13 +124,13 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
 			tagCell.textField.textColor = .white
 			tagCell.textField.placeholder = addTagPlaceHolder
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		} else {
 			tagCell.backgroundColor = .clear
 			tagCell.titleLabel.textColor = .darkGray
-			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.textField.textColor = .darkGray
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.layer.borderColor = GraphicColors.orange.cgColor
 			let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
 			tagCell.titleLabel.text = tagsList.object(at: index) as? String
@@ -147,7 +147,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			return cellSize
 		}
 		let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
-		var titleWidth = (tagsList.object(at: index) as! String).estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 18)!, padding: 32.0 / 1.5)
+		var titleWidth = (tagsList.object(at: index) as! String).estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 16)!, padding: 32.0 / 1.5)
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475:titleWidth
 		return CGSize(width: titleWidth, height: 32)
 	}
@@ -157,7 +157,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		let cell = collectionView.cellForItem(at: indexPath) as! YTTagCell
+		let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
 		if isAddEnabled && indexPath.row == 0 {
 			print("Add Tag Button tapped")
 			isEditing = true
@@ -171,7 +171,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 	
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 		if self.allowsMultipleSelection {
-			let cell = collectionView.cellForItem(at: indexPath) as! YTTagCell
+			let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
 			cell.backgroundColor = .white
 			selectedTagList.remove(cell.titleLabel.text!)
 		}
@@ -196,7 +196,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			tagsList.add(textField.text!.capitalized)
 			self.reloadData()
 		}
-		(textField.superview?.superview as! YTTagCell).switchMode(enableEditing: false)
+		(textField.superview?.superview as! YYTTagCell).switchMode(enableEditing: false)
 		self.performBatchUpdates(nil, completion: nil)
 	}
 	

@@ -12,7 +12,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 
 	var songDict: Dictionary<String, Any>!
 	let LM = LibraryManager()
-	var tagsView: YTTagView!
+	var tagsView: YYTTagView!
 	let dismissButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = GraphicColors.orange
@@ -38,7 +38,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		txtField.layer.borderColor = UIColor.lightGray.cgColor
 		return txtField
 	}()
-	var artistsTagsView: YTTagView!
+	var artistsTagsView: YYTTagView!
 	let albumTextField: UITextField = {
 		let txtField = UITextField()
 		txtField.backgroundColor = .clear
@@ -113,7 +113,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		titleTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.8).isActive = true
 
 		let artistsTags = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
-		artistsTagsView = YTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
+		artistsTagsView = YYTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		artistsTagsView.addTagPlaceHolder = "Artist"
 		self.view.addSubview(artistsTagsView)
 		artistsTagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -161,7 +161,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 		
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-		tagsView = YTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
+		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false

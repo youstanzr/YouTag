@@ -28,7 +28,7 @@
 
 import UIKit
 
-class YTRangeSlider: UIControl {
+class YYTRangeSlider: UIControl {
 
 	override var frame: CGRect {
 		didSet {
@@ -115,7 +115,7 @@ class YTRangeSlider: UIControl {
 	var highlightedThumbSize: CGFloat = 25.0
 	var isPushEnabled = true
 	
-	private let trackLayer = YTRangeSliderTrackLayer()
+	private let trackLayer = YYTRangeSliderTrackLayer()
 	private let lowerThumbImageView = UIImageView()
 	private let upperThumbImageView = UIImageView()
 	private var previousLocation = CGPoint()
@@ -207,7 +207,7 @@ class YTRangeSlider: UIControl {
 }
 
 
-extension YTRangeSlider {
+extension YYTRangeSlider {
 
 	override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
 

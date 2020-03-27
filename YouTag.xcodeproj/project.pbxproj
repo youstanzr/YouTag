@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */; };
 		2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */; };
-		2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1356242853C70061F3FE /* YTRangeSlider.swift */; };
-		2B0F1359242858AE0061F3FE /* YTRangeSliderTrackLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */; };
+		2B0F1357242853C70061F3FE /* YYTRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1356242853C70061F3FE /* YYTRangeSlider.swift */; };
+		2B0F1359242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1358242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift */; };
 		2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B157C2C24208369001DB815 /* DownloadWebViewController.swift */; };
 		2B61795C24070CE0009149CB /* XCDYouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B61795B24070CE0009149CB /* XCDYouTubeKit */; };
 		2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61795D24072CCB009149CB /* LibraryTableView.swift */; };
@@ -27,16 +27,16 @@
 		2B7863902301AE57001DD6FD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B78638E2301AE57001DD6FD /* LaunchScreen.storyboard */; };
 		2B78639B2301AE57001DD6FD /* YouTagDownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B78639A2301AE57001DD6FD /* YouTagDownTests.swift */; };
 		2B7863A62301AE57001DD6FD /* YouTagDownUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863A52301AE57001DD6FD /* YouTagDownUITests.swift */; };
-		2B810EF8241ABB0A002FA583 /* YTTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF7241ABB0A002FA583 /* YTTagView.swift */; };
-		2B810EFA241ACD1C002FA583 /* YTTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF9241ACD1C002FA583 /* YTTagCell.swift */; };
+		2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF7241ABB0A002FA583 /* YYTTagView.swift */; };
+		2B810EFA241ACD1C002FA583 /* YYTTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */; };
 		2B810EFC241D31AE002FA583 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EFB241D31AE002FA583 /* Song.swift */; };
 		2B810F43241DB156002FA583 /* FilterPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810F42241DB156002FA583 /* FilterPickerView.swift */; };
 		2B81A6DD23020DD800B584E8 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */; };
 		2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */; };
 		2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */; };
-		2BA6246C240C3F1C002D6670 /* YTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */; };
+		2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
-		2BEA01E5242CE50F003505D9 /* YTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */; };
+		2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,8 +59,8 @@
 /* Begin PBXFileReference section */
 		2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistFilters.swift; sourceTree = "<group>"; };
 		2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicColors.swift; sourceTree = "<group>"; };
-		2B0F1356242853C70061F3FE /* YTRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSlider.swift; sourceTree = "<group>"; };
-		2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTRangeSliderTrackLayer.swift; sourceTree = "<group>"; };
+		2B0F1356242853C70061F3FE /* YYTRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTRangeSlider.swift; sourceTree = "<group>"; };
+		2B0F1358242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTRangeSliderTrackLayer.swift; sourceTree = "<group>"; };
 		2B157C2C24208369001DB815 /* DownloadWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadWebViewController.swift; sourceTree = "<group>"; };
 		2B61795D24072CCB009149CB /* LibraryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTableView.swift; sourceTree = "<group>"; };
 		2B61796124087FBF009149CB /* LibraryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryCell.swift; sourceTree = "<group>"; };
@@ -82,16 +82,16 @@
 		2B7863A12301AE57001DD6FD /* YouTagUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YouTagUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B7863A52301AE57001DD6FD /* YouTagDownUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagDownUITests.swift; sourceTree = "<group>"; };
 		2B7863A72301AE57001DD6FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2B810EF7241ABB0A002FA583 /* YTTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTTagView.swift; sourceTree = "<group>"; };
-		2B810EF9241ACD1C002FA583 /* YTTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTTagCell.swift; sourceTree = "<group>"; };
+		2B810EF7241ABB0A002FA583 /* YYTTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagView.swift; sourceTree = "<group>"; };
+		2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagCell.swift; sourceTree = "<group>"; };
 		2B810EFB241D31AE002FA583 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		2B810F42241DB156002FA583 /* FilterPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPickerView.swift; sourceTree = "<group>"; };
 		2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFilesManager.swift; sourceTree = "<group>"; };
-		2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTAudioPlayer.swift; sourceTree = "<group>"; };
+		2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
-		2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTFilterTagView.swift; sourceTree = "<group>"; };
+		2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTFilterTagView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,23 +149,23 @@
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2B157C2C24208369001DB815 /* DownloadWebViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
-				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
 				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
+				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
+				2B810F42241DB156002FA583 /* FilterPickerView.swift */,
 				2B61795D24072CCB009149CB /* LibraryTableView.swift */,
 				2B61796124087FBF009149CB /* LibraryCell.swift */,
-				2B810F42241DB156002FA583 /* FilterPickerView.swift */,
 				2B61796324088E1C009149CB /* LibraryManager.swift */,
 				2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */,
-				2B810EFB241D31AE002FA583 /* Song.swift */,
-				2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */,
-				2B0F1356242853C70061F3FE /* YTRangeSlider.swift */,
-				2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */,
-				2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */,
-				2B810EF7241ABB0A002FA583 /* YTTagView.swift */,
-				2B810EF9241ACD1C002FA583 /* YTTagCell.swift */,
+				2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */,
+				2B0F1356242853C70061F3FE /* YYTRangeSlider.swift */,
+				2B0F1358242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift */,
+				2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */,
+				2B810EF7241ABB0A002FA583 /* YYTTagView.swift */,
+				2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */,
 				2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */,
 				2B6179652408985C009149CB /* Extensions.swift */,
+				2B810EFB241D31AE002FA583 /* Song.swift */,
 				2B7863862301AE56001DD6FD /* Main.storyboard */,
 				2B78638C2301AE57001DD6FD /* Assets.xcassets */,
 				2B78638E2301AE57001DD6FD /* LaunchScreen.storyboard */,
@@ -338,17 +338,17 @@
 			files = (
 				2B6179662408985C009149CB /* Extensions.swift in Sources */,
 				2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */,
-				2BA6246C240C3F1C002D6670 /* YTAudioPlayer.swift in Sources */,
-				2B810EF8241ABB0A002FA583 /* YTTagView.swift in Sources */,
+				2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */,
+				2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */,
 				2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */,
 				2B61796224087FBF009149CB /* LibraryCell.swift in Sources */,
 				2B61796424088E1C009149CB /* LibraryManager.swift in Sources */,
 				2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */,
 				2B7863852301AE56001DD6FD /* ViewController.swift in Sources */,
 				2B810F43241DB156002FA583 /* FilterPickerView.swift in Sources */,
-				2BEA01E5242CE50F003505D9 /* YTFilterTagView.swift in Sources */,
+				2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */,
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
-				2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */,
+				2B0F1357242853C70061F3FE /* YYTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
 				2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */,
 				2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */,
@@ -356,9 +356,9 @@
 				2B61796824097147009149CB /* SongDetailViewController.swift in Sources */,
 				2B78638B2301AE56001DD6FD /* YouTag.xcdatamodeld in Sources */,
 				2B810EFC241D31AE002FA583 /* Song.swift in Sources */,
-				2B0F1359242858AE0061F3FE /* YTRangeSliderTrackLayer.swift in Sources */,
+				2B0F1359242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift in Sources */,
 				2B81A6DD23020DD800B584E8 /* NowPlayingView.swift in Sources */,
-				2B810EFA241ACD1C002FA583 /* YTTagCell.swift in Sources */,
+				2B810EFA241ACD1C002FA583 /* YYTTagCell.swift in Sources */,
 				2B7863832301AE56001DD6FD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
