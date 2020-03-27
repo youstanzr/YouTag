@@ -3,6 +3,7 @@ iOS YouTube Audio Downloader Featuring Tag Based Playlist
 
 ## Attribution
 - YouTube URL extractor: [XCDYouTubeKit](https://github.com/0xced/XCDYouTubeKit)
+- YTAudioPlayer based on: [Background Audio Player Sync Control Center](https://medium.com/@quangtqag/background-audio-player-sync-control-center-516243c2cdd1)
 - YTRangeSlider based on: [How To Make a Custom Control Tutorial: A Reusable Slider](https://www.raywenderlich.com/7595-how-to-make-a-custom-control-tutorial-a-reusable-slider)
 
 - Album image: [@author](https://www.flaticon.com/authors/freepik)
