@@ -16,7 +16,7 @@ class FilterPickerView: UIView {
 
 	weak var delegate: FilterPickerViewDelegate?
 	
-	var tagView: YTTagView!
+	var tagView: YYTTagView!
 	let contentView: UIView = {
 		let v = UIView()
 		v.backgroundColor = .clear
@@ -69,8 +69,8 @@ class FilterPickerView: UIView {
 		v.backgroundColor = .clear
 		return v
 	}()
-	let rangeSlider: YTRangeSlider = {
-		let rSlider = YTRangeSlider(frame: .zero)
+	let rangeSlider: YYTRangeSlider = {
+		let rSlider = YYTRangeSlider(frame: .zero)
 		rSlider.trackTintColor = GraphicColors.trackGray
 		rSlider.trackHighlightTintColor = GraphicColors.orange
 		rSlider.thumbColor = .lightGray
@@ -152,7 +152,7 @@ class FilterPickerView: UIView {
 		pickerView.topAnchor.constraint(equalTo: filterSegment.bottomAnchor).isActive = true
 		pickerView.bottomAnchor.constraint(equalTo: addButton.topAnchor).isActive = true
 		
-		tagView = YTTagView(frame: .zero, tagsList: LibraryManager.getAll(.tags), isAddEnabled: false, isMultiSelection: true, isDeleteEnabled: false)
+		tagView = YYTTagView(frame: .zero, tagsList: LibraryManager.getAll(.tags), isAddEnabled: false, isMultiSelection: true, isDeleteEnabled: false)
 		pickerView.addSubview(tagView)
 		tagView.translatesAutoresizingMaskIntoConstraints = false
 		tagView.leadingAnchor.constraint(equalTo: pickerView.leadingAnchor, constant: 5).isActive = true
@@ -309,7 +309,7 @@ class FilterPickerView: UIView {
 		self.layoutIfNeeded()
 	}
 	
-	@objc func rangeSliderValueChanged(_ sender: YTRangeSlider) {
+	@objc func rangeSliderValueChanged(_ sender: YYTRangeSlider) {
 		if filterSegment.selectedSegmentIndex == 3 {	// release year selected
 			rangeSliderLowerLabel.text = String(Int(sender.lowerValue.rounded(.toNearestOrAwayFromZero)))
 			rangeSliderUpperLabel.text = String(Int(sender.upperValue.rounded(.toNearestOrAwayFromZero)))

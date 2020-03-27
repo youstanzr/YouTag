@@ -1,5 +1,5 @@
 //
-//  YTTagCell.swift
+//  YYTTagCell.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 3/12/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class YTTagCell: UICollectionViewCell {
+class YYTTagCell: UICollectionViewCell {
 
 	let titleLabel: UILabel = {
 		let label = UILabel()

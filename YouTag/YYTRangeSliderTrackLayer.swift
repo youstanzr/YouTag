@@ -28,9 +28,9 @@
 
 import UIKit
 
-class YTRangeSliderTrackLayer: CALayer {
+class YYTRangeSliderTrackLayer: CALayer {
 
-	weak var rangeSlider: YTRangeSlider?
+	weak var rangeSlider: YYTRangeSlider?
 	
 	override func draw(in ctx: CGContext) {
 		guard let slider = rangeSlider else {

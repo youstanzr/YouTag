@@ -12,12 +12,12 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 	
 	var nowPlayingView: NowPlayingView!
 	var playlistLibraryView: PlaylistLibraryView!
-	var audioPlayer: YTAudioPlayer!
+	var audioPlayer: YYTAudioPlayer!
 	var playlistFilters = PlaylistFilters(tags: [], artists: [], album: [], releaseYearRange: [], releaseYear: [], duration: [])
 	
 	override init() {
 		super.init()
-		audioPlayer = YTAudioPlayer(playlistManager: self)
+		audioPlayer = YYTAudioPlayer(playlistManager: self)
 		playlistLibraryView = PlaylistLibraryView()
 		playlistLibraryView.PLDelegate = self
 		nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)

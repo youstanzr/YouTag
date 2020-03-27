@@ -7,9 +7,9 @@
 //
 import UIKit
 
-class NowPlayingView: UIView, YTAudioPlayerDelegate {
+class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
-	var audioPlayer: YTAudioPlayer!
+	var audioPlayer: YYTAudioPlayer!
 	let thumbnailImageView = UIImageView()
 	let titleLabel: UILabel = {
 		let lbl = UILabel()
@@ -73,7 +73,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
         super.init(coder: aDecoder)
     }
 
-	init(frame: CGRect, audioPlayer: YTAudioPlayer) {
+	init(frame: CGRect, audioPlayer: YYTAudioPlayer) {
 		super.init(frame: frame)
 		self.audioPlayer = audioPlayer
 		self.audioPlayer.delegate = self

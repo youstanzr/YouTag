@@ -1,5 +1,5 @@
 //
-//  YTFilterTagView.swift
+//  YYTFilterTagView.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 3/26/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class YTFilterTagView: YTTagView {
+class YYTFilterTagView: YYTTagView {
 	
 	override init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
 		super.init(frame: frame, tagsList: tagsList, isAddEnabled: isAddEnabled, isMultiSelection: isMultiSelection, isDeleteEnabled: isDeleteEnabled)
@@ -38,7 +38,7 @@ class YTFilterTagView: YTTagView {
 	}
 	
 	override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YTTagCell
+		let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YYTTagCell
 		tagCell.textField.delegate = self
 		if isAddEnabled && indexPath.row == 0 {
 			tagCell.backgroundColor = GraphicColors.green

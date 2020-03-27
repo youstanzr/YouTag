@@ -8,9 +8,9 @@
 
 import UIKit
 
-class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDelegate {
+class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
 	
-	var tagsView: YTFilterTagView!
+	var tagsView: YYTFilterTagView!
 	var playlistManager = PlaylistManager()
 	var filterPickerView: FilterPickerView!
 	var menuButton: UIButton = {
@@ -79,8 +79,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 
-		tagsView = YTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
-		tagsView.ytdelegate = self
+		tagsView = YYTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
+		tagsView.yytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
 		tagsView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
@@ -145,7 +145,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		filterPickerView.show(withAnimation: true)
     }
 
-	// MARK: YTTagViewDelegate
+	// MARK: YYTTagViewDelegate
 	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
 		let filtersArr = playlistManager.playlistFilters.getFilters()

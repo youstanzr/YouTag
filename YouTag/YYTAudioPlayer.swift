@@ -1,5 +1,5 @@
 //
-//  YTAudioPlayer.swift
+//  YYTAudioPlayer.swift
 //  YouTag
 //
 //  Created by Youstanzr Alqattan on 3/1/20.
@@ -10,14 +10,14 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-protocol YTAudioPlayerDelegate: class {
+protocol YYTAudioPlayerDelegate: class {
 	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float)
 	func audioPlayerPlayingStatusChanged(isPlaying: Bool)
 }
 
-class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
+class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 
-	weak var delegate: YTAudioPlayerDelegate?
+	weak var delegate: YYTAudioPlayerDelegate?
 
 	private var playlistManager: PlaylistManager!
 	private var audioPlayer: AVAudioPlayer!

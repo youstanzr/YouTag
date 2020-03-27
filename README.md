@@ -22,11 +22,11 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 	- PlaylistLibraryView (*inherits* LibraryTableView)
 		- LibraryCell
 	- PlaylistFilters
-- YTAudioPlayer
-- YTRangeSlider
-	- YTRangeSliderTrackLayer
-- YTTagView / YTFilterTagView
-	- YTTagCell
+- YYTAudioPlayer
+- YYTRangeSlider
+	- YYTRangeSliderTrackLayer
+- YYTTagView / YYTFilterTagView
+	- YYTTagCell
 - LocalFileManager
 
 ## Contribution
@@ -38,8 +38,8 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 ### Libraries
 - YouTube URL extractor: [XCDYouTubeKit](https://github.com/0xced/XCDYouTubeKit)
 ### Resources
-- YTAudioPlayer based on: [Background Audio Player Sync Control Center](https://medium.com/@quangtqag/background-audio-player-sync-control-center-516243c2cdd1)
-- YTRangeSlider based on: [How To Make a Custom Control Tutorial: A Reusable Slider](https://www.raywenderlich.com/7595-how-to-make-a-custom-control-tutorial-a-reusable-slider)
+- YYTAudioPlayer based on: [Background Audio Player Sync Control Center](https://medium.com/@quangtqag/background-audio-player-sync-control-center-516243c2cdd1)
+- YYTRangeSlider based on: [How To Make a Custom Control Tutorial: A Reusable Slider](https://www.raywenderlich.com/7595-how-to-make-a-custom-control-tutorial-a-reusable-slider)
 ### Graphics
 - Album image: [@author](https://www.flaticon.com/authors/freepik)
 - Artist image: [@author](https://www.flaticon.com/authors/freepik)
