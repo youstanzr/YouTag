@@ -47,13 +47,13 @@ class YTTagCell: UICollectionViewCell {
 		self.layer.borderWidth = 2.0
 		
 		// calculates the insets of the maximum square touching the corners of the cell
-		let imageViewInset = 0.5 * self.frame.height / (2.0 * sqrt(2.0))
+		let imageViewInset = 0.5 * self.frame.height / (2.0 * sqrt(2.0)) + 2
 		imageView.isHidden = true
 		self.addSubview(imageView)
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -imageViewInset).isActive = true
 		imageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: imageViewInset).isActive = true
-		imageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: imageViewInset + 2).isActive = true
+		imageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: imageViewInset).isActive = true
 		imageView.widthAnchor.constraint(equalTo: self.imageView.heightAnchor).isActive = true
 
 		self.contentView.addSubview(titleLabel)
