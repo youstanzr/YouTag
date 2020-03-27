@@ -227,7 +227,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	// MARK: Handle Interruptions
 	/*
-	When you are playing in background mode, if a phone call come then the sound will be muted but when hang off the phone call then the sound does not automatically continue playing.
+	When you are playing in background mode, if a phone call come then the sound will be muted but when hang off the phone call then the sound should automatically continue playing.
 	*/
 	func setupInterreuptionsNotifications() {
 		NotificationCenter.default.addObserver(self,
@@ -242,7 +242,6 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
 				return
 		}
-		#warning("This interruption end handling is not working when phone call hang off")
 		if type == .began {
 			print("Interruption began")
 			// Interruption began, take appropriate actions
@@ -250,7 +249,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		else if type == .ended {
 			if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
 				let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-				print(options)
+
 				if options.contains(.shouldResume) {
 					// Interruption Ended - playback should resume
 					print("Interruption Ended - playback should resume")
