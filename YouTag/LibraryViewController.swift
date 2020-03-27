@@ -15,7 +15,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 		let btn = UIButton()
 		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
-		btn.titleLabel?.font = .boldSystemFont(ofSize: 50)
+		btn.titleLabel?.font = .boldSystemFont(ofSize: 48)
 		btn.setTitle("+", for: .normal)
 		btn.contentVerticalAlignment = .top
 		btn.titleEdgeInsets = UIEdgeInsets(top: -10.0, left: 0.0, bottom: 0.0, right: 0.0)
@@ -26,7 +26,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 		let btn = UIButton()
 		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
-		btn.titleLabel?.font = .boldSystemFont(ofSize: 30)
+		btn.titleLabel?.font = .boldSystemFont(ofSize: 32)
 		btn.setTitle("✔︎", for: .normal)
 		btn.contentVerticalAlignment = .top
 		btn.titleEdgeInsets = UIEdgeInsets(top: 2.5, left: 0.0, bottom: 0.0, right: 0.0)

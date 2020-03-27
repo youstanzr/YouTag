@@ -58,10 +58,10 @@ class FilterPickerView: UIView {
 		let button = UIButton()
 		button.backgroundColor = GraphicColors.green
 		button.titleLabel?.textColor = .white
-		button.titleLabel?.font = .boldSystemFont(ofSize: 32)
+		button.titleLabel?.font = .boldSystemFont(ofSize: 38)
 		button.setTitle("+", for: .normal)
 		button.contentVerticalAlignment = .top
-		button.titleEdgeInsets = UIEdgeInsets(top: -3.5, left: 0.0, bottom: 0.0, right: 0.0)
+		button.titleEdgeInsets = UIEdgeInsets(top: -5.0, left: 0.0, bottom: 0.0, right: 0.0)
 		return button
 	}()
 	let rangeSliderView: UIView = {

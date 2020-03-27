@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDelegate {
 	
-	var tagsView: YTTagView!
+	var tagsView: YTFilterTagView!
 	var playlistManager = PlaylistManager()
 	var filterPickerView: FilterPickerView!
 	var menuButton: UIButton = {
@@ -33,7 +33,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200319"
+		lbl.text = "v20200327"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
@@ -79,7 +79,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 
-		tagsView = YTTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
+		tagsView = YTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.ytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -148,7 +148,15 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	// MARK: YTTagViewDelegate
 	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
-//		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+		let filtersArr = playlistManager.playlistFilters.getFilters()
+		let deletedFilters = NSMutableArray()
+		for i in 0 ..< filtersArr.count {
+			if !newTagsList.contains(filtersArr.object(at: i)) {
+				deletedFilters.add(filtersArr.object(at: i))
+			}
+		}
+		playlistManager.playlistFilters.deleteFilter(using: deletedFilters)
+		playlistManager.computePlaylist()
 	}
 	
 	// MARK: FilterPickerViewDelegate
@@ -156,6 +164,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDeleg
 	func processNewFilter(type: String, filters: NSMutableArray) {
 		playlistManager.playlistFilters.addUniqueFilter(filters, type: PlaylistFilters.FilterType(rawValue: type)!)
 		playlistManager.computePlaylist()
+		tagsView.tagsList = playlistManager.playlistFilters.getFilters()
+		tagsView.reloadData()
 	}
 
 }

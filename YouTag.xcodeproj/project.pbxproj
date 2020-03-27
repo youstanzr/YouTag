@@ -36,6 +36,7 @@
 		2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */; };
 		2BA6246C240C3F1C002D6670 /* YTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
+		2BEA01E5242CE50F003505D9 /* YTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFilesManager.swift; sourceTree = "<group>"; };
 		2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
+		2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTFilterTagView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +161,7 @@
 				2BA6246B240C3F1C002D6670 /* YTAudioPlayer.swift */,
 				2B0F1356242853C70061F3FE /* YTRangeSlider.swift */,
 				2B0F1358242858AE0061F3FE /* YTRangeSliderTrackLayer.swift */,
+				2BEA01E4242CE50F003505D9 /* YTFilterTagView.swift */,
 				2B810EF7241ABB0A002FA583 /* YTTagView.swift */,
 				2B810EF9241ACD1C002FA583 /* YTTagCell.swift */,
 				2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */,
@@ -343,6 +346,7 @@
 				2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */,
 				2B7863852301AE56001DD6FD /* ViewController.swift in Sources */,
 				2B810F43241DB156002FA583 /* FilterPickerView.swift in Sources */,
+				2BEA01E5242CE50F003505D9 /* YTFilterTagView.swift in Sources */,
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
 				2B0F1357242853C70061F3FE /* YTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,

@@ -20,12 +20,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		btn.titleLabel?.font = .boldSystemFont(ofSize: 32)
 		btn.setTitle("✔︎", for: .normal)
 		btn.contentVerticalAlignment = .top
-		btn.titleEdgeInsets = UIEdgeInsets(top: -3.5, left: 0.0, bottom: 0.0, right: 0.0)
+		btn.titleEdgeInsets = UIEdgeInsets(top: 2.5, left: 0.0, bottom: 0.0, right: 0.0)
 		return btn
 	}()
 	let thumbnailImageView = UIImageView()
 	let titleTextField: UITextField = {
 		let txtField = UITextField()
+		txtField.backgroundColor = .clear
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtField.autocorrectionType = .no
@@ -40,6 +41,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	var artistsTagsView: YTTagView!
 	let albumTextField: UITextField = {
 		let txtField = UITextField()
+		txtField.backgroundColor = .clear
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtField.autocorrectionType = .no
@@ -53,6 +55,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}()
 	let releaseYrTextField: UITextField = {
 		let txtField = UITextField()
+		txtField.backgroundColor = .clear
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtField.autocorrectionType = .no
@@ -67,6 +70,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}()
 	let lyricsTextView: UITextView = {
 		let txtView = UITextView()
+		txtView.backgroundColor = .clear
 		txtView.textAlignment = .left
 		txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		txtView.autocorrectionType = .no

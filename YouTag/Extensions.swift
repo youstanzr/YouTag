@@ -266,7 +266,7 @@ extension UITextField {
 // MARK: String
 extension NSString {
 
-	func estimateSizeWidth(font: UIFont, padding: CGFloat) -> CGFloat{
+	func estimateSizeWidth(font: UIFont, padding: CGFloat) -> CGFloat {
 		let size = CGSize(width: 200, height: 1000) // temporary size
 		let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
 		let rect = self.boundingRect(with: size,
