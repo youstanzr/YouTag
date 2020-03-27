@@ -18,15 +18,15 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 ## Classes Architecture
 
 - PlaylistManager
-- NowPlayingView
-- PlaylistLibraryView (*inherits* LibraryTableView)
-- LibraryCell
-- PlaylistFilters
+	- NowPlayingView
+	- PlaylistLibraryView (*inherits* LibraryTableView)
+		- LibraryCell
+	- PlaylistFilters
 - YTAudioPlayer
 - YTRangeSlider
-- YTRangeSliderTrackLayer
+	- YTRangeSliderTrackLayer
 - YTTagView / YTFilterTagView
-- YTTagCell
+	- YTTagCell
 - LocalFileManager
 
 ## Contribution
