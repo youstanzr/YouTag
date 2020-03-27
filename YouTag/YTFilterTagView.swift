@@ -53,7 +53,7 @@ class YTFilterTagView: YTTagView {
 			tagCell.backgroundColor = .clear
 			tagCell.titleLabel.textColor = .darkGray
 			tagCell.textField.textColor = .darkGray
-			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.layer.borderColor = GraphicColors.orange.cgColor
 			
 			let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
@@ -75,7 +75,7 @@ class YTFilterTagView: YTTagView {
 		}
 		let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
 		let tuple = tagsList.object(at: index) as? NSMutableArray
-		var titleWidth = (tuple?.object(at: 1) as? String)!.estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 18)!, padding: 5.0)
+		var titleWidth = (tuple?.object(at: 1) as? String)!.estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 16)!, padding: 5.0)
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475 : titleWidth
 		return CGSize(width: titleWidth + 34, height: 32)
 	}

@@ -124,13 +124,13 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
 			tagCell.textField.textColor = .white
 			tagCell.textField.placeholder = addTagPlaceHolder
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		} else {
 			tagCell.backgroundColor = .clear
 			tagCell.titleLabel.textColor = .darkGray
-			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.textField.textColor = .darkGray
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 18)
+			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.layer.borderColor = GraphicColors.orange.cgColor
 			let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
 			tagCell.titleLabel.text = tagsList.object(at: index) as? String
@@ -147,7 +147,7 @@ class YTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewD
 			return cellSize
 		}
 		let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
-		var titleWidth = (tagsList.object(at: index) as! String).estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 18)!, padding: 32.0 / 1.5)
+		var titleWidth = (tagsList.object(at: index) as! String).estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 16)!, padding: 32.0 / 1.5)
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475:titleWidth
 		return CGSize(width: titleWidth, height: 32)
 	}
