@@ -257,6 +257,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 				} else {
 					// Interruption Ended - playback should NOT resume
 					print("Interruption Ended - playback should NOT resume")
+					delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
 				}
 			}
 		}
