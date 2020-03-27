@@ -25,25 +25,29 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	}()
 	let previousButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Previous_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "previous"), for: UIControl.State.normal)
 		return btn
 	}()
 	let pausePlayButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "play"), for: UIControl.State.normal)
 		return btn
 	}()
 	let nextButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Next_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "next"), for: UIControl.State.normal)
 		return btn
 	}()
 	let controlView = UIView()
-	let progressBar = UISlider()
+	let progressBar: UISlider = {
+		let pBar = UISlider()
+		pBar.tintColor = GraphicColors.orange
+		return pBar
+	}()
 	var isProgressBarSliding = false
 	let playbackRateButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
 		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
 		btn.setTitle("x1", for: .normal)
@@ -64,6 +68,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		return lbl
 	}()
 
+	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -81,18 +86,19 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		controlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
 		controlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.2).isActive = true
 		
-		progressBar.tintColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
-		progressBar.setThumbImage(makeCircleImage(radius: 15.0, backgroundColor: .lightGray), for: .normal)
-		progressBar.setThumbImage(makeCircleImage(radius: 20.0, backgroundColor: .lightGray), for: .highlighted)
+		let thumbImage = makeCircleImage(radius: 15.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
+		let selectedThumbImage = makeCircleImage(radius: 20.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
+		progressBar.setThumbImage(thumbImage, for: .normal)
+		progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
 		progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
 		controlView.addSubview(progressBar)
 		progressBar.translatesAutoresizingMaskIntoConstraints = false
-		progressBar.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 2.5).isActive = true
+		progressBar.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 6.0).isActive = true
 		progressBar.widthAnchor.constraint(equalTo: controlView.widthAnchor, multiplier: 0.7, constant: -2.5).isActive = true
 		progressBar.centerYAnchor.constraint(equalTo: controlView.centerYAnchor).isActive = true
 		progressBar.heightAnchor.constraint(equalTo: controlView.heightAnchor).isActive = true
 		
-		currentTimeLabel.addBorder(side: .right, color: UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0), width: 0.5)
+		currentTimeLabel.addBorder(side: .right, color: GraphicColors.orange, width: 0.5)
 		controlView.addSubview(currentTimeLabel)
 		currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
 		currentTimeLabel.leadingAnchor.constraint(equalTo: progressBar.trailingAnchor, constant: 2.5).isActive = true
@@ -100,7 +106,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		currentTimeLabel.centerYAnchor.constraint(equalTo: controlView.centerYAnchor).isActive = true
 		currentTimeLabel.heightAnchor.constraint(equalTo: controlView.heightAnchor).isActive = true
 
-		timeLeftLabel.addBorder(side: .left, color: UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0), width: 0.5)
+		timeLeftLabel.addBorder(side: .left, color: GraphicColors.orange, width: 0.5)
 		controlView.addSubview(timeLeftLabel)
 		timeLeftLabel.translatesAutoresizingMaskIntoConstraints = false
 		timeLeftLabel.widthAnchor.constraint(equalTo: controlView.widthAnchor, multiplier: 0.1, constant: -2.5).isActive = true
@@ -138,7 +144,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		pausePlayButton.addTarget(self, action: #selector(pausePlayButtonAction), for: .touchUpInside)
 		self.addSubview(pausePlayButton)
 		pausePlayButton.translatesAutoresizingMaskIntoConstraints = false
-		pausePlayButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -5).isActive = true
+		pausePlayButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -2.5).isActive = true
 		pausePlayButton.centerYAnchor.constraint(equalTo: nextButton.centerYAnchor).isActive = true
 		pausePlayButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
 		pausePlayButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
@@ -146,7 +152,7 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 		previousButton.addTarget(self, action: #selector(previousButtonAction), for: .touchUpInside)
 		self.addSubview(previousButton)
 		previousButton.translatesAutoresizingMaskIntoConstraints = false
-		previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -5).isActive = true
+		previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -2.5).isActive = true
 		previousButton.centerYAnchor.constraint(equalTo: pausePlayButton.centerYAnchor).isActive = true
 		previousButton.heightAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
 		previousButton.widthAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
@@ -241,23 +247,31 @@ class NowPlayingView: UIView, YTAudioPlayerDelegate {
 	
 	func audioPlayerPlayingStatusChanged(isPlaying: Bool) {
 		if isPlaying {
-			self.pausePlayButton.setImage(UIImage(named: "Pause_Image"), for: UIControl.State.normal)
+			self.pausePlayButton.setImage(UIImage(named: "pause"), for: UIControl.State.normal)
 		} else {
-			self.pausePlayButton.setImage(UIImage(named: "Play_Image"), for: UIControl.State.normal)
+			self.pausePlayButton.setImage(UIImage(named: "play"), for: UIControl.State.normal)
 		}
 	}
 
-	fileprivate func makeCircleImage(radius: CGFloat, backgroundColor: UIColor) -> UIImage? {
-		let size = CGSize(width: radius, height: radius)
-		UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+	fileprivate func makeCircleImage(radius: CGFloat, color: UIColor,
+									 borderColor: UIColor, borderWidth: CGFloat) -> UIImage? {
+		let outerSize = CGSize(width: radius, height: radius)
+		let innerSize = CGSize(width: radius - 2.0 * borderWidth, height: radius - 2.0 * borderWidth)
+		UIGraphicsBeginImageContextWithOptions(outerSize, false, 0.0)
 		let context = UIGraphicsGetCurrentContext()
-		context?.setFillColor(backgroundColor.cgColor)
+		let outerBounds = CGRect(origin: .zero, size: outerSize)
+		context?.setFillColor(borderColor.cgColor)
 		context?.setStrokeColor(UIColor.clear.cgColor)
-		let bounds = CGRect(origin: .zero, size: size)
-		context?.addEllipse(in: bounds)
+		context?.addEllipse(in: outerBounds)
+		context?.drawPath(using: .fill)
+		let innerBounds = CGRect(x: borderWidth, y: borderWidth, width: innerSize.width, height: innerSize.height)
+		context?.setFillColor(color.cgColor)
+		context?.setStrokeColor(UIColor.clear.cgColor)
+		context?.addEllipse(in: innerBounds)
 		context?.drawPath(using: .fill)
 		let image = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 		return image
 	}
+	
 }

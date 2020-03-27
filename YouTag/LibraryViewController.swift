@@ -10,11 +10,12 @@ import UIKit
 import XCDYouTubeKit
 
 class LibraryViewController: UIViewController, DownloadWebViewDelegate {
+
 	let addButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
-		btn.titleLabel?.font = .boldSystemFont(ofSize: 50)
+		btn.titleLabel?.font = .boldSystemFont(ofSize: 48)
 		btn.setTitle("+", for: .normal)
 		btn.contentVerticalAlignment = .top
 		btn.titleEdgeInsets = UIEdgeInsets(top: -10.0, left: 0.0, bottom: 0.0, right: 0.0)
@@ -23,9 +24,9 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	}()
 	let dismissButton: UIButton = {
 		let btn = UIButton()
-		btn.backgroundColor = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
+		btn.backgroundColor = GraphicColors.orange
 		btn.titleLabel?.textColor = .white
-		btn.titleLabel?.font = .boldSystemFont(ofSize: 30)
+		btn.titleLabel?.font = .boldSystemFont(ofSize: 32)
 		btn.setTitle("✔︎", for: .normal)
 		btn.contentVerticalAlignment = .top
 		btn.titleEdgeInsets = UIEdgeInsets(top: 2.5, left: 0.0, bottom: 0.0, right: 0.0)
@@ -35,9 +36,10 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	let libraryTableView = LibraryTableView()
 	let LM = LibraryManager()
 
+	
     override func viewDidLoad() {
         super.viewDidLoad()
-		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
+		self.view.backgroundColor = GraphicColors.backgroundWhite
 		
 		libraryTableView.backgroundColor = .clear
 		self.view.addSubview(libraryTableView)
@@ -66,7 +68,6 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         self.LM.refreshLibraryArray()
-        self.libraryTableView.LM.refreshLibraryArray()
         self.libraryTableView.refreshTableView()
     }
 
@@ -130,4 +131,5 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
         print("dismiss tapped")
         dismiss(animated: true, completion: nil)
     }
+	
 }

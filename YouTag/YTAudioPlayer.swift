@@ -16,6 +16,7 @@ protocol YTAudioPlayerDelegate: class {
 }
 
 class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
+
 	weak var delegate: YTAudioPlayerDelegate?
 
 	private var playlistManager: PlaylistManager!
@@ -54,7 +55,7 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool{
 		self.songDict = songDict
-		let songID = songDict["songID"] as? String ?? ""
+		let songID = songDict["id"] as? String ?? ""
 		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).m4a")
 		do {
 			if audioPlayer != nil {
@@ -187,9 +188,9 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func setupNowPlaying() {
 		// Define Now Playing Info
 		var nowPlayingInfo = [String : Any]()
-		nowPlayingInfo[MPMediaItemPropertyTitle] = songDict["songTitle"] as? String
+		nowPlayingInfo[MPMediaItemPropertyTitle] = songDict["title"] as? String
 
-		let songID = songDict["songID"] as? String ?? ""
+		let songID = songDict["id"] as? String ?? ""
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		if let image = UIImage(data: imageData ?? Data()) {
 			nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { size in
@@ -229,11 +230,10 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	When you are playing in background mode, if a phone call come then the sound will be muted but when hang off the phone call then the sound does not automatically continue playing.
 	*/
 	func setupInterreuptionsNotifications() {
-		let notificationCenter = NotificationCenter.default
-		notificationCenter.addObserver(self,
-									   selector: #selector(handleInterruption),
-									   name: AVAudioSession.interruptionNotification,
-									   object: nil)
+		NotificationCenter.default.addObserver(self,
+											   selector: #selector(handleInterruption),
+											   name: AVAudioSession.interruptionNotification,
+											   object: nil)
 	}
 
 	@objc func handleInterruption(notification: Notification) {
@@ -268,11 +268,10 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	when you plug a headphone into the phone then the sound will emit on the headphone. But when you unplug the headphone then the sound automatically continue playing on built-in speaker. Maybe this is the behavior that you don’t expect. B/c when you plug the headphone into you want the sound is private to you, and when you unplug it you don’t want it emit out to other people. We will handle it by receiving events when the route change
 	*/
 	func setupRouteChangeNotifications() {
-		let notificationCenter = NotificationCenter.default
-		notificationCenter.addObserver(self,
-									   selector: #selector(handleRouteChange),
-									   name: AVAudioSession.routeChangeNotification,
-									   object: nil)
+		NotificationCenter.default.addObserver(self,
+											   selector: #selector(handleRouteChange),
+											   name: AVAudioSession.routeChangeNotification,
+											   object: nil)
 	}
 	
 	@objc func handleRouteChange(notification: Notification) {
@@ -309,4 +308,5 @@ class YTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			default: ()
 		}
 	}
+	
 }

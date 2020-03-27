@@ -9,8 +9,10 @@
 import UIKit
 
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
-    var LM: LibraryManager!
+ 
+	var LM: LibraryManager!
 
+	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -18,7 +20,6 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
 	override init(frame: CGRect, style: UITableView.Style) {
 		super.init(frame: frame, style: style)
         LM = LibraryManager.init()
-        self.layer.cornerRadius = 2.5
 
 		self.register(LibraryCell.self, forCellReuseIdentifier: "LibraryCell")
         self.delegate = self
@@ -68,9 +69,10 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == .delete) {
             let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
-			LM.deleteSongFromLibrary(songID: cell.songDict["songID"] as? String ?? "")
+			LM.deleteSongFromLibrary(songID: cell.songDict["id"] as? String ?? "")
             LM.refreshLibraryArray()
             tableView.reloadData()
         }
     }
+	
 }

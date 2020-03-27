@@ -14,7 +14,8 @@ var spinner_view : UIView?
  
 // MARK: UIViewController
 extension UIViewController {
-    func showSpinner(onView : UIView) {
+ 
+	func showSpinner(onView : UIView) {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
         let ai = UIActivityIndicatorView.init(style: .whiteLarge)
@@ -35,10 +36,60 @@ extension UIViewController {
             spinner_view = nil
         }
     }
+	
+	func getSelectedTextField() -> UITextField? {
+		let totalTextFields = getTextFieldsInView(view: self.view)
+		
+		for textField in totalTextFields {
+			if textField.isFirstResponder {
+				return textField
+			}
+		}
+		return nil
+	}
+	
+	func getTextFieldsInView(view: UIView) -> [UITextField] {
+		var totalTextFields = [UITextField]()
+		
+		for subview in view.subviews as [UIView] {
+			if let textField = subview as? UITextField {
+				totalTextFields += [textField]
+			} else {
+				totalTextFields += getTextFieldsInView(view: subview)
+			}
+		}
+		return totalTextFields
+	}
+	
+	func getSelectedTextView() -> UITextView? {
+		let totalTextViews = getTextViewsInView(view: self.view)
+		
+		for textView in totalTextViews {
+			if textView.isFirstResponder {
+				return textView
+			}
+		}
+		return nil
+	}
+	
+	func getTextViewsInView(view: UIView) -> [UITextView] {
+		var totalTextViews = [UITextView]()
+		
+		for subview in view.subviews as [UIView] {
+			if let textView = subview as? UITextView {
+				totalTextViews += [textView]
+			} else {
+				totalTextViews += getTextViewsInView(view: subview)
+			}
+		}
+		return totalTextViews
+	}
+
 }
 
 // MARK: UIView
 extension UIView{
+
 	enum BorderSide {
 		case top, bottom, left, right
 	}
@@ -79,10 +130,12 @@ extension UIView{
 				NSLayoutConstraint.activate([bottomConstraint, leftConstraint, topConstraint, widthConstraint])
 		}
 	}
+	
 }
 
 // MARK: TimeInterval
 extension TimeInterval{
+
 	func stringFromTimeInterval() -> String {
 		
 		let time = NSInteger(self)
@@ -91,11 +144,13 @@ extension TimeInterval{
 		
 		return String(format: "%0.2d:%0.2d",minutes,seconds)
 	}
+	
 }
 
 // MARK: AVAsset
 extension AVAsset {
-    // Provide a URL for where you wish to write
+
+	// Provide a URL for where you wish to write
     // the audio file if successful
     func writeAudioTrack(to url: URL,
                          success: @escaping () -> (),
@@ -165,11 +220,13 @@ extension AVAsset {
         }
         return composition
     }
+	
 }
 
 
 // MARK: UITextField
 extension UITextField {
+
 	enum PaddingSpace {
 		case left(CGFloat)
 		case right(CGFloat)
@@ -203,11 +260,13 @@ extension UITextField {
 				self.rightViewMode = .always
 		}
 	}
+	
 }
 
 // MARK: String
 extension NSString {
-	func estimateSizeWidth(font: UIFont, padding: CGFloat) -> CGFloat{
+
+	func estimateSizeWidth(font: UIFont, padding: CGFloat) -> CGFloat {
 		let size = CGSize(width: 200, height: 1000) // temporary size
 		let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
 		let rect = self.boundingRect(with: size,
@@ -216,9 +275,11 @@ extension NSString {
 									context: nil)
 		return ceil(rect.width) + padding
 	}
+	
 }
 
 extension String {
+
 	func convertToTimeInterval() -> TimeInterval {
 		guard self != "" else {
 			return 0
@@ -233,11 +294,17 @@ extension String {
 		
 		return interval
 	}
+	
+	var isNumeric : Bool {
+		return Double(self) != nil
+	}
+	
 }
 
 // MARK: NSArray
 extension NSArray {
-	func isSubset(arr: NSArray) -> Bool{
+
+	func isSubset(of arr: NSArray) -> Bool{
 		for i in 0 ..< self.count {
 			if !arr.contains(self.object(at: i)) {
 				return false
@@ -245,4 +312,14 @@ extension NSArray {
 		}
 		return true
 	}
+	
+	func hasIntersect(with arr: NSArray) -> Bool {
+		for i in 0 ..< self.count {
+			if arr.contains(self.object(at: i)) {
+				return true
+			}
+		}
+		return false
+	}
+	
 }

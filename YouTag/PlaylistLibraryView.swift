@@ -13,9 +13,11 @@ protocol PlaylistLibraryViewDelegate: class {
 }
 
 class PlaylistLibraryView: LibraryTableView {
+
 	weak var PLDelegate: PlaylistLibraryViewDelegate?
 	
 	var playlistArray = NSMutableArray()
+
 	
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -46,7 +48,7 @@ class PlaylistLibraryView: LibraryTableView {
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
 
-		print("Selected cell number \(indexPath.row) -> \(cell.songDict["songTitle"] ?? "")")
+		print("Selected cell number \(indexPath.row) -> \(cell.songDict["title"] ?? "")")
 
 		playlistArray.remove(cell.songDict)
 		playlistArray.insert(cell.songDict, at: 0)
@@ -63,4 +65,5 @@ class PlaylistLibraryView: LibraryTableView {
 			tableView.reloadData()
 		}
 	}
+	
 }

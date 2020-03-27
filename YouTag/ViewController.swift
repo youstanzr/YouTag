@@ -8,19 +8,20 @@
 
 import UIKit
 
-class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate {
-	var tagsView: YTTagView!
+class ViewController: UIViewController, FilterPickerViewDelegate, YTTagViewDelegate {
+	
+	var tagsView: YTFilterTagView!
 	var playlistManager = PlaylistManager()
-	var tagPickerView: TagPickerView!
+	var filterPickerView: FilterPickerView!
 	var menuButton: UIButton = {
 		let btn = UIButton()
 		btn.imageView!.contentMode = .scaleAspectFit
-		btn.setImage(UIImage(named: "List_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "list"), for: UIControl.State.normal)
 		return btn
 	}()
 	var filterButton: UIButton = {
 		let btn = UIButton()
-		btn.setImage(UIImage(named: "Filter_Image"), for: UIControl.State.normal)
+		btn.setImage(UIImage(named: "filter"), for: UIControl.State.normal)
 		return btn
 	}()
 	let titleLabel: UILabel = {
@@ -32,22 +33,22 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200319"
+		lbl.text = "v20200327"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
 		return lbl
 	}()
 	let logoImageView: UIImageView = {
-		let imgView = UIImageView(image: UIImage(named: "Logo_Image"))
+		let imgView = UIImageView(image: UIImage(named: "logo"))
 		imgView.contentMode = .scaleAspectFit
 		return imgView
 	}()
 
+	
 	override func viewDidLoad() {
         super.viewDidLoad()
-		self.view.backgroundColor = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1.0)
-		
+		self.view.backgroundColor = GraphicColors.backgroundWhite
 		self.view.addSubview(logoImageView)
 		logoImageView.translatesAutoresizingMaskIntoConstraints = false
 		logoImageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
@@ -78,7 +79,7 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 
-		tagsView = YTTagView(frame: .zero, tagsList: NSMutableArray(), isAddable: false, isMultiSelection: false)
+		tagsView = YTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.ytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -112,13 +113,18 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 		versionLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -1).isActive = true
 		versionLabel.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.075).isActive = true
 
-		tagPickerView = TagPickerView()
-		tagPickerView.delegate = self
-		self.view.addSubview(tagPickerView)
+		filterPickerView = FilterPickerView()
+		filterPickerView.delegate = self
+		self.view.addSubview(filterPickerView)
+		filterPickerView.translatesAutoresizingMaskIntoConstraints = false
+		filterPickerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+		filterPickerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+		filterPickerView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+		filterPickerView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 	}
-	
+		
 	override func viewWillAppear(_ animated: Bool) {
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+		playlistManager.computePlaylist()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -136,27 +142,30 @@ class ViewController: UIViewController, TagPickerViewDelegate, YTTagViewDelegate
 
     @objc func filterButtonAction(sender: UIButton!) {
         print("Filter Button tapped")
-		tagPickerView.show(withAnimation: true)
+		filterPickerView.show(withAnimation: true)
     }
-	
-	//For the tag list the are added
-	func processAddedTags(addedTagsList: NSMutableArray) {
-		//Remove the tags already present in the tagsView
-		var i = 0
-		while i < addedTagsList.count {
-			if self.tagsView.tagsList.contains(addedTagsList.object(at: i)) {
-				addedTagsList.removeObject(at: i)
-				i -= 1
-			}
-			i += 1
-		}
-		//Add the newly added tags
-		self.tagsView.addTags(tagList: addedTagsList)
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
-	}
-	
+
+	// MARK: YTTagViewDelegate
 	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
-		playlistManager.updateTagsList(to: self.tagsView.tagsList)
+		let filtersArr = playlistManager.playlistFilters.getFilters()
+		let deletedFilters = NSMutableArray()
+		for i in 0 ..< filtersArr.count {
+			if !newTagsList.contains(filtersArr.object(at: i)) {
+				deletedFilters.add(filtersArr.object(at: i))
+			}
+		}
+		playlistManager.playlistFilters.deleteFilter(using: deletedFilters)
+		playlistManager.computePlaylist()
 	}
+	
+	// MARK: FilterPickerViewDelegate
+	//For the tag list the are added
+	func processNewFilter(type: String, filters: NSMutableArray) {
+		playlistManager.playlistFilters.addUniqueFilter(filters, type: PlaylistFilters.FilterType(rawValue: type)!)
+		playlistManager.computePlaylist()
+		tagsView.tagsList = playlistManager.playlistFilters.getFilters()
+		tagsView.reloadData()
+	}
+
 }
