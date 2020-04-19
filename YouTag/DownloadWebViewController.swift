@@ -69,8 +69,8 @@ class DownloadWebViewController: UIViewController {
 	}
 
 	@objc func downloadBtn(_ sender: UIBarButtonItem) {
-		delegate?.retrievedVideoLink(videoLink: webView.url!.absoluteString)
 		self.dismiss(animated: true, completion: nil)
+		delegate?.retrievedVideoLink(videoLink: webView.url!.absoluteString)
 	}
 	
 }
