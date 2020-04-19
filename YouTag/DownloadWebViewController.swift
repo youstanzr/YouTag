@@ -17,19 +17,20 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 
 	weak var delegate: DownloadWebViewDelegate!
 	let webView = WKWebView()
+	let urlFieldView = UIView()
 	let urlField: UITextField = {
 		let txtField = UITextField()
 		txtField.text = "https://www.youtube.com"
-		txtField.backgroundColor = .clear
+		txtField.backgroundColor = GraphicColors.backgroundWhite
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 17)
 		txtField.autocorrectionType = .no
 		txtField.placeholder = "URL"
 		txtField.addPadding(padding: .equalSpacing(10))
 		txtField.returnKeyType = .go
-		txtField.layer.borderWidth = 3.0
-		txtField.layer.borderColor = UIColor.lightGray.cgColor
+		txtField.layer.cornerRadius = 5
 		txtField.keyboardType = .URL
+		txtField.clearButtonMode = .whileEditing
 		return txtField
 	}()
 	let progressBar: UIProgressView = {
@@ -47,7 +48,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		webToolbar.barStyle = .default
 		webToolbar.isTranslucent = true
 		webToolbar.tintColor = .black
-		webToolbar.barTintColor = .lightGray
+		webToolbar.barTintColor = GraphicColors.gray
 		let doneButton = UIBarButtonItem(title: "✔︎", style: UIBarButtonItem.Style.plain, target: self, action: #selector(dismissBtn))
 		let downloadButton = UIBarButtonItem(title: "↓", style: UIBarButtonItem.Style.plain, target: self, action: #selector(downloadBtn))
 		let prevButton = UIBarButtonItem(title: "◀︎", style: UIBarButtonItem.Style.plain, target: self, action: #selector(prevBtn))
@@ -61,27 +62,35 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		webToolbar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		webToolbar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 
+		urlFieldView.backgroundColor = GraphicColors.gray
+		self.view.addSubview(urlFieldView)
+		urlFieldView.translatesAutoresizingMaskIntoConstraints = false
+		urlFieldView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+		urlFieldView.heightAnchor.constraint(equalToConstant: 80).isActive = true
+		urlFieldView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+		urlFieldView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+
 		urlField.delegate = self
-		self.view.addSubview(urlField)
+		urlFieldView.addSubview(urlField)
 		urlField.translatesAutoresizingMaskIntoConstraints = false
-		urlField.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 34).isActive = true
+		urlField.topAnchor.constraint(equalTo: urlFieldView.topAnchor, constant: 40).isActive = true
 		urlField.heightAnchor.constraint(equalToConstant: 34).isActive = true
-		urlField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-		urlField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+		urlField.leadingAnchor.constraint(equalTo: urlFieldView.leadingAnchor, constant: 5).isActive = true
+		urlField.trailingAnchor.constraint(equalTo: urlFieldView.trailingAnchor, constant: -5).isActive = true
 
 		webView.navigationDelegate = self
 		webView.allowsBackForwardNavigationGestures = true
 		webView.load(URLRequest(url: URL(string: urlField.text!)!))
 		self.view.addSubview(webView)
 		webView.translatesAutoresizingMaskIntoConstraints = false
-		webView.topAnchor.constraint(equalTo: self.urlField.bottomAnchor).isActive = true
+		webView.topAnchor.constraint(equalTo: urlFieldView.bottomAnchor).isActive = true
 		webView.bottomAnchor.constraint(equalTo: webToolbar.topAnchor).isActive = true
 		webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 		
 		self.view.addSubview(progressBar)
 		progressBar.translatesAutoresizingMaskIntoConstraints = false
-		progressBar.topAnchor.constraint(equalTo: self.urlField.bottomAnchor).isActive = true
+		progressBar.bottomAnchor.constraint(equalTo: urlFieldView.bottomAnchor).isActive = true
 		progressBar.heightAnchor.constraint(equalToConstant: 2).isActive = true
 		progressBar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		progressBar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
