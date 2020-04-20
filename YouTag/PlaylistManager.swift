@@ -33,7 +33,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		let songDict: Dictionary<String, Any>
 		if playlistLibraryView.playlistArray.count > 0 {
 			audioPlayer.unsuspend()
-			songDict = playlistLibraryView.playlistArray.object(at: 0) as! Dictionary<String, Any>
+			songDict = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count-1) as! Dictionary<String, Any>
 		} else {
 			audioPlayer.suspend()
 			songDict = Dictionary<String, Any>()
@@ -46,7 +46,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		
 		if playlistLibraryView.playlistArray.count > 0 {
-			_ = audioPlayer.setupPlayer(withPlaylist: playlistLibraryView.playlistArray)
+			_ = audioPlayer.setupPlayer(withPlaylist: NSMutableArray(array: playlistLibraryView.playlistArray.reversed()))
 		}
 	}
 	
@@ -56,15 +56,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 	}
 	
 	func movePlaylistForward() {
-		playlistLibraryView.playlistArray.add(playlistLibraryView.playlistArray.object(at: 0))
-		playlistLibraryView.playlistArray.removeObject(at: 0)
+		playlistLibraryView.playlistArray.insert(playlistLibraryView.playlistArray.lastObject!, at: 0)
+		playlistLibraryView.playlistArray.removeObject(at: playlistLibraryView.playlistArray.count - 1)
 		playlistLibraryView.reloadData()
 		refreshNowPlayingView()
 	}
 	
 	func movePlaylistBackward() {
-		playlistLibraryView.playlistArray.insert(playlistLibraryView.playlistArray.lastObject!, at: 0)
-		playlistLibraryView.playlistArray.removeObject(at: playlistLibraryView.playlistArray.count - 1)
+		playlistLibraryView.playlistArray.add(playlistLibraryView.playlistArray.object(at: 0))
+		playlistLibraryView.playlistArray.removeObject(at: 0)
 		playlistLibraryView.reloadData()
 		refreshNowPlayingView()
 	}

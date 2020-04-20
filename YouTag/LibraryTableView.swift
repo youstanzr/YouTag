@@ -38,7 +38,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
         
-		let songDict = LM.libraryArray.object(at: indexPath.row) as! Dictionary<String, Any>
+		let songDict = LM.libraryArray.object(at: LM.libraryArray.count - 1 - indexPath.row) as! Dictionary<String, Any>
 		cell.songDict = songDict
 		cell.refreshCell()
         return cell
