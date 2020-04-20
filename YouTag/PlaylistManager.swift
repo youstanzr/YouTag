@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
+class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate {
 	
 	var nowPlayingView: NowPlayingView!
 	var playlistLibraryView: PlaylistLibraryView!
@@ -21,12 +21,14 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		playlistLibraryView = PlaylistLibraryView()
 		playlistLibraryView.PLDelegate = self
 		nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
+		nowPlayingView.NPDelegate = self
 		refreshNowPlayingView()
 	}
 				
 	func updatePlaylistLibrary(toPlaylist newPlaylist: NSMutableArray) {
 		playlistLibraryView.playlistArray = newPlaylist
 		playlistLibraryView.refreshTableView()
+		refreshNowPlayingView()
 	}
 	
 	func refreshNowPlayingView() {
@@ -74,6 +76,16 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		nowPlayingView.pausePlayButtonAction(sender: nil)
 	}
 	
+	func shufflePlaylist() {
+		let lastObject = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count - 1)
+		let whatsNextArr = playlistLibraryView.playlistArray
+		whatsNextArr.removeLastObject()
+		let shuffledArr = NSMutableArray(array: whatsNextArr.shuffled())
+		shuffledArr.add(lastObject)
+		playlistLibraryView.playlistArray = shuffledArr
+		playlistLibraryView.refreshTableView()
+	}
+
 	// MARK: Filter processing functions
 	func computePlaylist() {
 		var newPlaylist = LibraryManager.getLibraryArray()
@@ -85,7 +97,6 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		newPlaylist = applyDurationFilter(on: newPlaylist)
 
 		updatePlaylistLibrary(toPlaylist: newPlaylist)
-		refreshNowPlayingView()
 	}
 	
 	func applyTagFilter(on playlist: NSMutableArray) -> NSMutableArray {
