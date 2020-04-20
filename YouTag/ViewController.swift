@@ -88,6 +88,13 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
 		tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 		
+		self.view.addSubview(versionLabel)
+		versionLabel.translatesAutoresizingMaskIntoConstraints = false
+		versionLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -15).isActive = true
+		versionLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.25).isActive = true
+		versionLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -1).isActive = true
+		versionLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
 		playlistManager.nowPlayingView.backgroundColor = .clear
 		playlistManager.nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
 		playlistManager.nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
@@ -96,7 +103,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 		playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-		playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.4).isActive = true
+		playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.2).isActive = true
 		
 		playlistManager.playlistLibraryView.backgroundColor = .clear
         self.view.addSubview(playlistManager.playlistLibraryView)
@@ -104,14 +111,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5).isActive = true
 		playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5).isActive = true
 		playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 5).isActive = true
-		playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30).isActive = true
-
-		self.view.addSubview(versionLabel)
-		versionLabel.translatesAutoresizingMaskIntoConstraints = false
-		versionLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -15).isActive = true
-		versionLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.25).isActive = true
-		versionLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -1).isActive = true
-		versionLabel.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.075).isActive = true
+		playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
 
 		filterPickerView = FilterPickerView()
 		filterPickerView.delegate = self
