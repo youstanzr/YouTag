@@ -115,7 +115,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 		playlistControlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
 		playlistControlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.3).isActive = true
 
-		//repeatButton.addTarget(self, action: #selector(repeatButtonAction), for: .touchUpInside)
+		repeatButton.addTarget(self, action: #selector(repeatButtonAction), for: .touchUpInside)
 		playlistControlView.addSubview(repeatButton)
 		repeatButton.translatesAutoresizingMaskIntoConstraints = false
 		repeatButton.leadingAnchor.constraint(equalTo: playlistControlView.leadingAnchor, constant: 2.5).isActive = true
@@ -270,6 +270,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	@objc func shuffleButtonAction(sender: UIButton!) {
 		print("shuffle Button tapped")
 		NPDelegate?.shufflePlaylist()
+	}
+	
+	@objc func repeatButtonAction(sender: UIButton!) {
+		print("repeat Button tapped")
+		print("new repeat status: ", !audioPlayer.isSongRepeat)
+		audioPlayer.isSongRepeat = !audioPlayer.isSongRepeat
 	}
 	
 	@objc func onSliderValChanged(slider: UISlider, event: UIEvent) {
