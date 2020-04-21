@@ -8,7 +8,7 @@
 
 import UIKit
 
-class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource{
+class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource {
  
 	var LM: LibraryManager!
 
