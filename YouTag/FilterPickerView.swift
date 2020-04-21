@@ -239,7 +239,7 @@ class FilterPickerView: UIView {
 									   filters: NSMutableArray(objects: TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
 										, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
 		}
-		self.tagView.deselectAllItems()
+		self.tagView.deselectAllTags()
 		self.isHidden = true
 	}
 	

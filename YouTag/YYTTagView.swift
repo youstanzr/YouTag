@@ -18,9 +18,15 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	var addTagPlaceHolder: String!
 	var isAddEnabled: Bool!
 	var isDeleteEnabled: Bool!
-	var tagsList: NSMutableArray!
-	var selectedTagList: NSMutableArray!
-	var isEditing: Bool!
+	var tagsList: NSMutableArray! {
+		didSet {
+			print(selectedTagList)
+			selectedTagList.removeAllObjects()
+			print(selectedTagList)
+		}
+	}
+	var selectedTagList = NSMutableArray()
+	var isEditing: Bool = false
 	
 	
 	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
@@ -35,9 +41,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		self.allowsMultipleSelection = isMultiSelection
 		self.isAddEnabled = isAddEnabled
 		self.isDeleteEnabled = isDeleteEnabled
-		self.isEditing = false
 		self.tagsList = tagsList
-		self.selectedTagList = NSMutableArray()
 		let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.addGestureRecognizer(tap)
@@ -55,8 +59,10 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		
 	func removeTag(at index: Int) {
 		if isAddEnabled {
-			self.tagsList.removeObject(at: index-1)
+			self.selectedTagList.remove(tagsList.object(at: index - 1))
+			self.tagsList.removeObject(at: index - 1)
 		} else {
+			self.selectedTagList.remove(tagsList.object(at: index))
 			self.tagsList.removeObject(at: index)
 		}
 		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
@@ -65,13 +71,15 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 
 	func removeAllTags() {
 		self.tagsList.removeAllObjects()
+		self.selectedTagList.removeAllObjects()
 		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
 
-	func deselectAllItems() {
+	func deselectAllTags() {
 		guard let selectedItems = indexPathsForSelectedItems else { return }
 		for indexPath in selectedItems { collectionView(self, didDeselectItemAt: indexPath) }
+		self.selectedTagList.removeAllObjects()
 	}
 
 	// MARK: Long Press Gesture Recognizer
