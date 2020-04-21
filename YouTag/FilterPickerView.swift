@@ -240,7 +240,6 @@ class FilterPickerView: UIView {
 										, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
 		}
 		self.tagView.deselectAllTags()
-		self.isHidden = true
 	}
 	
 	@objc func filterValueChanged(sender: UISegmentedControl) {
