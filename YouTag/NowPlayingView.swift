@@ -220,24 +220,24 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 		nextButton.translatesAutoresizingMaskIntoConstraints = false
 		nextButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5).isActive = true
 		nextButton.centerYAnchor.constraint(equalTo: thumbnailImageView.centerYAnchor).isActive = true
-		nextButton.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.275).isActive = true
-		nextButton.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.275).isActive = true
+		nextButton.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.25).isActive = true
+		nextButton.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.25).isActive = true
 
 		pausePlayButton.addTarget(self, action: #selector(pausePlayButtonAction), for: .touchUpInside)
 		self.addSubview(pausePlayButton)
 		pausePlayButton.translatesAutoresizingMaskIntoConstraints = false
 		pausePlayButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -5).isActive = true
 		pausePlayButton.centerYAnchor.constraint(equalTo: nextButton.centerYAnchor).isActive = true
-		pausePlayButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
-		pausePlayButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
+		pausePlayButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor, multiplier: 1.5).isActive = true
+		pausePlayButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor, multiplier: 1.5).isActive = true
 
 		previousButton.addTarget(self, action: #selector(previousButtonAction), for: .touchUpInside)
 		self.addSubview(previousButton)
 		previousButton.translatesAutoresizingMaskIntoConstraints = false
 		previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -5).isActive = true
 		previousButton.centerYAnchor.constraint(equalTo: pausePlayButton.centerYAnchor).isActive = true
-		previousButton.heightAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
-		previousButton.widthAnchor.constraint(equalTo: pausePlayButton.heightAnchor).isActive = true
+		previousButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
+		previousButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
 
         self.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
