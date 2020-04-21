@@ -1,6 +1,7 @@
 [![License](https://img.shields.io/github/license/youstanzr/YouTag)](LICENSE) [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org) 
 ## About
 **YouTag** is an iOS YouTube downloader that extracts the audio of any video and creates a local library for your songs. The app curate a playlist based on user's choice of filters. Filters can be on tags, artist, album, release year or duration.
+
 ![](/Images/screenshot_banner.png)
 
 ## Requirements
