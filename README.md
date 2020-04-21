@@ -47,10 +47,12 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Duration image: [@author](https://www.flaticon.com/authors/freepik)
 - Filter image: [@author](https://www.flaticon.com/authors/freepik)
 - List image: [@author](https://www.flaticon.com/authors/pixel-perfect)
+- Loop image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Next image: [@author](https://www.flaticon.com/authors/smashicons)
 - Pause image: [@author](https://www.flaticon.com/authors/kiranshastry)
 - Play image: [@author](https://www.flaticon.com/authors/smashicons)
 - Previous image: [@author](https://www.flaticon.com/authors/smashicons)
+- Shuffle image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Tag image: [@author](https://www.flaticon.com/authors/those-icons)
 
 ## License
