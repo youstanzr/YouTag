@@ -77,7 +77,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	let lyricsButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = .clear
-		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22)
+		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 24)
 		btn.setTitle("What's next", for: .normal)
 		btn.setTitleColor(GraphicColors.orange, for: .normal)
 		return btn
@@ -86,7 +86,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 		let txtView = UITextView()
 		txtView.backgroundColor = .clear
 		txtView.textAlignment = .center
-		txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
+		txtView.font = UIFont.init(name: "Optima-BoldItalic", size: 15)
 		txtView.isEditable = false
 		txtView.layer.borderWidth = 1.0
 		txtView.layer.borderColor = GraphicColors.orange.withAlphaComponent(0.5).cgColor
@@ -95,15 +95,16 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	let repeatButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = .clear
-		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22)
-		btn.setTitle("♾", for: .normal)
+		btn.imageView!.contentMode = .scaleAspectFit
+		btn.setImage(UIImage(named: "loop"), for: UIControl.State.normal)
+		btn.alpha = 0.35
 		return btn
 	}()
 	let shuffleButton: UIButton = {
 		let btn = UIButton()
 		btn.backgroundColor = .clear
-		btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22)
-		btn.setTitle("🔀", for: .normal)
+		btn.imageView!.contentMode = .scaleAspectFit
+		btn.setImage(UIImage(named: "shuffle"), for: UIControl.State.normal)
 		return btn
 	}()
 
@@ -295,6 +296,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	@objc func repeatButtonAction(sender: UIButton!) {
 		print("repeat Button tapped")
 		print("new repeat status: ", !audioPlayer.isSongRepeat)
+		repeatButton.alpha = !audioPlayer.isSongRepeat ? 1 : 0.35
 		audioPlayer.isSongRepeat = !audioPlayer.isSongRepeat
 	}
 	
