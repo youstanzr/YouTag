@@ -197,11 +197,11 @@ class FilterPickerView: UIView {
 		rangeSliderUpperLabel.heightAnchor.constraint(equalTo: rangeSliderView.heightAnchor, multiplier: 0.15).isActive = true
 	}
 		
-	func show(withAnimation isAnimated: Bool) {
+	func show(animated: Bool) {
 		print("Show tag picker view")
 		self.isHidden = false
 		self.filterValueChanged(sender: filterSegment)
-		if isAnimated {
+		if animated {
 			self.contentView.frame.origin.y = UIScreen.main.bounds.height
 			UIView.animate(withDuration: 0.2, animations: {
 				self.contentView.frame.origin.y = UIScreen.main.bounds.height - self.contentView.frame.height
@@ -239,8 +239,7 @@ class FilterPickerView: UIView {
 									   filters: NSMutableArray(objects: TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
 										, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
 		}
-		self.tagView.deselectAllItems()
-		self.isHidden = true
+		self.tagView.deselectAllTags()
 	}
 	
 	@objc func filterValueChanged(sender: UISegmentedControl) {

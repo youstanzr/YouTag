@@ -39,7 +39,7 @@ class PlaylistLibraryView: LibraryTableView {
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
 
-		let songDict = playlistArray.object(at: (indexPath.row+1) % playlistArray.count) as! Dictionary<String, Any>
+		let songDict = playlistArray.object(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count) as! Dictionary<String, Any>
 		cell.songDict = songDict
 		cell.refreshCell()
 		return cell
@@ -50,8 +50,10 @@ class PlaylistLibraryView: LibraryTableView {
 
 		print("Selected cell number \(indexPath.row) -> \(cell.songDict["title"] ?? "")")
 
+		playlistArray.insert(playlistArray.lastObject!, at: 0)
+		playlistArray.removeLastObject()
 		playlistArray.remove(cell.songDict)
-		playlistArray.insert(cell.songDict, at: 0)
+		playlistArray.add(cell.songDict)
 		
 		tableView.deselectRow(at: indexPath, animated: false)
 		tableView.reloadData()
@@ -61,7 +63,7 @@ class PlaylistLibraryView: LibraryTableView {
 	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 		if (editingStyle == .delete) {
-			playlistArray.removeObject(at: indexPath.row+1 % playlistArray.count)
+			playlistArray.removeObject(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count)
 			tableView.reloadData()
 		}
 	}

@@ -26,6 +26,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	private var currentSongIndex: Int!
 	private var updater = CADisplayLink()
 	private var isSuspended: Bool = false
+	var isSongRepeat: Bool = false
 	
 	init(playlistManager: PlaylistManager) {
 		super.init()
@@ -84,6 +85,10 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
 	}
 	
+	func setSongRepeat(to status: Bool) {
+		isSongRepeat = status
+	}
+
 	func suspend() {
 		pause()
 		isSuspended = true
@@ -221,7 +226,11 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
 		print("Audio player did finish playing: \(flag)")
 		if (flag) {
-			next()
+			if (isSongRepeat) {
+				play()
+			} else {
+				next()
+			}
 		}
 	}
 	

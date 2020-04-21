@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
+class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate {
 	
 	var nowPlayingView: NowPlayingView!
 	var playlistLibraryView: PlaylistLibraryView!
@@ -21,19 +21,21 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		playlistLibraryView = PlaylistLibraryView()
 		playlistLibraryView.PLDelegate = self
 		nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
+		nowPlayingView.NPDelegate = self
 		refreshNowPlayingView()
 	}
 				
 	func updatePlaylistLibrary(toPlaylist newPlaylist: NSMutableArray) {
 		playlistLibraryView.playlistArray = newPlaylist
 		playlistLibraryView.refreshTableView()
+		refreshNowPlayingView()
 	}
 	
 	func refreshNowPlayingView() {
 		let songDict: Dictionary<String, Any>
 		if playlistLibraryView.playlistArray.count > 0 {
 			audioPlayer.unsuspend()
-			songDict = playlistLibraryView.playlistArray.object(at: 0) as! Dictionary<String, Any>
+			songDict = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count-1) as! Dictionary<String, Any>
 		} else {
 			audioPlayer.suspend()
 			songDict = Dictionary<String, Any>()
@@ -42,11 +44,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		let songID = songDict["id"] as? String ?? ""
 		nowPlayingView.titleLabel.text = songDict["title"] as? String
 		nowPlayingView.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
+		nowPlayingView.lyricsTextView.text = songDict["lyrics"] as? String
+		let isLyricsAvailable = nowPlayingView.lyricsTextView.text != ""
+		nowPlayingView.lyricsTextView.isHidden = !isLyricsAvailable
+		nowPlayingView.lyricsButton.isHidden = isLyricsAvailable
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		
 		if playlistLibraryView.playlistArray.count > 0 {
-			_ = audioPlayer.setupPlayer(withPlaylist: playlistLibraryView.playlistArray)
+			_ = audioPlayer.setupPlayer(withPlaylist: NSMutableArray(array: playlistLibraryView.playlistArray.reversed()))
 		}
 	}
 	
@@ -56,15 +62,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 	}
 	
 	func movePlaylistForward() {
-		playlistLibraryView.playlistArray.add(playlistLibraryView.playlistArray.object(at: 0))
-		playlistLibraryView.playlistArray.removeObject(at: 0)
+		playlistLibraryView.playlistArray.insert(playlistLibraryView.playlistArray.lastObject!, at: 0)
+		playlistLibraryView.playlistArray.removeObject(at: playlistLibraryView.playlistArray.count - 1)
 		playlistLibraryView.reloadData()
 		refreshNowPlayingView()
 	}
 	
 	func movePlaylistBackward() {
-		playlistLibraryView.playlistArray.insert(playlistLibraryView.playlistArray.lastObject!, at: 0)
-		playlistLibraryView.playlistArray.removeObject(at: playlistLibraryView.playlistArray.count - 1)
+		playlistLibraryView.playlistArray.add(playlistLibraryView.playlistArray.object(at: 0))
+		playlistLibraryView.playlistArray.removeObject(at: 0)
 		playlistLibraryView.reloadData()
 		refreshNowPlayingView()
 	}
@@ -74,6 +80,16 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		nowPlayingView.pausePlayButtonAction(sender: nil)
 	}
 	
+	func shufflePlaylist() {
+		let lastObject = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count - 1)
+		let whatsNextArr = playlistLibraryView.playlistArray
+		whatsNextArr.removeLastObject()
+		let shuffledArr = NSMutableArray(array: whatsNextArr.shuffled())
+		shuffledArr.add(lastObject)
+		playlistLibraryView.playlistArray = shuffledArr
+		playlistLibraryView.refreshTableView()
+	}
+
 	// MARK: Filter processing functions
 	func computePlaylist() {
 		var newPlaylist = LibraryManager.getLibraryArray()
@@ -85,7 +101,6 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate {
 		newPlaylist = applyDurationFilter(on: newPlaylist)
 
 		updatePlaylistLibrary(toPlaylist: newPlaylist)
-		refreshNowPlayingView()
 	}
 	
 	func applyTagFilter(on playlist: NSMutableArray) -> NSMutableArray {

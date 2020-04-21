@@ -1,7 +1,16 @@
 [![License](https://img.shields.io/github/license/youstanzr/YouTag)](LICENSE) [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org) 
-
 ## About
-**YouTag** is an iOS YouTube downloader that extracts the audio of any video and creates a local library for your songs. The app curate a playlist based on user's choice of filters. Filters can be on tags, artist, album, release year or duration.
+**YouTag** is an iOS YouTube downloader that extracts the audio of any video and downloads it into a local library that supports in-background song playing. The app can curate a playlist based on user's choice of filters. Filters can be on tags, artist, album, release year or duration.
+
+![](/Images/screenshot_banner.png)
+
+## Features
+- Downloads from YouTube and applies audio extraction to save device storage
+- Edit song information like title, artist, album, etc
+- Can customize playlist based on filters
+- Can customize playlist manually deleting the unwanted songs (deletes from playlist only)
+- Plays music in the background
+- Change song playback rate to x0.75 or x1.25
 
 ## Requirements
 - Tested on Xcode 11.0 and later
@@ -47,10 +56,12 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Duration image: [@author](https://www.flaticon.com/authors/freepik)
 - Filter image: [@author](https://www.flaticon.com/authors/freepik)
 - List image: [@author](https://www.flaticon.com/authors/pixel-perfect)
+- Loop image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Next image: [@author](https://www.flaticon.com/authors/smashicons)
 - Pause image: [@author](https://www.flaticon.com/authors/kiranshastry)
 - Play image: [@author](https://www.flaticon.com/authors/smashicons)
 - Previous image: [@author](https://www.flaticon.com/authors/smashicons)
+- Shuffle image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Tag image: [@author](https://www.flaticon.com/authors/those-icons)
 
 ## License
