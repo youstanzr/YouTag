@@ -142,7 +142,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 
     @objc func filterButtonAction(sender: UIButton!) {
         print("Filter Button tapped")
-		filterPickerView.show(withAnimation: true)
+		filterPickerView.show(animated: true)
     }
 
 	// MARK: YYTTagViewDelegate
