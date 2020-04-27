@@ -80,7 +80,11 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func setPlayerRate(to rate: Float) {
 		self.audioPlayer.rate = rate
 	}
-		
+
+	func getPlayerRate() -> Float {
+		return self.audioPlayer?.rate ?? 1.0
+	}
+
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
 		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
 	}
