@@ -112,7 +112,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
                 print(error?.localizedDescription as Any)
                 return
             }
-            _ = self.LM.addSongToLibrary(songTitle: video!.title, videoUrl: video!.streamURL, thumbnailUrl: video!.thumbnailURL!, duration: video!.duration.stringFromTimeInterval(), songID: videoID)
+			_ = self.LM.addSongToLibrary(songTitle: video!.title, videoUrl: video!.streamURL, thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], duration: video!.duration.stringFromTimeInterval(), songID: videoID)
 			self.libraryTableView.refreshTableView()
 			self.removeSpinner()
         }
