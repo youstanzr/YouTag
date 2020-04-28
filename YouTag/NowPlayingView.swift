@@ -266,17 +266,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	
     @objc func nextButtonAction(sender: UIButton!) {
         print("Next Button tapped")
-		let oldPlaybackRate = audioPlayer.getPlayerRate()
 		audioPlayer.next()
-		audioPlayer.setPlayerRate(to: oldPlaybackRate)
-		playbackRateButton.titleLabel?.text = "x\(oldPlaybackRate == 1.0 ? 1 : oldPlaybackRate)"
    }
     
     @objc func previousButtonAction(sender: UIButton!) {
         print("Previous Button tapped")
-		let oldPlaybackRate = audioPlayer.getPlayerRate()
 		audioPlayer.prev()
-		audioPlayer.setPlayerRate(to: oldPlaybackRate)
     }
 	
 	@objc func playbackRateButtonAction(sender: UIButton!) {

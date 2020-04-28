@@ -56,7 +56,6 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 			_ = audioPlayer.setupPlayer(withPlaylist: NSMutableArray(array: playlistLibraryView.playlistArray.reversed()))
 		}
 
-		audioPlayer.setPlayerRate(to: oldPlaybackRate)
 		nowPlayingView.playbackRateButton.titleLabel?.text = "x\(oldPlaybackRate == 1.0 ? 1 : oldPlaybackRate)"
 	}
 	
