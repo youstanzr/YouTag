@@ -50,10 +50,13 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		nowPlayingView.lyricsButton.isHidden = isLyricsAvailable
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
 		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		let oldPlaybackRate = audioPlayer.getPlayerRate()
 		
 		if playlistLibraryView.playlistArray.count > 0 {
 			_ = audioPlayer.setupPlayer(withPlaylist: NSMutableArray(array: playlistLibraryView.playlistArray.reversed()))
 		}
+
+		nowPlayingView.playbackRateButton.titleLabel?.text = "x\(oldPlaybackRate == 1.0 ? 1 : oldPlaybackRate)"
 	}
 	
 	func refreshPlaylistLibraryView() {

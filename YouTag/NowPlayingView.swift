@@ -267,7 +267,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     @objc func nextButtonAction(sender: UIButton!) {
         print("Next Button tapped")
 		audioPlayer.next()
-    }
+   }
     
     @objc func previousButtonAction(sender: UIButton!) {
         print("Previous Button tapped")

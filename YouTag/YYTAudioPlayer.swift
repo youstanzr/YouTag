@@ -62,12 +62,14 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			if audioPlayer != nil {
 				updater.invalidate()
 			}
+			let oldPlaybackRate = getPlayerRate()
 			audioPlayer = try AVAudioPlayer(contentsOf: url)
 			audioPlayer.delegate = self
 			audioPlayer.enableRate = true
 			audioPlayer.prepareToPlay()
 			setupNowPlaying()
 			delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
+			setPlayerRate(to: oldPlaybackRate)
 			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
 			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 			return true
@@ -79,8 +81,13 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func setPlayerRate(to rate: Float) {
 		self.audioPlayer.rate = rate
+		updateNowPlaying(isPause: false)
 	}
-		
+
+	func getPlayerRate() -> Float {
+		return self.audioPlayer?.rate ?? 1.0
+	}
+
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
 		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
 	}
@@ -215,7 +222,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo!
 		
 		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer.currentTime
-		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = !isPause
+		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = !isPause ? audioPlayer.rate : 0.0
 		
 		// Set the metadata
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
