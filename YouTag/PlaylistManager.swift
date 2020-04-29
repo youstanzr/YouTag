@@ -44,6 +44,21 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		let songID = songDict["id"] as? String ?? ""
 		nowPlayingView.titleLabel.text = songDict["title"] as? String
 		nowPlayingView.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
+		
+		nowPlayingView.titleLabel.restartLabel()
+		if nowPlayingView.titleLabel.text!.isRTL {
+			nowPlayingView.titleLabel.type = .continuousReverse
+		} else {
+			nowPlayingView.titleLabel.type = .continuous
+		}
+
+		nowPlayingView.artistLabel.restartLabel()
+		if nowPlayingView.artistLabel.text!.isRTL {
+			nowPlayingView.artistLabel.type = .continuousReverse
+		} else {
+			nowPlayingView.artistLabel.type = .continuous
+		}
+		
 		nowPlayingView.lyricsTextView.text = songDict["lyrics"] as? String
 		let isLyricsAvailable = nowPlayingView.lyricsTextView.text != ""
 		nowPlayingView.lyricsTextView.isHidden = !isLyricsAvailable
