@@ -81,7 +81,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func setPlayerRate(to rate: Float) {
 		self.audioPlayer.rate = rate
-		updateNowPlaying(isPause: false)
+		updateNowPlaying(isPause: isPlaying())
 	}
 
 	func getPlayerRate() -> Float {
@@ -90,6 +90,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
 		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
+		updateNowPlaying(isPause: isPlaying())
 	}
 	
 	func setSongRepeat(to status: Bool) {
