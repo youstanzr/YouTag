@@ -300,6 +300,24 @@ extension String {
 		return Double(self) != nil
 	}
 	
+	var isRTL: Bool {
+		if self == "" {
+			return false
+		}
+		let tagschemes = NSArray(objects: NSLinguisticTagScheme.language)
+		let tagger = NSLinguisticTagger(tagSchemes: tagschemes as! [NSLinguisticTagScheme], options: 0)
+		tagger.string = self
+		
+		let language = tagger.tag(at: 0, scheme: NSLinguisticTagScheme.language, tokenRange: nil, sentenceRange: nil)
+		return String(describing: language).range(of: "he") != nil ||
+			String(describing: language).range(of: "ar") != nil ||
+			String(describing: language).range(of: "fa") != nil
+	}
+
+	func trim() -> String {
+		return self.trimmingCharacters(in: .whitespacesAndNewlines)
+	}
+
 }
 
 // MARK: NSArray

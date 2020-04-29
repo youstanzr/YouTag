@@ -199,7 +199,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}
 	
 	func textFieldDidEndEditing(_ textField: UITextField) {
-		textField.text = textField.text!.capitalized
+		textField.text = textField.text!.capitalized.trim()
 	}
 	
 	func textViewDidBeginEditing(_ textView: UITextView) {
@@ -210,6 +210,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}
 
 	func textViewDidEndEditing(_ textView: UITextView) {
+		textView.text = textView.text.trim()
 		textView.contentOffset = .zero
 		if textView.text == "" || textView.text.replacingOccurrences(of: "\n", with: "") == "" {
 			textView.text = "Lyrics"
@@ -232,7 +233,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		}
 	}
 
-	func getMoveableDistance(keyboarHeight: CGFloat) ->  CGFloat{
+	func getMoveableDistance(keyboarHeight: CGFloat) ->  CGFloat {
 		var y:CGFloat = 0.0
 		if let activeTF = getSelectedTextField() {
 			var tfMaxY = activeTF.frame.maxY

@@ -6,6 +6,7 @@
 //  Copyright © 2019 Youstanzr Alqattan. All rights reserved.
 //
 import UIKit
+import MarqueeLabel
 
 protocol NowPlayingViewDelegate: class {
 	func shufflePlaylist()
@@ -17,14 +18,16 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
 	var audioPlayer: YYTAudioPlayer!
 	let thumbnailImageView = UIImageView()
-	let titleLabel: UILabel = {
-		let lbl = UILabel()
+	let titleLabel: MarqueeLabel = {
+		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
+		lbl.trailingBuffer = 30.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
 		lbl.textAlignment = .left
 		return lbl
 	}()
-	let artistLabel: UILabel = {
-		let lbl = UILabel()
+	let artistLabel: MarqueeLabel = {
+		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
+		lbl.trailingBuffer = 30.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
 		lbl.textAlignment = .left
 		return lbl

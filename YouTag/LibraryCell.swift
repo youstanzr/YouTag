@@ -7,19 +7,22 @@
 //
 
 import UIKit
+import MarqueeLabel
 
 class LibraryCell : UITableViewCell {
   
 	var songDict = Dictionary<String, Any>()
     let thumbnailImageView = UIImageView()
-	let titleLabel: UILabel = {
-		let lbl = UILabel()
+	let titleLabel: MarqueeLabel = {
+		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
+		lbl.trailingBuffer = 30.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
 		lbl.textAlignment = .left
 		return lbl
 	}()
-	let artistLabel: UILabel = {
-		let lbl = UILabel()
+	let artistLabel: MarqueeLabel = {
+		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
+		lbl.trailingBuffer = 30.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
 		lbl.textAlignment = .left
 		return lbl
@@ -78,6 +81,19 @@ class LibraryCell : UITableViewCell {
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as? String ?? "").jpg"))
 		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		self.durationLabel.text = songDict["duration"] as? String
+		
+		titleLabel.restartLabel()
+		if titleLabel.text!.isRTL {
+			titleLabel.type = .continuousReverse
+		} else {
+			titleLabel.type = .continuous
+		}
+
+		artistLabel.restartLabel()
+		if artistLabel.text!.isRTL {
+			artistLabel.type = .continuousReverse
+		} else {
+			titleLabel.type = .continuous
+		}
 	}
-	
 }

@@ -20,9 +20,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	var isDeleteEnabled: Bool!
 	var tagsList: NSMutableArray! {
 		didSet {
-			print(selectedTagList)
 			selectedTagList.removeAllObjects()
-			print(selectedTagList)
 		}
 	}
 	var selectedTagList = NSMutableArray()
@@ -192,6 +190,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	}
 	
 	func textFieldDidEndEditing(_ textField: UITextField) {
+		textField.text = textField.text!.capitalized.trim()
 		if textField.text != "" {
 			if tagsList.contains(textField.text!.capitalized) {
 				let alert = UIAlertController(title: "Duplicate Tag", message: nil, preferredStyle: UIAlertController.Style.alert)
