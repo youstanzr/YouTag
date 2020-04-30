@@ -15,14 +15,14 @@ class LibraryCell : UITableViewCell {
     let thumbnailImageView = UIImageView()
 	let titleLabel: MarqueeLabel = {
 		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
-		lbl.trailingBuffer = 30.0
+		lbl.trailingBuffer = 40.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
 		lbl.textAlignment = .left
 		return lbl
 	}()
 	let artistLabel: MarqueeLabel = {
 		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
-		lbl.trailingBuffer = 30.0
+		lbl.trailingBuffer = 40.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
 		lbl.textAlignment = .left
 		return lbl
@@ -82,6 +82,7 @@ class LibraryCell : UITableViewCell {
 		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
 		self.durationLabel.text = songDict["duration"] as? String
 		
+		titleLabel.labelize = true
 		titleLabel.restartLabel()
 		if titleLabel.text!.isRTL {
 			titleLabel.type = .continuousReverse
@@ -89,6 +90,7 @@ class LibraryCell : UITableViewCell {
 			titleLabel.type = .continuous
 		}
 
+		artistLabel.labelize = true
 		artistLabel.restartLabel()
 		if artistLabel.text!.isRTL {
 			artistLabel.type = .continuousReverse
