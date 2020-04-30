@@ -23,7 +23,15 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		btn.titleEdgeInsets = UIEdgeInsets(top: 2.5, left: 0.0, bottom: 0.0, right: 0.0)
 		return btn
 	}()
-	let thumbnailImageView = UIImageView()
+	let thumbnailImageView: UIImageView = {
+		let imgView = UIImageView()
+		imgView.layer.cornerRadius = 5.0
+		imgView.layer.borderWidth = 1.0
+		imgView.layer.borderColor = UIColor.lightGray.cgColor
+		imgView.layer.masksToBounds = true
+		imgView.isUserInteractionEnabled = true
+		return imgView
+	}()
 	let titleTextField: UITextField = {
 		let txtField = UITextField()
 		txtField.backgroundColor = .clear
@@ -96,7 +104,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		self.view.addGestureRecognizer(tap)
 		
 		let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
-		thumbnailImageView.isUserInteractionEnabled = true
 		thumbnailImageView.addGestureRecognizer(imageTap)
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as! String).jpg"))
 		thumbnailImageView.image = UIImage(data: imageData ?? Data())
