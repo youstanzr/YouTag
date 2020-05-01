@@ -12,7 +12,14 @@ import MarqueeLabel
 class LibraryCell : UITableViewCell {
   
 	var songDict = Dictionary<String, Any>()
-    let thumbnailImageView = UIImageView()
+	let thumbnailImageView: UIImageView = {
+		let imgView = UIImageView()
+		imgView.layer.cornerRadius = 5.0
+		imgView.layer.borderWidth = 1.0
+		imgView.layer.borderColor = UIColor.lightGray.cgColor
+		imgView.layer.masksToBounds = true
+		return imgView
+	}()
 	let titleLabel: MarqueeLabel = {
 		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
 		lbl.trailingBuffer = 40.0
@@ -38,10 +45,7 @@ class LibraryCell : UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 		self.backgroundColor = .clear
-		thumbnailImageView.layer.cornerRadius = 5.0
-		thumbnailImageView.layer.borderWidth = 1.0
-		thumbnailImageView.layer.borderColor = UIColor.lightGray.cgColor
-
+		
         self.contentView.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true

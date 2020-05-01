@@ -108,8 +108,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		playlistManager.playlistLibraryView.backgroundColor = .clear
         self.view.addSubview(playlistManager.playlistLibraryView)
 		playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
-		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5).isActive = true
-		playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5).isActive = true
+		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+		playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 		playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 5).isActive = true
 		playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
 

@@ -6,7 +6,7 @@
 //  Copyright © 2020 Youstanzr Alqattan. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import AVFoundation
 
 class LocalFilesManager {
@@ -73,6 +73,19 @@ class LocalFilesManager {
 		}
 	}
 	
+	static func saveImage(_ image: UIImage, withName filename: String) {
+		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+		let documentsDirectory = paths[0]
+		let dataPathStr = documentsDirectory + "/" + filename + ".jpg"
+		
+		let dataPath = URL(fileURLWithPath: dataPathStr)
+		do {
+			try image.jpegData(compressionQuality: 1.0)?.write(to: dataPath, options: .atomic)
+		} catch {
+			print("file cant not be save at path \(dataPath), with error : \(error)");
+		}
+	}
+
 	static func deleteFile(withNameAndExtension filename_ext: String) -> Bool{
 		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
 		let documentsDirectory = paths[0]
