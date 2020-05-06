@@ -50,11 +50,11 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 		return setupPlayer(withSongAtindex: currentSongIndex)
 	}
 	
-	func setupPlayer(withSongAtindex index: Int) -> Bool{
+	func setupPlayer(withSongAtindex index: Int) -> Bool {
 		return setupPlayer(withSong: songsPlaylist.object(at: currentSongIndex) as! Dictionary<String, Any>)
 	}
 	
-	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool{
+	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool {
 		self.songDict = songDict
 		let songID = songDict["id"] as? String ?? ""
 		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).m4a")
