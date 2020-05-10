@@ -13,7 +13,7 @@ protocol DownloadWebViewDelegate: class {
 	func retrievedVideoLink(videoLink: String)
 }
 
-class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNavigationDelegate {
+class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate {
 
 	weak var delegate: DownloadWebViewDelegate!
 	let webView = WKWebView()
@@ -25,8 +25,9 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 17)
 		txtField.autocorrectionType = .no
-		txtField.placeholder = "URL"
-		txtField.addPadding(padding: .equalSpacing(10))
+		txtField.placeholder = "Enter website"
+		txtField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 34))  // Add padding
+		txtField.leftViewMode = .always
 		txtField.returnKeyType = .go
 		txtField.layer.cornerRadius = 5
 		txtField.keyboardType = .URL
@@ -99,6 +100,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		webView.addObserver(self, forKeyPath: #keyPath(WKWebView.url), options: .new, context: nil)
 		
 		let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+		tap.delegate = self
 		tap.cancelsTouchesInView = false
 		self.view.addGestureRecognizer(tap)
 	}
@@ -147,6 +149,11 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 			}
 		}
 		return true
+	}
+
+	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+		// Don't handle button taps
+		return !(touch.view is UIButton)
 	}
 
 }
