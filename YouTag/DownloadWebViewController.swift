@@ -145,7 +145,8 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		textField.resignFirstResponder()
 		if let urlString = urlField.text {
 			if urlString != webView.url?.absoluteString {
-				webView.load(URLRequest(url: URL(string: urlString)!))
+				let newURLString = urlString.contains("https://") ? urlString : "https://" + urlString
+				webView.load(URLRequest(url: URL(string: newURLString)!))
 			}
 		}
 		return true
