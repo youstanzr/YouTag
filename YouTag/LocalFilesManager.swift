@@ -33,15 +33,15 @@ class LocalFilesManager {
 		}
 	}
 	
-	static func saveVideoToFile(videoURL: URL, filename: String) {
+	static func downloadFile(from link: URL, filename: String, extension ext: String) {
 		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
 		let documentsDirectory = paths[0]
-		let dataPathStr = documentsDirectory + "/" + filename + ".mp4"
+		let dataPathStr = documentsDirectory + "/" + filename + "." + ext
 		let dataPath = URL(fileURLWithPath: dataPathStr)
-		let videoData = NSData(contentsOf: videoURL as URL)
+		let downloadData = NSData(contentsOf: link as URL)
 		do {
-			try videoData?.write(to: dataPath)
-			print("Saved video: \(dataPath)")
+			try downloadData?.write(to: dataPath)
+			print("Saved File: \(dataPath)")
 		} catch {
 			print(error.localizedDescription)
 		}
@@ -58,21 +58,7 @@ class LocalFilesManager {
 			print(error.localizedDescription)
 		}
 	}
-	
-	static func saveSongThumbnail(thumbnailURL: URL, filename: String) {
-		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-		let documentsDirectory = paths[0]
-		let dataPathStr = documentsDirectory + "/" + filename + ".jpg"
-		let dataPath = URL(fileURLWithPath: dataPathStr)
-		let imageData = try? Data(contentsOf: thumbnailURL as URL)
-		do {
-			try imageData?.write(to: dataPath)
-			print("Saved thumbnail: \(dataPath)")
-		} catch {
-			print(error.localizedDescription)
-		}
-	}
-	
+		
 	static func saveImage(_ image: UIImage, withName filename: String) {
 		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
 		let documentsDirectory = paths[0]
@@ -86,7 +72,7 @@ class LocalFilesManager {
 		}
 	}
 
-	static func deleteFile(withNameAndExtension filename_ext: String) -> Bool{
+	static func deleteFile(withNameAndExtension filename_ext: String) -> Bool {
 		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
 		let documentsDirectory = paths[0]
 		let dataPathStr = documentsDirectory + "/" + filename_ext

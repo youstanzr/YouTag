@@ -52,8 +52,8 @@ class LibraryManager {
 			libraryArray.add(songDict)
 			UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
 
-            LocalFilesManager.saveSongThumbnail(thumbnailURL: thumbnailUrl, filename: songID)
-            LocalFilesManager.saveVideoToFile(videoURL: videoUrl, filename: songID)
+			LocalFilesManager.downloadFile(from: thumbnailUrl, filename: songID, extension: "jpg")
+			LocalFilesManager.downloadFile(from: videoUrl, filename: songID, extension: "mp4")
             LocalFilesManager.extractAudioFromVideo(songID: songID)
             _ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).mp4")
             self.refreshLibraryArray()
