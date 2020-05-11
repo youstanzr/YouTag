@@ -25,7 +25,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 17)
 		txtField.autocorrectionType = .no
-		txtField.placeholder = "Enter website"
+		txtField.placeholder = "Search or enter website name"
 		txtField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 34))  // Add padding
 		txtField.leftViewMode = .always
 		txtField.returnKeyType = .go
@@ -130,17 +130,17 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 	@objc func downloadBtn(_ sender: UIBarButtonItem) {
 		let url = webView.url!.absoluteString
 		if supportedMIME.keys.contains(currentMIMEType) {
-			webView.load(URLRequest(url: URL(string: "about:blank")!))
+			loadUrl("about:blank")
 			self.dismiss(animated: false, completion: {
 				self.delegate?.requestedDownloadLink(link: url, contentType: self.supportedMIME[self.currentMIMEType]!)
 			})
 		} else if  ["m.youtube.com", "youtube.com"].contains(webView.url?.host) {
-			webView.load(URLRequest(url: URL(string: "about:blank")!))
+			loadUrl("about:blank")
 			self.dismiss(animated: false, completion: {
 				self.delegate?.requestedDownloadLink(link: url, contentType: "mp4")
 			})
 		} else {
-			let alert = UIAlertController(title: "Download Failed",
+			let alert = UIAlertController(title: "Cannot Download",
 										  message:  "This app only supports:\n- " +
 											Array(supportedMIME.values).joined(separator: "\n- "),
 										  preferredStyle: .alert)
@@ -177,15 +177,42 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 	}
 
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-		textField.resignFirstResponder()
-		if let urlString = urlField.text {
-			if urlString != webView.url?.absoluteString {
-				let newURLString = urlString.contains("https://") ? urlString : "https://" + urlString
-				webView.load(URLRequest(url: URL(string: newURLString)!))
+		guard let urlString = urlField.text else { return true }
+		
+		if urlString != webView.url?.absoluteString {
+			if urlString.starts(with: "http://") || urlString.starts(with: "https://") {
+				loadUrl(urlString)
+			} else if urlString.contains("www") {
+				loadUrl("http://\(urlString)")
+			} else {
+				searchTextOnGoogle(urlString)
 			}
 		}
+		
+		textField.resignFirstResponder()
 		return true
 	}
+	
+	func loadUrl(_ urlString: String) {
+		guard let url = URL(string: urlString) else {	return	}
+		
+		let urlRequest = URLRequest(url: url)
+		webView.load(urlRequest)
+	}
+	
+	func searchTextOnGoogle(_ text: String) {
+		// check if text contains more then one word separated by space
+		let textComponents = text.components(separatedBy: " ")
+		
+		// we replace space with plus to validate the string for the search url
+		let searchString = textComponents.joined(separator: "+")
+		
+		guard let url = URL(string: "https://www.google.com/search?q=" + searchString) else { return }
+		
+		let urlRequest = URLRequest(url: url)
+		webView.load(urlRequest)
+	}
+
 
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
 		// Don't handle button taps
