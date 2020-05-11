@@ -10,19 +10,50 @@ import Foundation
 import UIKit
 import AVFoundation
 
-var spinner_view : UIView?
- 
+// MARK: UIApplication
+extension UIApplication {
+	
+	class func getCurrentViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
+		
+		if let nav = base as? UINavigationController {
+			return getCurrentViewController(base: nav.visibleViewController)
+			
+		} else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+			return getCurrentViewController(base: selected)
+			
+		} else if let presented = base?.presentedViewController {
+			return getCurrentViewController(base: presented)
+		}
+		return base
+	}
+	
+}
+
 // MARK: UIViewController
+var spinner_view: UIView?
+var progress_view: UIView?
+
 extension UIViewController {
  
-	func showSpinner(onView : UIView) {
+	func showSpinner(onView : UIView, withTitle title: String?) {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
+
+		let ai = UIActivityIndicatorView.init(style: .whiteLarge)
         ai.startAnimating()
         ai.center = spinnerView.center
         
+		let titleLbl = UILabel(frame: CGRect(x: 0, y: 0, width: self.view.frame.width*0.65, height: 40))
+		titleLbl.text = title ?? ""
+		titleLbl.textColor = GraphicColors.backgroundWhite
+		titleLbl.font = UIFont.init(name: "DINCondensed-Bold", size: 34)
+		titleLbl.textAlignment = .center
+		titleLbl.center = ai.center
+		titleLbl.frame = CGRect(x: titleLbl.frame.minX, y: titleLbl.frame.minY - ai.frame.height - 10,
+								width: titleLbl.frame.width, height: titleLbl.frame.height)
+
         DispatchQueue.main.async {
+			spinnerView.addSubview(titleLbl)
             spinnerView.addSubview(ai)
             onView.addSubview(spinnerView)
         }
@@ -36,6 +67,55 @@ extension UIViewController {
             spinner_view = nil
         }
     }
+	
+	func showProgressView(onView : UIView, withTitle title: String?) {
+		let progressView = UIView.init(frame: onView.bounds)
+		progressView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+		
+		let boxView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width*0.65, height: 80))
+		boxView.backgroundColor = GraphicColors.backgroundWhite
+		boxView.layer.cornerRadius = 10.0
+		boxView.layer.borderWidth = 2.0
+		boxView.layer.borderColor = GraphicColors.orange.cgColor
+		boxView.center = progressView.center
+
+		let pBar = UIProgressView(frame: CGRect(x: boxView.frame.width*0.1, y: boxView.frame.height * 0.8, width: boxView.frame.width*0.8, height: 2))
+		pBar.tag = 10
+		pBar.progressTintColor = GraphicColors.orange
+		pBar.progress = 0.0
+		
+		let titleLbl = UILabel(frame: CGRect(x: 0, y: 0, width: pBar.frame.width, height: pBar.frame.minY - 10))
+		titleLbl.text = title ?? ""
+		titleLbl.font = UIFont.init(name: "DINCondensed-Bold", size: 30)
+		titleLbl.textAlignment = .center
+		titleLbl.center = pBar.center
+		titleLbl.frame = CGRect(x: titleLbl.frame.minX, y: 5,
+								width: titleLbl.frame.width, height: titleLbl.frame.height)
+
+		
+		DispatchQueue.main.async {
+			boxView.addSubview(titleLbl)
+			boxView.addSubview(pBar)
+			progressView.addSubview(boxView)
+			onView.addSubview(progressView)
+		}
+		
+		progress_view = progressView
+	}
+
+	func updateProgressView(to value: Double) {
+		DispatchQueue.main.async {
+			(progress_view?.viewWithTag(10) as! UIProgressView).progress = Float(value)
+		}
+	}
+
+	func removeProgressView() {
+		DispatchQueue.main.async {
+			progress_view?.removeFromSuperview()
+			progress_view = nil
+		}
+	}
+
 	
 	func getSelectedTextField() -> UITextField? {
 		let totalTextFields = getTextFieldsInView(view: self.view)
@@ -92,17 +172,6 @@ extension UIView{
 
 	enum BorderSide {
 		case top, bottom, left, right
-	}
-	
-	func getCurrentViewController() -> UIViewController? {
-		if let rootController = UIApplication.shared.keyWindow?.rootViewController {
-			var currentController: UIViewController! = rootController
-			while( currentController.presentedViewController != nil ) {
-				currentController = currentController.presentedViewController
-			}
-			return currentController
-		}
-		return nil
 	}
 	
 	func addBorder(side: BorderSide, color: UIColor, width: CGFloat) {
@@ -281,21 +350,10 @@ extension NSString {
 
 extension String {
 
-	func convertToTimeInterval() -> TimeInterval {
-		guard self != "" else {
-			return 0
-		}
-		
-		var interval:Double = 0
-		
-		let parts = self.components(separatedBy: ":")
-		for (index, part) in parts.reversed().enumerated() {
-			interval += (Double(part) ?? 0) * pow(Double(60), Double(index))
-		}
-		
-		return interval
+	var length: Int {
+		return count
 	}
-	
+
 	var isNumeric : Bool {
 		return Double(self) != nil
 	}
@@ -316,6 +374,41 @@ extension String {
 
 	func trim() -> String {
 		return self.trimmingCharacters(in: .whitespacesAndNewlines)
+	}
+	
+	subscript (i: Int) -> String {
+		return self[i ..< i + 1]
+	}
+	
+	func substring(fromIndex: Int) -> String {
+		return self[min(fromIndex, length) ..< length]
+	}
+	
+	func substring(toIndex: Int) -> String {
+		return self[0 ..< max(0, toIndex)]
+	}
+	
+	subscript (r: Range<Int>) -> String {
+		let range = Range(uncheckedBounds: (lower: max(0, min(length, r.lowerBound)),
+											upper: min(length, max(0, r.upperBound))))
+		let start = index(startIndex, offsetBy: range.lowerBound)
+		let end = index(start, offsetBy: range.upperBound - range.lowerBound)
+		return String(self[start ..< end])
+	}
+
+	func convertToTimeInterval() -> TimeInterval {
+		guard self != "" else {
+			return 0
+		}
+		
+		var interval:Double = 0
+		
+		let parts = self.components(separatedBy: ":")
+		for (index, part) in parts.reversed().enumerated() {
+			interval += (Double(part) ?? 0) * pow(Double(60), Double(index))
+		}
+		
+		return interval
 	}
 
 }
@@ -340,5 +433,5 @@ extension NSArray {
 		}
 		return false
 	}
-	
+
 }

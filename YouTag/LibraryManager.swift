@@ -6,12 +6,14 @@
 //  Copyright © 2020 Youstanzr Alqattan. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class LibraryManager {
 
 	enum SongProperties: String {
 		case id = "id"
+		case link = "link"
+		case fileExtension = "fileExtension"
 		case title = "title"
 		case artists = "artists"
 		case album = "album"
@@ -43,22 +45,66 @@ class LibraryManager {
 		return NSMutableArray(array: UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray())
 	}
 	
-    func addSongToLibrary(songTitle: String, videoUrl: URL, thumbnailUrl: URL, duration: String, songID: String) -> Bool {
-        if self.checkSongExistInLibrary(songID: songID) {
-            return false
-        } else {
-			let songDict = ["id": songID, "title": songTitle, "artists": NSMutableArray(), "album": "",
-							"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray()] as [String : Any]
-			libraryArray.add(songDict)
-			UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
+	/*
+	If the following parameters have no value then pass nil and the function will handle it
+		Song ID -> will generate a custom id
+		Song Title -> will be set to Song ID
+		Thumbnail URL -> It will skip downloading a thumbnail image
+	*/
+	func addSongToLibrary(songTitle: String?, songUrl: URL, songExtension: String , thumbnailUrl: URL?, songID: String?, completion: (() -> Void)? = nil) {
+		let sID = songID == nil ? "dl_" + generateIDFromTimeStamp() : "yt_" + songID! + generateIDFromTimeStamp()
+		var newExtension: String
+		
+		let currentViewController = UIApplication.getCurrentViewController()
+		currentViewController?.showProgressView(onView: (currentViewController?.view)!, withTitle: "Downloading...")
 
-			LocalFilesManager.downloadFile(from: thumbnailUrl, filename: songID, extension: "jpg")
-			LocalFilesManager.downloadFile(from: videoUrl, filename: songID, extension: "mp4")
-            LocalFilesManager.extractAudioFromVideo(songID: songID)
-            _ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).mp4")
-            self.refreshLibraryArray()
-            return true
-        }
+		let dispatchGroup = DispatchGroup()  // To keep track of the async download group
+		print("Starting the required downloads for song")
+		dispatchGroup.enter()
+		if songExtension == "mp4" {
+			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: {
+				LocalFilesManager.extractAudioFromVideo(songID: sID, completion: { error in
+					if error == nil {  // Successful extracting audio from video
+						_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).\(songExtension)")
+					} else {  // Error extracting audio from video
+						_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).mp4")  // Delete the downloaded video
+						dispatchGroup.leave()
+						return
+					}
+					dispatchGroup.leave()
+				})
+			})
+			newExtension = "m4a"
+		} else {
+			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: {
+				dispatchGroup.leave()
+			})
+			newExtension = songExtension
+		}
+		
+		if let imageUrl = thumbnailUrl {
+			dispatchGroup.enter()
+			LocalFilesManager.downloadFile(from: imageUrl, filename: sID, extension: "jpg", completion: {
+				dispatchGroup.leave()
+			})
+		}
+		
+		dispatchGroup.notify(queue: DispatchQueue.main) {  // All async download in the group completed
+			print("All async download in the group completed")
+			currentViewController?.removeProgressView()
+			if let artworkImage = LocalFilesManager.extractArtworkFromSongMetadata(songID: sID, songExtension: newExtension) {
+				LocalFilesManager.saveImage(artworkImage, withName: sID)
+			}
+			let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
+			let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
+			let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
+							"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
+							"link": link, "fileExtension": newExtension] as [String : Any]
+			self.libraryArray.add(songDict)
+			UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
+			self.refreshLibraryArray()
+			completion?()
+		}
     }
     
 	func deleteSongFromLibrary(songID: String) {
@@ -66,8 +112,9 @@ class LibraryManager {
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
 			if songDict["id"] as! String == songID {
-				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).m4a") &&
-					LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg"){
+				let songExt = (songDict["fileExtension"] as? String) ?? "m4a"  //support legacy code
+				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).\(songExt)") {
+					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg")
 					libraryArray.remove(songDict)
 				}
 				break
@@ -76,12 +123,12 @@ class LibraryManager {
 		UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
 	}
 
-	func checkSongExistInLibrary(songID: String) -> Bool {
+	func checkSongExistInLibrary(songLink: String) -> Bool {
 		self.refreshLibraryArray()
 		var songDict = Dictionary<String, Any>()
 		for i in 0 ..< libraryArray.count {
 			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-			if songDict["id"] as! String == songID {
+			if songDict["link"] as! String == songLink {
 				return true
 			}
 		}
@@ -192,4 +239,15 @@ class LibraryManager {
 		return 0
 	}
 	
+	private func generateIDFromTimeStamp() -> String {
+		let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		var timestamp: Int = Int(Date().timeIntervalSince1970 * 1000)
+		var str = ""
+		while timestamp != 0 {
+			str += letters[timestamp%10]
+			timestamp /= 10
+		}
+		return str
+	}
+
 }

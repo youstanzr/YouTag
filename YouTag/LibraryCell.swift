@@ -83,7 +83,11 @@ class LibraryCell : UITableViewCell {
 		self.titleLabel.text = songDict["title"] as? String
 		self.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as? String ?? "").jpg"))
-		self.thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		if let imgData = imageData {
+			self.thumbnailImageView.image = UIImage(data: imgData)
+		} else {
+			self.thumbnailImageView.image = UIImage(named: "placeholder")
+		}
 		self.durationLabel.text = songDict["duration"] as? String
 		
 		titleLabel.labelize = true

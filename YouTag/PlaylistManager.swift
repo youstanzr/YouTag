@@ -64,7 +64,12 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		nowPlayingView.lyricsTextView.isHidden = !isLyricsAvailable
 		nowPlayingView.lyricsButton.isHidden = isLyricsAvailable
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
-		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		if let imgData = imageData {
+			nowPlayingView.thumbnailImageView.image = UIImage(data: imgData)
+		} else {
+			nowPlayingView.thumbnailImageView.image = UIImage(named: "placeholder")
+		}
+
 		let oldPlaybackRate = audioPlayer.getPlayerRate()
 		
 		if playlistLibraryView.playlistArray.count > 0 {

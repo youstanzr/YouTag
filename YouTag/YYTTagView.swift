@@ -99,8 +99,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 					print("User requested delete for tag: \(tagTitle)")
 					self.removeTag(at: index.row)
 				}))
-				let currentController = self.getCurrentViewController()
-				currentController?.present(actionSheet, animated: true, completion: nil)
+				UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
 			}
 		} else {
 			let actionSheet = UIAlertController(title: "Are you sure to delete all tags?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
@@ -109,8 +108,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 				print("User requested delete for all tags")
 				self.removeAllTags()
 			}))
-			let currentController = self.getCurrentViewController()
-			currentController?.present(actionSheet, animated: true, completion: nil)
+			UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
 		}
 	}
 
@@ -197,7 +195,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:{ (UIAlertAction) in
 					textField.becomeFirstResponder()
 				}))
-				self.getCurrentViewController()?.present(alert, animated: true, completion: nil)
+				UIApplication.getCurrentViewController()?.present(alert, animated: true, completion: nil)
 				return
 			}
 			tagsList.add(textField.text!.capitalized)

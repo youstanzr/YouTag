@@ -10,7 +10,7 @@ import UIKit
 import WebKit
 
 protocol DownloadWebViewDelegate: class {
-	func retrievedVideoLink(videoLink: String)
+	func requestedDownloadLink(link: String, contentType fileExtension: String)
 }
 
 class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate {
@@ -40,7 +40,13 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		return pBar
 	}()
 	let webToolbar = UIToolbar()
-	
+	var currentMIMEType = ""
+	private let supportedMIME = ["audio/mpeg": "mp3",
+								 "audio/x-mpeg-3": "mp3",
+								 "video/mp4": "mp4",
+								 "application/mp4": "mp4",
+								 "audio/wav": "wav",
+								 "audio/x-wav": "wav"]
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -122,14 +128,43 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 	}
 
 	@objc func downloadBtn(_ sender: UIBarButtonItem) {
-		self.dismiss(animated: true, completion: nil)
-		delegate?.retrievedVideoLink(videoLink: webView.url!.absoluteString)
+		let url = webView.url!.absoluteString
+		if supportedMIME.keys.contains(currentMIMEType) {
+			webView.load(URLRequest(url: URL(string: "about:blank")!))
+			self.dismiss(animated: false, completion: {
+				self.delegate?.requestedDownloadLink(link: url, contentType: self.supportedMIME[self.currentMIMEType]!)
+			})
+		} else if  ["m.youtube.com", "youtube.com"].contains(webView.url?.host) {
+			webView.load(URLRequest(url: URL(string: "about:blank")!))
+			self.dismiss(animated: false, completion: {
+				self.delegate?.requestedDownloadLink(link: url, contentType: "mp4")
+			})
+		} else {
+			let alert = UIAlertController(title: "Download Failed",
+										  message:  "This app only supports:\n- " +
+											Array(supportedMIME.values).joined(separator: "\n- "),
+										  preferredStyle: .alert)
+			alert.addAction(UIAlertAction(title: "Ok", style: .default,  handler: nil))
+			present(alert, animated: true, completion: nil)
+		}
 	}
 	
 	func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
 		let alert = UIAlertController(title: "Error", message:  error.localizedDescription, preferredStyle: .alert)
 		alert.addAction(UIAlertAction(title: "Ok", style: .default,  handler: nil))
 		present(alert, animated: true, completion: nil)
+		progressBar.isHidden = true
+	}
+	
+	func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+		let response = navigationResponse.response as? HTTPURLResponse
+		if let contentType = response?.allHeaderFields["Content-Type"] as? String {
+			currentMIMEType = contentType
+		} else {
+			currentMIMEType = ""
+		}
+		print("Website content type: " + currentMIMEType)
+		decisionHandler(.allow);
 	}
 		
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {

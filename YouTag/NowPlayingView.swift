@@ -217,7 +217,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 		self.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true
-		thumbnailImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.5).isActive = true
+		thumbnailImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 3.5).isActive = true
 		thumbnailImageView.bottomAnchor.constraint(equalTo: songControlView.topAnchor, constant: -2.5).isActive = true
 		thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
 

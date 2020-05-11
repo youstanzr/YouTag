@@ -81,44 +81,54 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 		self.present(dwvc, animated: true, completion: nil)
     }
 	
-	func retrievedVideoLink(videoLink: String) {
-		self.initVideoProcess(link: videoLink)
+	func requestedDownloadLink(link: String, contentType fileExtension: String) {
+		if ["m.youtube.com", "youtube.com"].contains(URL(string: link)?.host) {
+			self.processYoutubeVideo(link: link)
+		} else {
+			self.processDirectLink(link: link, contentType: fileExtension)
+		}
 	}
-
-    func initVideoProcess(link:String) {
-        if let videoID = self.extractVideoId(link: link) {
-			print("link is valid - Video ID: \(videoID)")
-			if !self.LM.checkSongExistInLibrary(songID: videoID) {  //check if video not already in library
-				self.loadVideo(videoID: videoID)
-			} else {
-				let alert = UIAlertController(title: "Error", message: "Video already exists in library", preferredStyle: UIAlertController.Style.alert)
-				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
-				self.present(alert, animated: true, completion: nil)
-			}
+	
+	func processDirectLink(link: String, contentType MIME: String) {
+		self.LM.addSongToLibrary(songTitle: "", songUrl: URL(string: link)!, songExtension: MIME, thumbnailUrl: nil, songID: nil, completion: {
+			self.libraryTableView.refreshTableView()
+			self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+		})
+	}
+	
+    func processYoutubeVideo(link: String) {
+        if let videoID = self.extractYoutubeId(link: link) {
+			print("Link is valid - Video ID: \(videoID)")
+			self.loadYouTubeVideo(videoID: videoID)
         } else {
-            print("link is not valid")
+            print("Link is not valid")
             let alert = UIAlertController(title: "Error", message: "Link is not valid", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
             self.present(alert, animated: true, completion: nil)
         }
     }
         
-    func loadVideo(videoID:String) {
+    func loadYouTubeVideo(videoID: String) {
         print("Loading url: https://www.youtube.com/embed/\(videoID)")
-        self.showSpinner(onView: self.view)
+		self.showSpinner(onView: self.view, withTitle: "Loading...")
         XCDYouTubeClient.default().getVideoWithIdentifier(videoID) { (video, error) in
             guard video != nil else {
+				print(error?.localizedDescription as Any)
 				self.removeSpinner()
-                print(error?.localizedDescription as Any)
+				let alert = UIAlertController(title: "Error", message: error?.localizedDescription, preferredStyle: UIAlertController.Style.alert)
+				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+				self.present(alert, animated: true, completion: nil)
                 return
             }
-			_ = self.LM.addSongToLibrary(songTitle: video!.title, videoUrl: video!.streamURL, thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], duration: video!.duration.stringFromTimeInterval(), songID: videoID)
-			self.libraryTableView.refreshTableView()
 			self.removeSpinner()
+			self.LM.addSongToLibrary(songTitle: video!.title, songUrl: video!.streamURL, songExtension: "mp4", thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], songID: videoID, completion: {
+				self.libraryTableView.refreshTableView()
+				self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+			})
         }
     }
         
-    func extractVideoId(link:String) -> String? {
+    func extractYoutubeId(link: String) -> String? {
         let pattern = #"(?<=v(=|/))([-a-zA-Z0-9_]+)|(?<=youtu.be/)([-a-zA-Z0-9_]+)"#
         if let matchRange = link.range(of: pattern, options: .regularExpression) {
             return String(link[matchRange])

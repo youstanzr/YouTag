@@ -106,7 +106,11 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
 		thumbnailImageView.addGestureRecognizer(imageTap)
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as! String).jpg"))
-		thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		if let imgData = imageData {
+			thumbnailImageView.image = UIImage(data: imgData)
+		} else {
+			thumbnailImageView.image = UIImage(named: "placeholder")
+		}
         self.view.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 70).isActive = true
@@ -188,9 +192,18 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}
 	
 	@objc func dismiss(sender: UIButton) {
-		if releaseYrTextField.text!.isNumeric || releaseYrTextField.text == "" {
+		if !releaseYrTextField.text!.isNumeric && releaseYrTextField.text != "" {
+			let alert = UIAlertController(title: "Error", message: "Please input correct release year", preferredStyle: UIAlertController.Style.alert)
+			alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+			self.present(alert, animated: true, completion: nil)
+		} else if titleTextField.text == "" {
+			let alert = UIAlertController(title: "Error", message: "Please input song title", preferredStyle: UIAlertController.Style.alert)
+			alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+			self.present(alert, animated: true, completion: nil)
+		} else {
 			self.updateSong()
 			LM.updateSong(newSong: songDict)
+			LocalFilesManager.clearTmpDirectory()
 			dismiss(animated: true, completion: nil)
 		}
     }
@@ -219,7 +232,9 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		songDict["releaseYear"] = releaseYrTextField.text
 		songDict["lyrics"] = lyricsTextView.text != "Lyrics" ? lyricsTextView.text : ""
 		songDict["tags"] = tagsView.tagsList
-		LocalFilesManager.saveImage(thumbnailImageView.image!, withName: songDict["id"] as! String)
+		if thumbnailImageView.image != UIImage(named: "placeholder") {
+			LocalFilesManager.saveImage(thumbnailImageView.image, withName: songDict["id"] as! String)
+		}
     }
 	
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {

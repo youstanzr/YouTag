@@ -56,8 +56,9 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool {
 		self.songDict = songDict
-		let songID = songDict["id"] as? String ?? ""
-		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).m4a")
+		let songID = songDict["id"] as! String
+		let songExt = songDict["fileExtension"] as? String ?? "m4a"  //support legacy code
+		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).\(songExt)")
 		do {
 			if audioPlayer != nil {
 				updater.invalidate()
@@ -71,7 +72,6 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
 			setPlayerRate(to: oldPlaybackRate)
 			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
-			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 			return true
 		} catch {
 			print("Error: \(error.localizedDescription)")
@@ -111,6 +111,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			audioPlayer.play()
 			updateNowPlaying(isPause: false)
 			delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 		}
 	}
 
@@ -119,6 +120,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			audioPlayer.pause()
 			updateNowPlaying(isPause: true)
 			delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
+			updater.invalidate()
 		}
 	}
 	
@@ -274,7 +276,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 				} else {
 					// Interruption Ended - playback should NOT resume
 					print("Interruption Ended - playback should NOT resume")
-					delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
+					self.pause()
 				}
 			}
 		}
