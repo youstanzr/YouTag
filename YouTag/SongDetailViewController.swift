@@ -90,6 +90,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		return txtView
 	}()
 	let imagePicker = UIImagePickerController()
+	let songSizeLabel: UILabel = {
+		let lbl = UILabel()
+		lbl.textColor = GraphicColors.gray
+		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
+		lbl.textAlignment = .left
+		return lbl
+	}()
 
 	
     override func viewDidLoad() {
@@ -167,7 +174,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
-        dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
+		dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         self.view.addSubview(dismissButton)
 		dismissButton.translatesAutoresizingMaskIntoConstraints = false
 		dismissButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
@@ -175,13 +182,22 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		dismissButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.15, constant: -35).isActive = true
 		dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 		
+		songSizeLabel.text = "Song size: " + LocalFilesManager.getLocalFileSize(fileName_ext:
+			"\(songDict["id"] as! String).\((songDict["fileExtension"] as? String) ?? "m4a")")
+		self.view.addSubview(songSizeLabel)
+		songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
+		songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -15).isActive = true
+		songSizeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
+		songSizeLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
+		songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
+
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
 		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
-		tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 15).isActive = true
-		tagsView.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -30).isActive = true
+		tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 10).isActive = true
+		tagsView.bottomAnchor.constraint(equalTo: songSizeLabel.topAnchor, constant: -10).isActive = true
 		tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
     }
