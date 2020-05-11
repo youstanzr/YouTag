@@ -20,6 +20,7 @@
 		2B61796824097147009149CB /* SongDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796724097147009149CB /* SongDetailViewController.swift */; };
 		2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796B2409F837009149CB /* PlaylistLibraryView.swift */; };
 		2B619E21245999B40090B229 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 2B619E20245999B40090B229 /* MarqueeLabel */; };
+		2B619E242468B9640090B229 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2B619E232468B9640090B229 /* Alamofire */; };
 		2B7863832301AE56001DD6FD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863822301AE56001DD6FD /* AppDelegate.swift */; };
 		2B7863852301AE56001DD6FD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863842301AE56001DD6FD /* ViewController.swift */; };
 		2B7863882301AE56001DD6FD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B7863862301AE56001DD6FD /* Main.storyboard */; };
@@ -100,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B619E242468B9640090B229 /* Alamofire in Frameworks */,
 				2B619E21245999B40090B229 /* MarqueeLabel in Frameworks */,
 				2B61795C24070CE0009149CB /* XCDYouTubeKit in Frameworks */,
 			);
@@ -214,6 +216,7 @@
 			packageProductDependencies = (
 				2B61795B24070CE0009149CB /* XCDYouTubeKit */,
 				2B619E20245999B40090B229 /* MarqueeLabel */,
+				2B619E232468B9640090B229 /* Alamofire */,
 			);
 			productName = YoutubeDownloader;
 			productReference = 2B78637F2301AE56001DD6FD /* YouTag.app */;
@@ -296,6 +299,7 @@
 			packageReferences = (
 				2B61795A24070CE0009149CB /* XCRemoteSwiftPackageReference "XCDYouTubeKit" */,
 				2B619E1F245999B40090B229 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
+				2B619E222468B9640090B229 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = 2B7863802301AE56001DD6FD /* Products */;
 			projectDirPath = "";
@@ -547,7 +551,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.71;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -570,7 +574,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.71;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -719,6 +723,14 @@
 				minimumVersion = 4.0.2;
 			};
 		};
+		2B619E222468B9640090B229 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -731,6 +743,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2B619E1F245999B40090B229 /* XCRemoteSwiftPackageReference "MarqueeLabel" */;
 			productName = MarqueeLabel;
+		};
+		2B619E232468B9640090B229 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B619E222468B9640090B229 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 
