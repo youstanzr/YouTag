@@ -57,6 +57,7 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Filter image: [@author](https://www.flaticon.com/authors/freepik)
 - List image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Loop image: [@author](https://www.flaticon.com/authors/pixel-perfect)
+- Music Note image: [@author](https://www.flaticon.com/authors/those-icons)
 - Next image: [@author](https://www.flaticon.com/authors/smashicons)
 - Pause image: [@author](https://www.flaticon.com/authors/kiranshastry)
 - Play image: [@author](https://www.flaticon.com/authors/smashicons)
