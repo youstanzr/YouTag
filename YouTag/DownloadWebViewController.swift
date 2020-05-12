@@ -30,7 +30,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		txtField.leftViewMode = .always
 		txtField.returnKeyType = .go
 		txtField.layer.cornerRadius = 5
-		txtField.keyboardType = .URL
+		txtField.keyboardType = .webSearch
 		txtField.clearButtonMode = .whileEditing
 		return txtField
 	}()
