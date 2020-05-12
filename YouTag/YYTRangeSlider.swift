@@ -38,12 +38,14 @@ class YYTRangeSlider: UIControl {
 	
 	var minimumValue: CGFloat = 0.0 {
 		didSet {
+			maximumValue = maximumValue == minimumValue ? minimumValue+0.00000001 : maximumValue
 			updateLayerFrames()
 		}
 	}
 	
 	var maximumValue: CGFloat = 1.0 {
 		didSet {
+			maximumValue = maximumValue == minimumValue ? minimumValue+0.00000001 : maximumValue
 			updateLayerFrames()
 		}
 	}
@@ -226,6 +228,10 @@ extension YYTRangeSlider {
 	override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
 		let location = touch.location(in: self)
 		
+		if (maximumValue - minimumValue) <= 0.000000011 {
+			return true
+		}
+		print(String(describing: maximumValue) + " - " + String(describing: minimumValue) + " " + String(describing: maximumValue-minimumValue) )
 		let deltaLocation = location.x - previousLocation.x
 		let deltaValue = (maximumValue - minimumValue) * deltaLocation / bounds.width
 		
