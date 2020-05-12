@@ -35,6 +35,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	}()
 	let artistLabel: MarqueeLabel = {
 		let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
+		lbl.textColor = GraphicColors.gray
 		lbl.trailingBuffer = 40.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
 		lbl.textAlignment = .left
