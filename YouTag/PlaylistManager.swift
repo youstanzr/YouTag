@@ -42,6 +42,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		}
 
 		let songID = songDict["id"] as? String ?? ""
+		nowPlayingView.songID = songID
 		nowPlayingView.titleLabel.text = songDict["title"] as? String ?? ""
 		nowPlayingView.artistLabel.text = ((songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", "))
 		
@@ -104,6 +105,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 	}
 	
 	func shufflePlaylist() {
+		if playlistLibraryView.playlistArray.count <= 1 {
+			return
+		}
 		let lastObject = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count - 1)
 		let whatsNextArr = playlistLibraryView.playlistArray
 		whatsNextArr.removeLastObject()

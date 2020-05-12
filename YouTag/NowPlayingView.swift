@@ -17,6 +17,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	weak var NPDelegate: NowPlayingViewDelegate?
 
 	var audioPlayer: YYTAudioPlayer!
+	var songID = ""
 	let thumbnailImageView: UIImageView = {
 		let imgView = UIImageView()
 		imgView.layer.cornerRadius = 5.0
@@ -286,6 +287,9 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	
 	@objc func playbackRateButtonAction(sender: UIButton!) {
 		print("playback rate Button tapped")
+		if songID == "" {
+			return
+		}
 		if sender.titleLabel?.text == "x1" {
 			sender.setTitle("x1.25", for: .normal)
 			audioPlayer.setPlayerRate(to: 1.25)
@@ -327,8 +331,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 				break
 				case .ended:
 				// handle drag ended
-					audioPlayer.setPlayerCurrentTime(withPercentage: slider.value)
 					isProgressBarSliding = false
+					if songID == "" {
+						slider.value = 0.0
+						return
+					}
+					audioPlayer.setPlayerCurrentTime(withPercentage: slider.value)
 				case .moved:
 				// handle drag moved
 					let songDuration = Float((currentTimeLabel.text?.convertToTimeInterval())! + (timeLeftLabel.text?.convertToTimeInterval())!)

@@ -89,7 +89,10 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	}
 
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
-		self.audioPlayer.currentTime = TimeInterval(percenatge * Float(self.audioPlayer.duration))
+		if audioPlayer == nil {
+			return
+		}
+		audioPlayer.currentTime = TimeInterval(percenatge * Float(audioPlayer.duration))
 		updateNowPlaying(isPause: isPlaying())
 	}
 	
