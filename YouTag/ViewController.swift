@@ -138,7 +138,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         LVC.modalPresentationStyle = .fullScreen
         LVC.modalTransitionStyle = .coverVertical
         self.present(LVC, animated: true, completion: {
-			tagsView.removeAllTags()
+			self.tagsView.removeAllTags()
 		})
     }
 
