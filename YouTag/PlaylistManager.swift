@@ -78,6 +78,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		}
 
 		nowPlayingView.playbackRateButton.titleLabel?.text = "x\(oldPlaybackRate == 1.0 ? 1 : oldPlaybackRate)"
+		nowPlayingView.progressBar.value = 0.0
+		nowPlayingView.currentTimeLabel.text = "00:00"
+		nowPlayingView.timeLeftLabel.text = (songDict["duration"] as? String) ?? "00:00"
 	}
 	
 	func refreshPlaylistLibraryView() {
