@@ -92,20 +92,97 @@ class LibraryManager {
 		dispatchGroup.notify(queue: DispatchQueue.main) {  // All async download in the group completed
 			print("All async download in the group completed")
 			currentViewController?.removeProgressView()
-			if let artworkImage = LocalFilesManager.extractArtworkFromSongMetadata(songID: sID, songExtension: newExtension) {
-				LocalFilesManager.saveImage(artworkImage, withName: sID)
-			}
 			let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
 			let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
 			let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
 							"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
 							"link": link, "fileExtension": newExtension] as [String : Any]
-			self.libraryArray.add(songDict)
+			let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
+			let enrichedDict = self.enrichSongDict(songDict, fromMetadataDict: metadataDict)
+			self.libraryArray.add(enrichedDict)
 			UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
 			self.refreshLibraryArray()
 			completion?()
 		}
     }
+	
+	func enrichSongDict(_ songDict: Dictionary<String, Any>, fromMetadataDict mdDict: Dictionary<String, Any>) -> Dictionary<String, Any> {
+		var enrichredDict = songDict
+		var key: String
+		let songID = songDict["id"] as! String
+		let songTitle = songDict["title"] as! String
+		let songAlbum = songDict["album"] as! String
+		let songYear = songDict["releaseYear"] as! String
+		for (k, val) in mdDict {
+			if (val as? String ?? "") == "" && (val as? Data ?? Data()).isEmpty {
+				continue
+			}
+			key = getKey(forMetadataKey: k)
+
+			if key == "title" && (songTitle == songID || songTitle == "") {  // if metadata has value and song title is set to default value or empty String
+				enrichredDict["title"] = val as! String
+				
+			} else if key == "artist" {
+				(enrichredDict["artists"] as! NSMutableArray).add(val as! String)
+				
+			} else if key == "album" && songYear == "" {  // if metadata has value and song album is set to default value
+				enrichredDict["album"] = val as! String
+
+			} else if key == "year" && songAlbum == "" {  // if metadata has value and song album is set to default value
+				enrichredDict["releaseYear"] = val as! String
+
+			} else if key == "type" {
+				(enrichredDict["tags"] as! NSMutableArray).add(val as! String)
+				
+			} else if key == "artwork" && !LocalFilesManager.checkFileExist(songID + ".jpg") {
+				if let jpgImageData = UIImage(data: val as! Data)?.jpegData(compressionQuality: 1) {  // make sure image is jpg
+					LocalFilesManager.saveImage(UIImage(data: jpgImageData), withName: songID)
+				}
+				
+			} else {
+				print("songDict not enriched for key: " + key)
+			}
+		}
+		return enrichredDict
+	}
+	
+	private func getKey(forMetadataKey mdKey: String) -> String {
+		switch mdKey {
+			case "title",
+				 "songName",
+				 "TIT2":
+				return "title"
+			
+			case "artist",
+				 "TPE1":
+				return "artist"
+			
+			case "albumName",
+				 "album",
+				 "TIT1",
+				 "TALB":
+				return "album"
+			
+			case "genre",
+				 "type",
+				 "TCON":
+				return "type"
+			
+			case "year",
+				 "TYER",
+				 "TDAT",
+				 "TORY",
+				 "TDOR":
+				return "year"
+			
+			case "artwork",
+				 "APIC":
+				return "artwork"
+			
+			default:
+				return mdKey
+		}
+	}
     
 	func deleteSongFromLibrary(songID: String) {
 		var songDict = Dictionary<String, Any>()
