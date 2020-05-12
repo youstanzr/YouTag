@@ -227,17 +227,21 @@ class FilterPickerView: UIView {
 			delegate?.processNewFilter(type: "album", filters: tagView.selectedTagList)
 		} else if filterSegment.selectedSegmentIndex == 3 && releaseYrSegment.selectedSegmentIndex == 0 {
 			// selected year range filter
-			delegate?.processNewFilter(type: "releaseYearRange",
-									   filters: NSMutableArray(objects: Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
-										, Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero))))
+			if Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
+				delegate?.processNewFilter(type: "releaseYearRange",
+										   filters: NSMutableArray(objects: Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
+											, Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero))))
+			}
 		} else if filterSegment.selectedSegmentIndex == 3 && releaseYrSegment.selectedSegmentIndex == 1 && tagView.selectedTagList.count > 0 {
 			// selected exact year filter
 			delegate?.processNewFilter(type: "releaseYear", filters: tagView.selectedTagList)
 		} else if filterSegment.selectedSegmentIndex == 4 {
 			// selected duration filter
-			delegate?.processNewFilter(type: "duration",
-									   filters: NSMutableArray(objects: TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
-										, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
+			if Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
+				delegate?.processNewFilter(type: "duration",
+										   filters: NSMutableArray(objects: TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
+											, TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)))
+			}
 		}
 		self.tagView.deselectAllTags()
 	}
