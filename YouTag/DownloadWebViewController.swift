@@ -144,7 +144,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		} else {
 			let alert = UIAlertController(title: "Cannot Download",
 										  message:  "This app only supports:\n- " +
-											Array(supportedMIME.values).joined(separator: "\n- "),
+											Array(Set(supportedMIME.values)).joined(separator: "\n- "),
 										  preferredStyle: .alert)
 			alert.addAction(UIAlertAction(title: "Ok", style: .default,  handler: nil))
 			present(alert, animated: true, completion: nil)
