@@ -34,7 +34,7 @@ class LocalFilesManager {
 		}
 	}
 	
-	static func downloadFile(from link: URL, filename: String, extension ext: String, completion: (() -> Void)? = nil) {
+	static func downloadFile(from link: URL, filename: String, extension ext: String, completion: ((Error?) -> Void)? = nil) {
 		let destination: DownloadRequest.Destination = { _, _ in
 			let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 			let fileURL = documentsURL.appendingPathComponent(filename + "." + ext)
@@ -47,10 +47,11 @@ class LocalFilesManager {
 		}.response { response in
 			if response.error == nil, let filePath = response.fileURL?.path {
 				print("Downloaded successfully to " + filePath)
+				completion?(nil)
 			} else {
 				print("Error downlaoding file: " + (response.error?.localizedDescription ?? "Unknown error"))
+				completion?(response.error)
 			}
-			completion?()
 		}
 	}
 	
