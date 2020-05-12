@@ -137,7 +137,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
         LVC.modalPresentationStyle = .fullScreen
         LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: nil)
+        self.present(LVC, animated: true, completion: {
+			tagsView.removeAllTags()
+		})
     }
 
     @objc func filterButtonAction(sender: UIButton!) {
