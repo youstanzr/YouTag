@@ -80,12 +80,12 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	}
 	
 	func setPlayerRate(to rate: Float) {
-		self.audioPlayer.rate = rate
+		audioPlayer.rate = rate
 		updateNowPlaying(isPause: isPlaying())
 	}
 
 	func getPlayerRate() -> Float {
-		return self.audioPlayer?.rate ?? 1.0
+		return audioPlayer?.rate ?? 1.0
 	}
 
 	func setPlayerCurrentTime(withPercentage percenatge: Float) {
@@ -272,11 +272,11 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 				if options.contains(.shouldResume) {
 					// Interruption Ended - playback should resume
 					print("Interruption Ended - playback should resume")
-					self.play()
+					play()
 				} else {
 					// Interruption Ended - playback should NOT resume
 					print("Interruption Ended - playback should NOT resume")
-					self.pause()
+					pause()
 				}
 			}
 		}
@@ -308,7 +308,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 					(output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
 					print("headphones connected")
 					DispatchQueue.main.sync {
-						self.play()
+						play()
 					}
 					break
 				}
@@ -319,7 +319,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 						(output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
 						print("headphones disconnected")
 						DispatchQueue.main.sync {
-							self.pause()
+							pause()
 						}
 						break
 					}
