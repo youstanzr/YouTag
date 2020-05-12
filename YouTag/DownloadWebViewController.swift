@@ -40,6 +40,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		return pBar
 	}()
 	let webToolbar = UIToolbar()
+	var downloadButton = UIBarButtonItem()
 	var currentMIMEType = ""
 	private let supportedMIME = ["audio/mpeg": "mp3",
 								 "audio/x-mpeg-3": "mp3",
@@ -56,11 +57,12 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		webToolbar.isTranslucent = true
 		webToolbar.tintColor = .black
 		webToolbar.barTintColor = GraphicColors.gray
-		let doneButton = UIBarButtonItem(title: "✔︎", style: UIBarButtonItem.Style.plain, target: self, action: #selector(dismissBtn))
-		let downloadButton = UIBarButtonItem(title: "↓", style: UIBarButtonItem.Style.plain, target: self, action: #selector(downloadBtn))
-		let prevButton = UIBarButtonItem(title: "◀︎", style: UIBarButtonItem.Style.plain, target: self, action: #selector(prevBtn))
-		let nextButton = UIBarButtonItem(title: "▶︎", style: UIBarButtonItem.Style.plain, target: self, action: #selector(nextBtn))
-		let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+		let doneButton = UIBarButtonItem(title: "✔︎", style: .plain, target: self, action: #selector(dismissBtn))
+		downloadButton = UIBarButtonItem(title: "↓", style: .plain, target: self, action: #selector(downloadBtn))
+		downloadButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .heavy)], for: .normal)
+		let prevButton = UIBarButtonItem(title: "◀︎", style: .plain, target: self, action: #selector(prevBtn))
+		let nextButton = UIBarButtonItem(title: "▶︎", style: .plain, target: self, action: #selector(nextBtn))
+		let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 		webToolbar.setItems([prevButton, space, nextButton, space, downloadButton, space, doneButton], animated: false)
 		self.view.addSubview(webToolbar)
 		webToolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -160,6 +162,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		let response = navigationResponse.response as? HTTPURLResponse
 		if let contentType = response?.allHeaderFields["Content-Type"] as? String {
 			currentMIMEType = contentType
+			updateDownloadButtonStatus()
 		} else {
 			currentMIMEType = ""
 		}
@@ -214,6 +217,15 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 		webView.load(urlRequest)
 	}
 
+	func updateDownloadButtonStatus() {
+		if supportedMIME.keys.contains(currentMIMEType) {
+			downloadButton.tintColor = GraphicColors.darkGreen
+		} else if ((webView.url?.absoluteString.extractYoutubeId()) != nil) {
+			downloadButton.tintColor = GraphicColors.darkGreen
+		} else {
+			downloadButton.tintColor = .black
+		}
+	}
 
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
 		// Don't handle button taps
