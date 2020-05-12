@@ -187,7 +187,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 			if urlString.starts(with: "http://") || urlString.starts(with: "https://") {
 				loadUrl(urlString)
 			} else if urlString.contains("www") {
-				loadUrl("http://\(urlString)")
+				loadUrl("https://\(urlString)")
 			} else {
 				searchTextOnGoogle(urlString)
 			}
