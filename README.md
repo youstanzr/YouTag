@@ -10,6 +10,7 @@
 - Downloads from YouTube
 - Extracts the audio from videos
 - Edit song information like title, artist, album, etc
+- Auto extraction of song metadata information for mp3 and wav
 - Customize playlist based on filters
 - Plays music in the background
 - Change song playback rate to x0.75 or x1.25
