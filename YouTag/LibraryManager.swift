@@ -163,8 +163,7 @@ class LibraryManager {
 				 "TALB":
 				return "album"
 			
-			case "genre",
-				 "type",
+			case "type",
 				 "TCON":
 				return "type"
 			
