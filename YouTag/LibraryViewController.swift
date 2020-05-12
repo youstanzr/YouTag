@@ -97,7 +97,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	}
 	
     func processYoutubeVideo(link: String) {
-        if let videoID = self.extractYoutubeId(link: link) {
+        if let videoID = link.extractYoutubeId() {
 			print("Link is valid - Video ID: \(videoID)")
 			self.loadYouTubeVideo(videoID: videoID)
         } else {
@@ -125,15 +125,6 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 				self.libraryTableView.refreshTableView()
 				self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
 			})
-        }
-    }
-        
-    func extractYoutubeId(link: String) -> String? {
-        let pattern = #"(?<=v(=|/))([-a-zA-Z0-9_]+)|(?<=youtu.be/)([-a-zA-Z0-9_]+)"#
-        if let matchRange = link.range(of: pattern, options: .regularExpression) {
-            return String(link[matchRange])
-        } else {
-            return .none
         }
     }
 

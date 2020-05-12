@@ -134,7 +134,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 			self.dismiss(animated: false, completion: {
 				self.delegate?.requestedDownloadLink(link: url, contentType: self.supportedMIME[self.currentMIMEType]!)
 			})
-		} else if  ["m.youtube.com", "youtube.com"].contains(webView.url?.host) {
+		} else if ((webView.url?.absoluteString.extractYoutubeId()) != nil) {
 			loadUrl("about:blank")
 			self.dismiss(animated: false, completion: {
 				self.delegate?.requestedDownloadLink(link: url, contentType: "mp4")
@@ -173,6 +173,7 @@ class DownloadWebViewController: UIViewController, UITextFieldDelegate, WKNaviga
 			progressBar.isHidden = (webView.estimatedProgress == 1.0)
 		} else if keyPath == "URL" {
 			urlField.text = webView.url?.absoluteString
+			updateDownloadButtonStatus()
 		}
 	}
 

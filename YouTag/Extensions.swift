@@ -410,6 +410,16 @@ extension String {
 		
 		return interval
 	}
+	
+	func extractYoutubeId() -> String? {
+		let pattern = #"(?<=v(=|/))([-a-zA-Z0-9_]+)|(?<=youtu.be/)([-a-zA-Z0-9_]+)"#
+		if let matchRange = self.range(of: pattern, options: .regularExpression) {
+			return String(self[matchRange])
+		} else {
+			return .none
+		}
+	}
+
 
 }
 
