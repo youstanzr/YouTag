@@ -90,7 +90,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
 	}
 	
 	func processDirectLink(link: String, contentType MIME: String) {
-		self.LM.addSongToLibrary(songTitle: "", songUrl: URL(string: link)!, songExtension: MIME, thumbnailUrl: nil, songID: nil, completion: {
+		self.LM.addSongToLibrary(songTitle: nil, songUrl: URL(string: link)!, songExtension: MIME, thumbnailUrl: nil, songID: nil, completion: {
 			self.libraryTableView.refreshTableView()
 			self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
 		})
