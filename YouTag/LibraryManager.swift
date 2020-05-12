@@ -62,30 +62,43 @@ class LibraryManager {
 		print("Starting the required downloads for song")
 		dispatchGroup.enter()
 		if songExtension == "mp4" {
-			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: {
-				LocalFilesManager.extractAudioFromVideo(songID: sID, completion: { error in
-					if error == nil {  // Successful extracting audio from video
-						_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).\(songExtension)")
-					} else {  // Error extracting audio from video
+			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: { error in
+				if error == nil  {
+					LocalFilesManager.extractAudioFromVideo(songID: sID, completion: { error in
 						_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).mp4")  // Delete the downloaded video
 						dispatchGroup.leave()
-						return
-					}
+						if error != nil {  // Failed to extract audio from video
+							_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).m4a")  // Delete the extracted audio if available
+							return
+						}
+					})
+				} else {
+					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).mp4")  // Delete the downloaded video if available
+					print("Error downloading video: " + error!.localizedDescription)
 					dispatchGroup.leave()
-				})
+					return
+				}
 			})
 			newExtension = "m4a"
 		} else {
-			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: {
+			LocalFilesManager.downloadFile(from: songUrl, filename: sID, extension: songExtension, completion: { error in
 				dispatchGroup.leave()
+				if error != nil  {
+					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).\(songExtension)")  // Delete the downloaded video if available
+					print("Error downloading song: " + error!.localizedDescription)
+					return
+				}
 			})
 			newExtension = songExtension
 		}
 		
 		if let imageUrl = thumbnailUrl {
 			dispatchGroup.enter()
-			LocalFilesManager.downloadFile(from: imageUrl, filename: sID, extension: "jpg", completion: {
+			LocalFilesManager.downloadFile(from: imageUrl, filename: sID, extension: "jpg", completion: { error in
 				dispatchGroup.leave()
+				if error != nil  {
+					print("Error downloading thumbnail: " + error!.localizedDescription)
+				}
 			})
 		}
 		
@@ -140,7 +153,7 @@ class LibraryManager {
 				}
 				
 			} else {
-				print("songDict not enriched for key: " + key)
+				print("songDict not enriched for key: " + key + " -> " + String(describing: val))
 			}
 		}
 		return enrichredDict
