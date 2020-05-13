@@ -33,7 +33,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200512"
+		lbl.text = "v20200514"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
