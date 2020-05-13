@@ -77,7 +77,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	func deselectAllTags() {
 		guard let selectedItems = indexPathsForSelectedItems else { return }
 		for indexPath in selectedItems { collectionView(self, didDeselectItemAt: indexPath) }
-		self.selectedTagList.removeAllObjects()
+		self.reloadData()
 	}
 
 	// MARK: Long Press Gesture Recognizer
@@ -130,7 +130,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			tagCell.textField.placeholder = addTagPlaceHolder
 			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		} else {
-			tagCell.backgroundColor = .clear
+			tagCell.backgroundColor = tagCell.isSelected ? GraphicColors.orange : UIColor.clear
 			tagCell.titleLabel.textColor = .darkGray
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.textField.textColor = .darkGray
@@ -168,16 +168,16 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			cell.switchMode(enableEditing: true)
 			collectionView.performBatchUpdates(nil, completion: nil)
 		} else if self.allowsMultipleSelection {
-			cell.backgroundColor = .orange
+			cell.backgroundColor = GraphicColors.orange
 			selectedTagList.add(cell.titleLabel.text!)
 		}
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 		if self.allowsMultipleSelection {
-			let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
-			cell.backgroundColor = .white
-			selectedTagList.remove(cell.titleLabel.text!)
+			let cell = collectionView.cellForItem(at: indexPath) as? YYTTagCell
+			cell?.backgroundColor = .clear
+			selectedTagList.remove(cell?.titleLabel.text as Any)
 		}
 	}
 	
