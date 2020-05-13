@@ -54,6 +54,7 @@ class LibraryManager {
 	func addSongToLibrary(songTitle: String?, songUrl: URL, songExtension: String , thumbnailUrl: URL?, songID: String?, completion: (() -> Void)? = nil) {
 		let sID = songID == nil ? "dl_" + generateIDFromTimeStamp() : "yt_" + songID! + generateIDFromTimeStamp()
 		var newExtension: String
+		var errorStr: String?
 		
 		let currentViewController = UIApplication.getCurrentViewController()
 		currentViewController?.showProgressView(onView: (currentViewController?.view)!, withTitle: "Downloading...")
@@ -69,14 +70,14 @@ class LibraryManager {
 						dispatchGroup.leave()
 						if error != nil {  // Failed to extract audio from video
 							_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).m4a")  // Delete the extracted audio if available
-							return
+							errorStr = error!.localizedDescription
 						}
 					})
 				} else {
 					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).mp4")  // Delete the downloaded video if available
 					print("Error downloading video: " + error!.localizedDescription)
 					dispatchGroup.leave()
-					return
+					errorStr = error!.localizedDescription
 				}
 			})
 			newExtension = "m4a"
@@ -86,7 +87,7 @@ class LibraryManager {
 				if error != nil  {
 					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).\(songExtension)")  // Delete the downloaded video if available
 					print("Error downloading song: " + error!.localizedDescription)
-					return
+					errorStr = error!.localizedDescription
 				}
 			})
 			newExtension = songExtension
@@ -103,19 +104,25 @@ class LibraryManager {
 		}
 		
 		dispatchGroup.notify(queue: DispatchQueue.main) {  // All async download in the group completed
-			print("All async download in the group completed")
 			currentViewController?.removeProgressView()
-			let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
-			let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
-			let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
-							"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
-							"link": link, "fileExtension": newExtension] as [String : Any]
-			let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
-			let enrichedDict = self.enrichSongDict(songDict, fromMetadataDict: metadataDict)
-			self.libraryArray.add(enrichedDict)
-			UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
-			self.refreshLibraryArray()
-			completion?()
+			if errorStr == nil {
+				print("All async download in the group completed")
+				let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
+				let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
+				let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
+								"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
+								"link": link, "fileExtension": newExtension] as [String : Any]
+				let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
+				let enrichedDict = self.enrichSongDict(songDict, fromMetadataDict: metadataDict)
+				self.libraryArray.add(enrichedDict)
+				UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
+				self.refreshLibraryArray()
+				completion?()
+			} else {
+				let alert = UIAlertController(title: "Error", message: errorStr, preferredStyle: UIAlertController.Style.alert)
+				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+				currentViewController?.present(alert, animated: true, completion: nil)
+			}
 		}
     }
 	
