@@ -445,3 +445,13 @@ extension NSArray {
 	}
 
 }
+
+// MARK: NSMutableArray
+extension NSMutableArray {
+
+	func sortAscending() -> NSMutableArray {
+		return NSMutableArray(array: (self as AnyObject as! [String]).sorted {
+			$0.localizedCompare($1) == ComparisonResult.orderedAscending
+		})
+	}
+}
