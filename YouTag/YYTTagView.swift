@@ -28,7 +28,11 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	
 	
 	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
-		super.init(frame: frame, collectionViewLayout: LeftAlignedCollectionViewFlowLayout())
+		let layout = LeftAlignedCollectionViewFlowLayout()
+		layout.minimumInteritemSpacing = 5
+		layout.minimumLineSpacing = 7.5
+		layout.sectionInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+		super.init(frame: frame, collectionViewLayout: layout)
 		self.register(YYTTagCell.self, forCellWithReuseIdentifier: "TagCell")
 		self.delegate = self
 		self.dataSource = self
@@ -155,11 +159,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475:titleWidth
 		return CGSize(width: titleWidth, height: 32)
 	}
-	
-	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-		return UIEdgeInsets (top: 5, left: 5, bottom: 5, right: 5)
-	}
-	
+		
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
 		if isAddEnabled && indexPath.row == 0 {
@@ -210,17 +210,26 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 	
 	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-		let attributes = super.layoutAttributesForElements(in: rect)
+		let attributes = super.layoutAttributesForElements(in: rect)?.map { $0.copy() as! UICollectionViewLayoutAttributes }
 		
 		var leftMargin = sectionInset.left
 		var maxY: CGFloat = -1.0
 		attributes?.forEach { layoutAttribute in
-			if layoutAttribute.frame.origin.y >= maxY {
+			guard layoutAttribute.representedElementCategory == .cell else {
+				return
+			}
+
+			if Int(layoutAttribute.frame.origin.y) >= Int(maxY) || layoutAttribute.frame.origin.x == sectionInset.left {
 				leftMargin = sectionInset.left
 			}
 			
-			layoutAttribute.frame.origin.x = leftMargin
-			
+			if layoutAttribute.frame.origin.x == sectionInset.left {
+				leftMargin = sectionInset.left
+			}
+			else {
+				layoutAttribute.frame.origin.x = leftMargin
+			}
+
 			leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
 			maxY = max(layoutAttribute.frame.maxY , maxY)
 		}
