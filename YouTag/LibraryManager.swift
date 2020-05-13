@@ -271,7 +271,7 @@ class LibraryManager {
 				}
 			}
 		}
-		return list
+		return list.sortAscending()
 	}
 	
 	static func getDuration(_ durType: ValueType) -> Double {
