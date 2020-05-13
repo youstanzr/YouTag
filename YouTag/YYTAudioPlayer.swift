@@ -211,11 +211,17 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 
 		let songID = songDict["id"] as? String ?? ""
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
-		if let image = UIImage(data: imageData ?? Data()) {
-			nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { size in
-				return image
-			}
+		let image: UIImage
+		if let imgData = imageData {
+			image = UIImage(data: imgData)!
+		} else {
+			image = UIImage(named: "placeholder")!
 		}
+		
+		nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { size in
+			return image
+		}
+
 		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer.currentTime
 		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = audioPlayer.duration
 		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = audioPlayer.rate
