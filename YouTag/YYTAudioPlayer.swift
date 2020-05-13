@@ -114,6 +114,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 			audioPlayer.play()
 			updateNowPlaying(isPause: false)
 			delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+			updater = CADisplayLink(target: self, selector: #selector(updateDelegate))
 			updater.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
 		}
 	}
