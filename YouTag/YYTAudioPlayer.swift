@@ -25,7 +25,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	private var songDict: Dictionary<String, Any>!
 	private var currentSongIndex: Int!
 	private var updater = CADisplayLink()
-	private var isSuspended: Bool = false
+	private(set) var isSuspended: Bool = false
 	var isSongRepeat: Bool = false
 	
 	init(playlistManager: PlaylistManager) {
