@@ -287,6 +287,7 @@ class FilterPickerView: UIView {
 		}
 		tagView.reloadData()
 		self.layoutIfNeeded()
+		tagView.setContentOffset(.zero, animated: false)  // Scroll to top
 	}
 
 	@objc func releaseYrValueChanged(_ sender: UISegmentedControl) {
