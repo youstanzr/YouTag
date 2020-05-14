@@ -10,6 +10,8 @@ import UIKit
 
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource {
  
+    // Thats actually kind of dangerous because your library manager's songs array can change somewhere else
+    // this will lead to tableview problems since count changed
 	var LM: LibraryManager!
 
 	
@@ -38,8 +40,8 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
         
-		let songDict = LM.libraryArray.object(at: LM.libraryArray.count - 1 - indexPath.row) as! Dictionary<String, Any>
-		cell.songDict = songDict
+        let song = LM.libraryArray[indexPath.row]
+		cell.song = song
 		cell.refreshCell()
         return cell
     }
@@ -60,19 +62,21 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
         songDetail_vc.modalPresentationStyle = .fullScreen
         songDetail_vc.modalTransitionStyle = .coverVertical
 
-		songDetail_vc.songDict = cell.songDict
+        print("FWX_TODO")
+//		songDetail_vc.songDict = cell.songDict
 
         let currentController = UIApplication.getCurrentViewController()
         currentController?.present(songDetail_vc, animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if (editingStyle == .delete) {
-            let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
-			LM.deleteSongFromLibrary(songID: cell.songDict["id"] as? String ?? "")
-            LM.refreshLibraryArray()
-            tableView.reloadData()
+        guard editingStyle == .delete else {
+            return
         }
+        let song = LM.libraryArray[indexPath.row]
+        LM.deleteSongFromLibrary(songID: song.id)
+        LM.refreshLibraryArray()
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 	
 }

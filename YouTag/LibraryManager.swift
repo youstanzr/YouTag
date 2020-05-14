@@ -16,7 +16,7 @@ class LibraryManager {
 		case min
 		case max
 	}
-	var libraryArray: NSMutableArray!
+	var libraryArray: [Song] = []
 
 	
     init() {
@@ -28,11 +28,11 @@ class LibraryManager {
     }
 	
 	func refreshLibraryArray() {
-		libraryArray = NSMutableArray(array: UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray())
+        libraryArray = LibraryManager.fetchAllSongs()
 	}
 
-	static func getLibraryArray() -> NSMutableArray {
-		return NSMutableArray(array: UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray())
+	static func getLibraryArray() -> [Song] {
+		return fetchAllSongs()
 	}
 	
 	/*
@@ -124,7 +124,7 @@ class LibraryManager {
             let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
             LibraryManager.enrichSong(&song, fromMetadataDict: metadataDict)
             
-            self.libraryArray.add(song)
+            self.libraryArray.append(song)
             UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
             self.refreshLibraryArray()
             completion?()
@@ -192,56 +192,49 @@ class LibraryManager {
 	}
     
 	func deleteSongFromLibrary(songID: String) {
-		var songDict = Dictionary<String, Any>()
-		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-			if songDict["id"] as! String == songID {
-				let songExt = (songDict["fileExtension"] as? String) ?? "m4a"  //support legacy code
-				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).\(songExt)") {
-					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg")
-					libraryArray.remove(songDict)
-				}
-				break
-			}
-		}
+//		var songDict = Dictionary<String, Any>()
+//		for i in 0 ..< libraryArray.count {
+//			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
+//			if songDict["id"] as! String == songID {
+//				let songExt = (songDict["fileExtension"] as? String) ?? "m4a"  //support legacy code
+//				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).\(songExt)") {
+//					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg")
+//					libraryArray.remove(songDict)
+//				}
+//				break
+//			}
+//		}
+        for (index, song) in libraryArray.enumerated() {
+            guard song.id == songID else {
+                return
+            }
+            guard LocalFilesManager.deleteFile(withNameAndExtension: "\(song.id).\(song.fileExt)") else {
+                return
+            }
+            libraryArray.remove(at: index)
+            break
+        }
 		UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
 	}
 
 	func checkSongExistInLibrary(songLink: String) -> Bool {
 		self.refreshLibraryArray()
-		var songDict = Dictionary<String, Any>()
-		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-			if songDict["link"] as! String == songLink {
-				return true
-			}
-		}
-		return false
+
+        return libraryArray.contains(where: { $0.link == songLink } )
 	}
 
-	func getSong(forID songID: String) -> Dictionary<String, Any> {
+	func getSong(forID songID: String) -> Song? {
 		self.refreshLibraryArray()
-		var songDict = Dictionary<String, Any>()
-		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-			if songDict["id"] as! String == songID {
-				return songDict
-			}
-		}
-		return Dictionary()
+        return libraryArray.first(where: { $0.id == songID })
 	}
 
-    func updateSong(newSong: Dictionary<String, Any>) {
+    func updateSong(newSong: Song) {
 		self.refreshLibraryArray()
-		var songDict = Dictionary<String, Any>()
-		for i in 0 ..< libraryArray.count {
-			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-			if songDict["id"] as! String == newSong["id"] as! String {
-				libraryArray.replaceObject(at: i, with: newSong)
-				UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
-				break
-			}
-		}
+        guard let cachedSongIndex = libraryArray.firstIndex(where: { $0.id == newSong.id }) else {
+            return
+        }
+        libraryArray[cachedSongIndex] = newSong
+        UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
     }
     
     private static func retriveByCacheKey(_ key: MetadataExtractor.LocalSupportedMetadata,
@@ -333,30 +326,33 @@ class LibraryManager {
 	}
 	
 	static func getDuration(_ durType: ValueType) -> Double {
-		if durType == .min {
-			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
-			var songDict = Dictionary<String, Any>()
-			var min: TimeInterval = TimeInterval.infinity
-			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, Any>
-				if (songDict["duration"] as! String).convertToTimeInterval() < min {
-					min = (songDict["duration"] as! String).convertToTimeInterval()
-				}
-			}
-			return min == TimeInterval.infinity ? 0 : min
-		} else if durType == .max {
-			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
-			var songDict = Dictionary<String, Any>()
-			var max: TimeInterval = 0
-			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, Any>
-				if (songDict["duration"] as! String).convertToTimeInterval() > max {
-					max = (songDict["duration"] as! String).convertToTimeInterval()
-				}
-			}
-			return max
-		}
-		return 0
+        // need to test this
+        if durType == .min {
+            let songs = fetchAllSongs()
+            var min: TimeInterval = TimeInterval.infinity
+            
+            for song in songs {
+                let duration = song.duration.convertToTimeInterval()
+                guard duration < min else {
+                    continue
+                }
+                min = duration
+            }
+            return min == TimeInterval.infinity ? 0 : min
+        } else if durType == .max {
+            let songs = fetchAllSongs()
+            var max: TimeInterval = 0
+            
+            for song in songs {
+                let duration = song.duration.convertToTimeInterval()
+                guard duration > max else {
+                    continue
+                }
+                max = duration
+            }
+            return max
+        }
+        return 0
 	}
 	
 	static func getReleaseYear(_ durType: ValueType) -> Int {

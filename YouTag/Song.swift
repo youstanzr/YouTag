@@ -46,3 +46,17 @@ struct Song: Codable {
         case tags = "tags"
     }
 }
+
+// MARK: Helpers
+
+extension Song {
+    
+    // Syntax sugar meh
+    static var emptySong: Self {
+        return Song(id: "", title: "", link: "", duration: "", fileExt: "")
+    }
+    
+    var artistsJoined: String {
+        return artists.joined(separator: ", ")
+    }
+}

@@ -16,7 +16,7 @@ class PlaylistLibraryView: LibraryTableView {
 
 	weak var PLDelegate: PlaylistLibraryViewDelegate?
 	
-	var playlistArray = NSMutableArray()
+    var playlistArray: [Song] = []
 
 	
     required init?(coder aDecoder: NSCoder) {
@@ -38,9 +38,9 @@ class PlaylistLibraryView: LibraryTableView {
     
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
-
-		let songDict = playlistArray.object(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count) as! Dictionary<String, Any>
-		cell.songDict = songDict
+        let song = playlistArray[indexPath.row]
+        
+		cell.song = song
 		cell.refreshCell()
 		return cell
 	}
@@ -48,24 +48,32 @@ class PlaylistLibraryView: LibraryTableView {
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
 
-		print("Selected cell number \(indexPath.row) -> \(cell.songDict["title"] ?? "")")
+        print("Selected cell number \(indexPath.row) -> \(cell.song?.title ?? "")")
+        guard let last = playlistArray.last else { return }
+//        playlistArray.insert(last, at: 0)
+//        playlistArray.removeLast()
+//        playlistArray.remove(at: indexPath.row)
+//        playlistArray.append(<#T##newElement: Song##Song#>)
+        print(#function)
+        
 
-		playlistArray.insert(playlistArray.lastObject!, at: 0)
-		playlistArray.removeLastObject()
-		playlistArray.remove(cell.songDict)
-		playlistArray.add(cell.songDict)
-		
-		tableView.deselectRow(at: indexPath, animated: false)
-		tableView.reloadData()
-		
-		PLDelegate?.didSelectSong(songDict: cell.songDict)
+//		playlistArray.insert(playlistArray.lastObject!, at: 0)
+//		playlistArray.removeLastObject()
+//		playlistArray.remove(cell.songDict)
+//		playlistArray.add(cell.songDict)
+//
+//		tableView.deselectRow(at: indexPath, animated: false)
+//		tableView.reloadData()
+//
+//		PLDelegate?.didSelectSong(songDict: cell.songDict)
     }
 	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-		if (editingStyle == .delete) {
-			playlistArray.removeObject(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count)
-			tableView.reloadData()
-		}
+        guard editingStyle == .delete else {
+            return
+        }
+        playlistArray.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
 	}
 	
 }
