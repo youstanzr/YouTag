@@ -168,7 +168,7 @@ extension UIViewController {
 }
 
 // MARK: UIView
-extension UIView{
+extension UIView {
 
 	enum BorderSide {
 		case top, bottom, left, right
@@ -202,8 +202,25 @@ extension UIView{
 	
 }
 
+// MARK: UITableView
+extension UITableView {
+	
+	func hasRowAtIndexPath(indexPath: IndexPath) -> Bool {
+		return indexPath.section < numberOfSections && indexPath.row < numberOfRows(inSection: indexPath.section)
+	}
+	
+	func scrollToTop(_ animated: Bool = false) {
+		let indexPath = IndexPath(row: 0, section: 0)
+		if hasRowAtIndexPath(indexPath: indexPath) {
+			scrollToRow(at: indexPath, at: .top, animated: animated)
+		}
+	}
+	
+}
+
+
 // MARK: TimeInterval
-extension TimeInterval{
+extension TimeInterval {
 
 	func stringFromTimeInterval() -> String {
 		
