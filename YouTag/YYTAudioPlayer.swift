@@ -22,7 +22,7 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	private var playlistManager: PlaylistManager!
 	private var audioPlayer: AVAudioPlayer!
 	private var songsPlaylist: NSMutableArray!
-	private var songDict: Dictionary<String, Any>!
+	private var song: Song!
 	private var currentSongIndex: Int!
 	private var updater = CADisplayLink()
 	private(set) var isSuspended: Bool = false
@@ -51,20 +51,18 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	}
 	
 	func setupPlayer(withSongAtindex index: Int) -> Bool {
-		return setupPlayer(withSong: songsPlaylist.object(at: currentSongIndex) as! Dictionary<String, Any>)
+        return setupPlayer(withSong: songsPlaylist![currentSongIndex] as! Song)
 	}
 	
-	func setupPlayer(withSong songDict: Dictionary<String, Any>) -> Bool {
-		self.songDict = songDict
-		let songID = songDict["id"] as! String
-		let songExt = songDict["fileExtension"] as? String ?? "m4a"  //support legacy code
-		let url = LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).\(songExt)")
+	func setupPlayer(withSong song: Song) -> Bool {
+		self.song = song
+        guard let url = song.localUrl else { return false }
 		do {
 			if audioPlayer != nil {
 				updater.invalidate()
 			}
 			let oldPlaybackRate = getPlayerRate()
-			audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
 			audioPlayer.delegate = self
 			audioPlayer.enableRate = true
 			audioPlayer.prepareToPlay()
@@ -207,19 +205,18 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	func setupNowPlaying() {
 		// Define Now Playing Info
 		var nowPlayingInfo = [String : Any]()
-		nowPlayingInfo[MPMediaItemPropertyTitle] = songDict["title"] as? String
+        nowPlayingInfo[MPMediaItemPropertyTitle] = song.title
 
-		let songID = songDict["id"] as? String ?? ""
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
-		let image: UIImage
-		if let imgData = imageData {
-			image = UIImage(data: imgData)!
-		} else {
-			image = UIImage(named: "placeholder")!
-		}
+        
+        let songImage: UIImage
+        if let url = song.localUrl, let imageData = try? Data(contentsOf: url), let image = UIImage(data: imageData)  {
+            songImage = image
+        } else {
+            songImage = UIImage(named: "placeholder")!
+        }
 		
-		nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { size in
-			return image
+		nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: songImage.size) { size in
+			return songImage
 		}
 
 		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer.currentTime
