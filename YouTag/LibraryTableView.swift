@@ -59,11 +59,13 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
         
         print("Selected cell number: \(indexPath.row)")
         let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
 		let songDetail_vc: SongDetailViewController = storyboard.instantiateViewController(withIdentifier: "SongDetailViewController") as! SongDetailViewController
+        
         songDetail_vc.modalPresentationStyle = .fullScreen
         songDetail_vc.modalTransitionStyle = .coverVertical
+        
 		songDetail_vc.song = song
+        songDetail_vc.delegate = self
 
         let currentController = UIApplication.getCurrentViewController()
         currentController?.present(songDetail_vc, animated: true, completion: nil)
@@ -79,4 +81,13 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
         tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 	
+}
+
+// MARK: SongDetailDelegate {
+
+extension LibraryTableView: SongDetailDelegate {
+    
+    func onSongUpdated() {
+        reloadData()
+    }
 }

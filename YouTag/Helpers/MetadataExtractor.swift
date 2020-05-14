@@ -77,7 +77,8 @@ class MetadataExtractor {
              "TYER",
              "TDAT",
              "TORY",
-             "TDOR":
+             "TDOR",
+             "releaseYear":
             
             return .year
         case "artwork",

@@ -8,9 +8,16 @@
 
 import UIKit
 
+protocol SongDetailDelegate: class {
+    
+    func onSongUpdated()
+}
+
 class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
 	var song: Song!
+    weak var delegate: SongDetailDelegate?
+    
 	let LM = LibraryManager()
 	var tagsView: YYTTagView!
 	let dismissButton: UIButton = {
@@ -221,6 +228,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 			self.updateSong()
 			LM.updateSong(newSong: song)
 			LocalFilesManager.clearTmpDirectory()
+            delegate?.onSongUpdated()
 			dismiss(animated: true, completion: nil)
 		}
     }
