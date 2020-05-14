@@ -8,28 +8,41 @@
 
 import Foundation
 
-struct Song : Codable{
+struct SongTest {
+    
+}
 
-	var title: String
-	var artist: String
-	var id: String
-	var duration: String
-	var tags: [String]
+//                let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
+//                                "releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
+//                                "link": link, "fileExtension": newExtension] as [String : Any]
+
+/// Storing vars in structure allows swift (or xcode) to automatically create initializer for your struct
+struct Song: Codable {
+    
+    let id: String
+    var title: String
+    var link: String
+    
+    // MARK: Optional properties
+    
+    var artists: [String] = []
+    var album: String?
+    var releaseYear: String = ""
+    var duration: String
+    var lyrics: String = ""
+    var tags: [String] = []
+    var fileExt: String
 	
-	init() {
-		title = ""
-		artist = ""
-		id = ""
-		duration = ""
-		tags = []
-	}
-	
-	init(title: String, artist: String, id: String, duration: String, tags: [String]) {
-		self.title = title
-		self.artist = artist
-		self.id = id
-		self.duration = duration
-		self.tags = tags
-	}
-	
+    enum CodingKeys: String, CodingKey {
+        case id = "id"
+        case link = "link"
+        case fileExt = "fileExtension"
+        case title = "title"
+        case artists = "artists"
+        case album = "album"
+        case releaseYear = "releaseYear"
+        case duration = "duration"
+        case lyrics = "lyrics"
+        case tags = "tags"
+    }
 }

@@ -8,20 +8,10 @@
 
 import UIKit
 
-class LibraryManager {
+typealias MetadataMap = Dictionary<String, Any>
 
-	enum SongProperties: String {
-		case id = "id"
-		case link = "link"
-		case fileExtension = "fileExtension"
-		case title = "title"
-		case artists = "artists"
-		case album = "album"
-		case releaseYear = "releaseYear"
-		case duration = "duration"
-		case lyrics = "lyrics"
-		case tags = "tags"
-	}
+class LibraryManager {
+    
 	enum ValueType {
 		case min
 		case max
@@ -51,7 +41,12 @@ class LibraryManager {
 		Song Title -> will be set to Song ID
 		Thumbnail URL -> It will skip downloading a thumbnail image
 	*/
-	func addSongToLibrary(songTitle: String?, songUrl: URL, songExtension: String , thumbnailUrl: URL?, songID: String?, completion: (() -> Void)? = nil) {
+	func addSongToLibrary(songTitle: String?,
+                          songUrl: URL,
+                          songExtension: String,
+                          thumbnailUrl: URL?,
+                          songID: String?,
+                          completion: (() -> Void)? = nil) {
 		let sID = songID == nil ? "dl_" + generateIDFromTimeStamp() : "yt_" + songID! + generateIDFromTimeStamp()
 		var newExtension: String
 		var errorStr: String?
@@ -103,104 +98,97 @@ class LibraryManager {
 			})
 		}
 		
-		dispatchGroup.notify(queue: DispatchQueue.main) {  // All async download in the group completed
+		dispatchGroup.notify(queue: DispatchQueue.main) { [weak self] in  // All async download in the group completed
+            guard let self = self else { return }
 			currentViewController?.removeProgressView()
-			if errorStr == nil {
-				print("All async download in the group completed")
-				let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
-				let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
-				let songDict = ["id": sID, "title": songTitle ?? sID, "artists": NSMutableArray(), "album": "",
-								"releaseYear": "", "duration": duration, "lyrics": "", "tags": NSMutableArray(),
-								"link": link, "fileExtension": newExtension] as [String : Any]
-				let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
-				let enrichedDict = self.enrichSongDict(songDict, fromMetadataDict: metadataDict)
-				self.libraryArray.add(enrichedDict)
-				UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
-				self.refreshLibraryArray()
-				completion?()
-			} else {
-				let alert = UIAlertController(title: "Error", message: errorStr, preferredStyle: UIAlertController.Style.alert)
-				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
-				currentViewController?.present(alert, animated: true, completion: nil)
-			}
+            print("All async download in the group completed")
+            
+            guard errorStr == nil else {
+                let alert = UIAlertController(title: "Error", message: errorStr, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+                currentViewController?.present(alert, animated: true, completion: nil)
+                return
+            }
+            
+            
+            let duration = LocalFilesManager.extractDurationForSong(songID: sID, songExtension: newExtension)
+            let link = songID == nil ? songUrl.absoluteString : "https://www.youtube.com/embed/\(songID ?? "UNKNOWN_ERROR")"
+            
+            var song = Song(id: sID,
+                            title: songTitle ?? sID,
+                            link: link,
+                            duration: duration,
+                            fileExt: newExtension)
+
+            // Parse metadata and enrich our song based on those values
+            let metadataDict = LocalFilesManager.extractSongMetadata(songID: sID, songExtension: newExtension)
+            LibraryManager.enrichSong(&song, fromMetadataDict: metadataDict)
+            
+            self.libraryArray.add(song)
+            UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
+            self.refreshLibraryArray()
+            completion?()
+			
 		}
     }
 	
-	func enrichSongDict(_ songDict: Dictionary<String, Any>, fromMetadataDict mdDict: Dictionary<String, Any>) -> Dictionary<String, Any> {
-		var enrichredDict = songDict
-		var key: String
-		let songID = songDict["id"] as! String
-		let songTitle = songDict["title"] as! String
-		let songAlbum = songDict["album"] as! String
-		let songYear = songDict["releaseYear"] as! String
-		for (k, val) in mdDict {
-			if (val as? String ?? "") == "" && (val as? Data ?? Data()).isEmpty {
-				continue
-			}
-			key = getKey(forMetadataKey: k)
-
-			if key == "title" && (songTitle == songID || songTitle == "") {  // if metadata has value and song title is set to default value or empty String
-				enrichredDict["title"] = val as! String
-				
-			} else if key == "artist" {
-				(enrichredDict["artists"] as! NSMutableArray).add(val as! String)
-				
-			} else if key == "album" && songYear == "" {  // if metadata has value and song album is set to default value
-				enrichredDict["album"] = val as! String
-
-			} else if key == "year" && songAlbum == "" {  // if metadata has value and song album is set to default value
-				enrichredDict["releaseYear"] = val as! String
-
-			} else if key == "type" {
-				(enrichredDict["tags"] as! NSMutableArray).add(val as! String)
-				
-			} else if key == "artwork" && !LocalFilesManager.checkFileExist(songID + ".jpg") {
-				if let jpgImageData = UIImage(data: val as! Data)?.jpegData(compressionQuality: 1) {  // make sure image is jpg
-					LocalFilesManager.saveImage(UIImage(data: jpgImageData), withName: songID)
-				}
-				
-			} else {
-				print("songDict not enriched for key: " + key + " -> " + String(describing: val))
-			}
-		}
-		return enrichredDict
-	}
-	
-	private func getKey(forMetadataKey mdKey: String) -> String {
-		switch mdKey {
-			case "title",
-				 "songName",
-				 "TIT2":
-				return "title"
-			
-			case "artist",
-				 "TPE1":
-				return "artist"
-			
-			case "albumName",
-				 "album",
-				 "TIT1",
-				 "TALB":
-				return "album"
-			
-			case "type",
-				 "TCON":
-				return "type"
-			
-			case "year",
-				 "TYER",
-				 "TDAT",
-				 "TORY",
-				 "TDOR":
-				return "year"
-			
-			case "artwork",
-				 "APIC":
-				return "artwork"
-			
-			default:
-				return mdKey
-		}
+	static func enrichSong(_ song: inout Song,
+                        fromMetadataDict mdDict: MetadataMap){
+        var enrichedSong = song
+        
+        for (key, value) in mdDict {
+            // Ignore values whose are strings and empty
+            if let value = value as? String, value.isEmpty {
+                continue
+            }
+            // Same but for data
+            if let value = value as? Data, value.isEmpty {
+                continue
+            }
+            
+            guard let localKey = try? MetadataExtractor.parseToSupported(from: key) else {
+                #if DEBUG
+                    print("ignoring: \(key)")
+                #endif
+                break
+            }
+            
+            switch localKey {
+            case .artist:
+                guard let value = value as? String else {
+                    continue
+                }
+                enrichedSong.artists.append(value)
+                break
+            case .title:
+                guard enrichedSong.title == enrichedSong.id || enrichedSong.title.isEmpty else {
+                    continue
+                }
+                enrichedSong.title = value as? String ?? ""
+            case .album:
+                enrichedSong.album = value as? String ?? ""
+                break
+            case .year:
+                enrichedSong.releaseYear = value as? String ?? ""
+            case .tags:
+                enrichedSong.tags.append(value as? String ?? "")
+            case .artwork:
+                guard let data = value as? Data else { continue }
+                guard !LocalFilesManager.checkFileExist(enrichedSong.id + ".jpg") else {
+                    continue
+                }
+                // make sure image is jpg
+                guard let jpgImageData = UIImage(data: data)?.jpegData(compressionQuality: 1) else {
+                    continue
+                }
+                LocalFilesManager.saveImage(UIImage(data: jpgImageData), withName: enrichedSong.id)
+            default:
+                #if DEBUG
+                    print("not supported key found")
+                #endif
+            }
+        }
+        song = enrichedSong
 	}
     
 	func deleteSongFromLibrary(songID: String) {
@@ -255,30 +243,93 @@ class LibraryManager {
 			}
 		}
     }
+    
+    private static func retriveByCacheKey(_ key: MetadataExtractor.LocalSupportedMetadata,
+                                          properties: [String: Any]) -> String? {
+        return properties[key.cacheKey] as? String
+    }
+    
+    private static func fetchAllSongs() -> [Song] {
+        let rawSongs = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+        var songs: [Song] = []
+        
+        for rawSong in rawSongs {
+            let properties = rawSong as! Dictionary<String, Any>
+
+            guard let id = retriveByCacheKey(.id, properties: properties) else {
+                continue
+            }
+            
+            guard let title = retriveByCacheKey(.title, properties: properties) else {
+                continue
+            }
+            
+            guard let link = retriveByCacheKey(.link, properties: properties) else {
+                continue
+            }
+            
+            guard let duration = retriveByCacheKey(.duration, properties: properties) else {
+                continue
+            }
+            
+            guard let fileExt = retriveByCacheKey(.fileExtension, properties: properties) else {
+                continue
+            }
+            
+            
+            var localSong = Song(id: id, title: title, link: link, duration: duration, fileExt: fileExt)
+            enrichSong(&localSong, fromMetadataDict: properties)
+            songs.append(localSong)
+        }
+        
+        return songs
+    }
 	
-	static func getAll(_ type: SongProperties) -> NSMutableArray {
-		let list = NSMutableArray()
-		let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
-		var songDict = Dictionary<String, Any>()
-		var songArrProperty = NSMutableArray()
-		var songStrProperty = String()
-		for i in 0 ..< songArr.count {
-			songDict = songArr.object(at: i) as! Dictionary<String, Any>
-			if type == .artists || type == .tags {
-				songArrProperty = NSMutableArray(array: songDict[type.rawValue] as? NSArray ?? NSArray())
-				for j in 0 ..< songArrProperty.count {
-					if !list.contains(songArrProperty[j]) && (songArrProperty[j] as? String ?? "") != "" {
-						list.add(songArrProperty[j])
-					}
-				}
-			} else {
-				songStrProperty = songDict[type.rawValue] as? String ?? ""
-				if !list.contains(songStrProperty) && songStrProperty != "" {
-					list.add(songStrProperty)
-				}
-			}
-		}
-		return list.sortAscending()
+    // Filters for songs?
+    static func getAll(_ type: MetadataExtractor.LocalSupportedMetadata) -> NSMutableArray {
+        var list: [String] = []
+        
+        let songs = fetchAllSongs()
+        
+        switch type {
+        case .id:
+            let ids = songs.map { $0.id }
+            ids.forEach { list.append($0) }
+        case .artist:
+            let artists = songs.flatMap { $0.artists }
+            for artist in artists {
+                list.append(artist)
+            }
+        case .title:
+            list.append(contentsOf: songs.map { $0.title })
+        case .album:
+            let albums = songs.map { $0.album ?? "" }
+            list.append(contentsOf: albums)
+        case .year:
+            let years = songs.map { $0.releaseYear }
+            years.forEach { list.append($0) }
+        case .tags:
+            // cast to nsarray
+            let tags = songs.flatMap { $0.tags }
+            for tag in tags {
+                list.append(tag)
+            }
+        case .fileExtension:
+            let fileExts = songs.map { $0.fileExt }
+            fileExts.forEach { list.append($0) }
+        default:
+            #if DEBUG
+                print("not implemeneted \(type)")
+            #endif
+            break
+        }
+        
+        let filteredList = list.filter { !$0.isEmpty }
+        let nsList = NSMutableArray()
+        
+        filteredList.forEach { nsList.add($0) }
+        
+        return nsList.sortAscending()
 	}
 	
 	static func getDuration(_ durType: ValueType) -> Double {

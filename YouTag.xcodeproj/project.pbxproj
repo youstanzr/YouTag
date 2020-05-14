@@ -39,6 +39,8 @@
 		2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
 		2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */; };
+		C13C3537246D304B00C2D443 /* String+orEmpty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13C3536246D304B00C2D443 /* String+orEmpty.swift */; };
+		C13C353A246D326B00C2D443 /* MetadataExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13C3539246D326B00C2D443 /* MetadataExtractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +96,8 @@
 		2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
 		2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTFilterTagView.swift; sourceTree = "<group>"; };
+		C13C3536246D304B00C2D443 /* String+orEmpty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+orEmpty.swift"; sourceTree = "<group>"; };
+		C13C3539246D326B00C2D443 /* MetadataExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataExtractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +151,8 @@
 		2B7863812301AE56001DD6FD /* YouTag */ = {
 			isa = PBXGroup;
 			children = (
+				C13C3538246D326000C2D443 /* Helpers */,
+				C13C3535246D304000C2D443 /* Extensions */,
 				2B7863822301AE56001DD6FD /* AppDelegate.swift */,
 				2B7863842301AE56001DD6FD /* ViewController.swift */,
 				2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */,
@@ -195,6 +201,22 @@
 				2B7863A72301AE57001DD6FD /* Info.plist */,
 			);
 			path = YouTagUITests;
+			sourceTree = "<group>";
+		};
+		C13C3535246D304000C2D443 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3536246D304B00C2D443 /* String+orEmpty.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C13C3538246D326000C2D443 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3539246D326B00C2D443 /* MetadataExtractor.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -358,6 +380,8 @@
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
 				2B0F1357242853C70061F3FE /* YYTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
+				C13C3537246D304B00C2D443 /* String+orEmpty.swift in Sources */,
+				C13C353A246D326B00C2D443 /* MetadataExtractor.swift in Sources */,
 				2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */,
 				2B157C2D24208369001DB815 /* DownloadWebViewController.swift in Sources */,
 				2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */,
@@ -544,7 +568,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3Z9XNN6UGX;
+				DEVELOPMENT_TEAM = X4GBYWUXDF;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -552,7 +576,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
+				PRODUCT_BUNDLE_IDENTIFIER = fwx.youtag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -567,7 +591,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3Z9XNN6UGX;
+				DEVELOPMENT_TEAM = X4GBYWUXDF;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -575,7 +599,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
+				PRODUCT_BUNDLE_IDENTIFIER = fwx.youtag;
 				PRODUCT_NAME = YouTag;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 5.0;

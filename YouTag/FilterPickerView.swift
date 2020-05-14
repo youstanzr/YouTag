@@ -259,11 +259,11 @@ class FilterPickerView: UIView {
 		switch sender.selectedSegmentIndex {
 			case 0:
 				tagView.isHidden = false
-				tagView.tagsList = LibraryManager.getAll(.tags)
+                tagView.tagsList = LibraryManager.getAll(.tags)
 				break
 			case 1:
 				tagView.isHidden = false
-				tagView.tagsList = LibraryManager.getAll(.artists)
+                tagView.tagsList = LibraryManager.getAll(.artist)
 				break
 			case 2:
 				tagView.isHidden = false
@@ -305,7 +305,7 @@ class FilterPickerView: UIView {
 		} else {
 			rangeSliderView.isHidden = true
 			tagView.isHidden = false
-			tagView.tagsList = LibraryManager.getAll(.releaseYear)
+            tagView.tagsList = LibraryManager.getAll(.year)
 			tagViewDefaultTopAnchor?.isActive = false
 			tagViewWithSegmentTopAnchor?.isActive = true
 		}
