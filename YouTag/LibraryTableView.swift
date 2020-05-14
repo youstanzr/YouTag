@@ -62,7 +62,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
 
 		songDetail_vc.songDict = cell.songDict
 
-        let currentController = self.getCurrentViewController()
+        let currentController = UIApplication.getCurrentViewController()
         currentController?.present(songDetail_vc, animated: true, completion: nil)
     }
     

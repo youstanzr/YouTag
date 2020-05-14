@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Alamofire",
+        "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
+        "state": {
+          "branch": null,
+          "revision": "fca036f7aeca07124067cb6e0c12b0ad6359e3d4",
+          "version": "5.1.0"
+        }
+      },
+      {
         "package": "MarqueeLabel",
         "repositoryURL": "https://github.com/cbpowell/MarqueeLabel",
         "state": {
@@ -15,8 +24,8 @@
         "repositoryURL": "https://github.com/0xced/XCDYouTubeKit",
         "state": {
           "branch": null,
-          "revision": "d6f4b0e2baaf2f15e0d1ad3df798a864f5ae8177",
-          "version": "2.13.0"
+          "revision": "2ee18c1c614e7ab63c76e308f969838f7d6c0a61",
+          "version": "2.14.0"
         }
       }
     ]

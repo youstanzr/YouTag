@@ -90,6 +90,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		return txtView
 	}()
 	let imagePicker = UIImagePickerController()
+	let songSizeLabel: UILabel = {
+		let lbl = UILabel()
+		lbl.textColor = GraphicColors.gray
+		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
+		lbl.textAlignment = .left
+		return lbl
+	}()
 
 	
     override func viewDidLoad() {
@@ -106,7 +113,11 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
 		thumbnailImageView.addGestureRecognizer(imageTap)
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as! String).jpg"))
-		thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		if let imgData = imageData {
+			thumbnailImageView.image = UIImage(data: imgData)
+		} else {
+			thumbnailImageView.image = UIImage(named: "placeholder")
+		}
         self.view.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 70).isActive = true
@@ -163,7 +174,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
-        dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
+		dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         self.view.addSubview(dismissButton)
 		dismissButton.translatesAutoresizingMaskIntoConstraints = false
 		dismissButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
@@ -171,13 +182,22 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		dismissButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.15, constant: -35).isActive = true
 		dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 		
+		songSizeLabel.text = "Song size: " + LocalFilesManager.getLocalFileSize(fileName_ext:
+			"\(songDict["id"] as! String).\((songDict["fileExtension"] as? String) ?? "m4a")")
+		self.view.addSubview(songSizeLabel)
+		songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
+		songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -15).isActive = true
+		songSizeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
+		songSizeLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
+		songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
+
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
 		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
-		tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 15).isActive = true
-		tagsView.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -30).isActive = true
+		tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 10).isActive = true
+		tagsView.bottomAnchor.constraint(equalTo: songSizeLabel.topAnchor, constant: -10).isActive = true
 		tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
     }
@@ -188,9 +208,18 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}
 	
 	@objc func dismiss(sender: UIButton) {
-		if releaseYrTextField.text!.isNumeric || releaseYrTextField.text == "" {
+		if !releaseYrTextField.text!.isNumeric && releaseYrTextField.text != "" {
+			let alert = UIAlertController(title: "Error", message: "Please input correct release year", preferredStyle: UIAlertController.Style.alert)
+			alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+			self.present(alert, animated: true, completion: nil)
+		} else if titleTextField.text == "" {
+			let alert = UIAlertController(title: "Error", message: "Please input song title", preferredStyle: UIAlertController.Style.alert)
+			alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
+			self.present(alert, animated: true, completion: nil)
+		} else {
 			self.updateSong()
 			LM.updateSong(newSong: songDict)
+			LocalFilesManager.clearTmpDirectory()
 			dismiss(animated: true, completion: nil)
 		}
     }
@@ -219,7 +248,9 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		songDict["releaseYear"] = releaseYrTextField.text
 		songDict["lyrics"] = lyricsTextView.text != "Lyrics" ? lyricsTextView.text : ""
 		songDict["tags"] = tagsView.tagsList
-		LocalFilesManager.saveImage(thumbnailImageView.image!, withName: songDict["id"] as! String)
+		if thumbnailImageView.image != UIImage(named: "placeholder") {
+			LocalFilesManager.saveImage(thumbnailImageView.image, withName: songDict["id"] as! String)
+		}
     }
 	
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {

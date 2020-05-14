@@ -17,6 +17,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	weak var NPDelegate: NowPlayingViewDelegate?
 
 	var audioPlayer: YYTAudioPlayer!
+	var songID = ""
 	let thumbnailImageView: UIImageView = {
 		let imgView = UIImageView()
 		imgView.layer.cornerRadius = 5.0
@@ -34,6 +35,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	}()
 	let artistLabel: MarqueeLabel = {
 		let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
+		lbl.textColor = GraphicColors.gray
 		lbl.trailingBuffer = 40.0
 		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
 		lbl.textAlignment = .left
@@ -217,7 +219,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 		self.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true
-		thumbnailImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.5).isActive = true
+		thumbnailImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 3.5).isActive = true
 		thumbnailImageView.bottomAnchor.constraint(equalTo: songControlView.topAnchor, constant: -2.5).isActive = true
 		thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
 
@@ -286,6 +288,9 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 	
 	@objc func playbackRateButtonAction(sender: UIButton!) {
 		print("playback rate Button tapped")
+		if songID == "" {
+			return
+		}
 		if sender.titleLabel?.text == "x1" {
 			sender.setTitle("x1.25", for: .normal)
 			audioPlayer.setPlayerRate(to: 1.25)
@@ -327,8 +332,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 				break
 				case .ended:
 				// handle drag ended
-					audioPlayer.setPlayerCurrentTime(withPercentage: slider.value)
 					isProgressBarSliding = false
+					if songID == "" {
+						slider.value = 0.0
+						return
+					}
+					audioPlayer.setPlayerCurrentTime(withPercentage: slider.value)
 				case .moved:
 				// handle drag moved
 					let songDuration = Float((currentTimeLabel.text?.convertToTimeInterval())! + (timeLeftLabel.text?.convertToTimeInterval())!)

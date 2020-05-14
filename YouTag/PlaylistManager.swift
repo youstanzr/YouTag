@@ -42,6 +42,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		}
 
 		let songID = songDict["id"] as? String ?? ""
+		nowPlayingView.songID = songID
 		nowPlayingView.titleLabel.text = songDict["title"] as? String ?? ""
 		nowPlayingView.artistLabel.text = ((songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", "))
 		
@@ -64,7 +65,12 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		nowPlayingView.lyricsTextView.isHidden = !isLyricsAvailable
 		nowPlayingView.lyricsButton.isHidden = isLyricsAvailable
 		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).jpg"))
-		nowPlayingView.thumbnailImageView.image = UIImage(data: imageData ?? Data())
+		if let imgData = imageData {
+			nowPlayingView.thumbnailImageView.image = UIImage(data: imgData)
+		} else {
+			nowPlayingView.thumbnailImageView.image = UIImage(named: "placeholder")
+		}
+
 		let oldPlaybackRate = audioPlayer.getPlayerRate()
 		
 		if playlistLibraryView.playlistArray.count > 0 {
@@ -72,6 +78,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		}
 
 		nowPlayingView.playbackRateButton.titleLabel?.text = "x\(oldPlaybackRate == 1.0 ? 1 : oldPlaybackRate)"
+		nowPlayingView.progressBar.value = 0.0
+		nowPlayingView.currentTimeLabel.text = "00:00"
+		nowPlayingView.timeLeftLabel.text = (songDict["duration"] as? String) ?? "00:00"
 	}
 	
 	func refreshPlaylistLibraryView() {
@@ -99,6 +108,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 	}
 	
 	func shufflePlaylist() {
+		if playlistLibraryView.playlistArray.count <= 1 {
+			return
+		}
 		let lastObject = playlistLibraryView.playlistArray.object(at: playlistLibraryView.playlistArray.count - 1)
 		let whatsNextArr = playlistLibraryView.playlistArray
 		whatsNextArr.removeLastObject()

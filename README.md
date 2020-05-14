@@ -1,14 +1,17 @@
 [![License](https://img.shields.io/github/license/youstanzr/YouTag)](LICENSE) [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org) 
 ## About
-**YouTag** is an iOS YouTube downloader that extracts the audio of any video and downloads it into a local library that supports in-background song playing. The app can curate a playlist based on user's choice of filters. Filters can be on tags, artist, album, release year or duration.
+**YouTag** is an iOS music player app that downloads music from the internet, even YouTube, and manages it in a local library. Music videos can also be downloaded and the app will automatically extract the audio only. Special playlists can be curated based on user's choice of filters. Filters can be on tags, artist, album, release year or duration.
 
 ![](/Images/screenshot_banner.png)
 
 ## Features
-- Downloads from YouTube and applies audio extraction to save device storage
+- Supports mp4, mp3 and wav file types
+- Downloads from any direct link of the supported file types
+- Downloads from YouTube
+- Extracts the audio from videos
 - Edit song information like title, artist, album, etc
-- Can customize playlist based on filters
-- Can customize playlist manually deleting the unwanted songs (deletes from playlist only)
+- Auto extraction of song metadata information for mp3 and wav
+- Customize playlist based on filters
 - Plays music in the background
 - Change song playback rate to x0.75 or x1.25
 
@@ -45,7 +48,9 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 
 ## Attribution
 ### Libraries
+- HTTP networking: [Alamofire](https://github.com/Alamofire/Alamofire)
 - YouTube URL extractor: [XCDYouTubeKit](https://github.com/0xced/XCDYouTubeKit)
+- UILabel scrolling animation: [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel)
 ### Resources
 - YYTAudioPlayer based on: [Background Audio Player Sync Control Center](https://medium.com/@quangtqag/background-audio-player-sync-control-center-516243c2cdd1)
 - YYTRangeSlider based on: [How To Make a Custom Control Tutorial: A Reusable Slider](https://www.raywenderlich.com/7595-how-to-make-a-custom-control-tutorial-a-reusable-slider)
@@ -57,6 +62,7 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Filter image: [@author](https://www.flaticon.com/authors/freepik)
 - List image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Loop image: [@author](https://www.flaticon.com/authors/pixel-perfect)
+- Music Note image: [@author](https://www.flaticon.com/authors/those-icons)
 - Next image: [@author](https://www.flaticon.com/authors/smashicons)
 - Pause image: [@author](https://www.flaticon.com/authors/kiranshastry)
 - Play image: [@author](https://www.flaticon.com/authors/smashicons)

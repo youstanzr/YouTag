@@ -33,7 +33,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 	}()
 	let versionLabel: UILabel = {
 		let lbl = UILabel()
-		lbl.text = "v20200430"
+		lbl.text = "v20200514"
 		lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
 		lbl.textAlignment = .right
 		lbl.textColor = .lightGray
@@ -125,6 +125,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		
 	override func viewWillAppear(_ animated: Bool) {
 		playlistManager.computePlaylist()
+		playlistManager.playlistLibraryView.scrollToTop()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -137,7 +138,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
         LVC.modalPresentationStyle = .fullScreen
         LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: nil)
+        self.present(LVC, animated: true, completion: {
+			self.tagsView.removeAllTags()
+		})
     }
 
     @objc func filterButtonAction(sender: UIButton!) {
