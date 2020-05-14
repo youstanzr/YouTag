@@ -35,6 +35,14 @@ class LibraryManager {
 		return fetchAllSongs()
 	}
 	
+    fileprivate static func UpdateLibrary(songs: [Song]) {
+        let encoder = JSONEncoder()
+        guard let encoded = try? encoder.encode(songs) else {
+            return
+        }
+        UserDefaults.standard.set(encoded, forKey: "LibraryArray")
+    }
+    
 	/*
 	If the following parameters have no value then pass nil and the function will handle it
 		Song ID -> will generate a custom id
@@ -125,7 +133,8 @@ class LibraryManager {
             LibraryManager.enrichSong(&song, fromMetadataDict: metadataDict)
             
             self.libraryArray.append(song)
-            UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
+            LibraryManager.UpdateLibrary(songs: libraryArray)
+//            UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
             self.refreshLibraryArray()
             completion?()
 			
@@ -192,18 +201,6 @@ class LibraryManager {
 	}
     
 	func deleteSongFromLibrary(songID: String) {
-//		var songDict = Dictionary<String, Any>()
-//		for i in 0 ..< libraryArray.count {
-//			songDict = libraryArray.object(at: i) as! Dictionary<String, Any>
-//			if songDict["id"] as! String == songID {
-//				let songExt = (songDict["fileExtension"] as? String) ?? "m4a"  //support legacy code
-//				if LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).\(songExt)") {
-//					_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(songID).jpg")
-//					libraryArray.remove(songDict)
-//				}
-//				break
-//			}
-//		}
         for (index, song) in libraryArray.enumerated() {
             guard song.id == songID else {
                 return
@@ -229,6 +226,7 @@ class LibraryManager {
 	}
 
     func updateSong(newSong: Song) {
+        print("FWX_TODO_map to local")
 		self.refreshLibraryArray()
         guard let cachedSongIndex = libraryArray.firstIndex(where: { $0.id == newSong.id }) else {
             return

@@ -9,7 +9,8 @@
 import UIKit
 
 protocol PlaylistLibraryViewDelegate: class {
-	func didSelectSong(songDict: Dictionary<String, Any>)
+    
+	func didSelectSong(song: Song)
 }
 
 class PlaylistLibraryView: LibraryTableView {

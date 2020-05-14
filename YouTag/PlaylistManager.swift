@@ -109,7 +109,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		refreshNowPlayingView()
 	}
 	
-	func didSelectSong(songDict: Dictionary<String, Any>) {
+	func didSelectSong(song: Song) {
 		refreshNowPlayingView()
 		nowPlayingView.pausePlayButtonAction(sender: nil)
 	}
