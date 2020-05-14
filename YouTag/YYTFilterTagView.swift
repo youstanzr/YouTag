@@ -2,8 +2,8 @@
 //  YYTFilterTagView.swift
 //  YouTag
 //
-//  Created by Youstanzr Alqattan on 3/26/20.
-//  Copyright © 2020 Youstanzr Alqattan. All rights reserved.
+//  Created by Youstanzr on 3/26/20.
+//  Copyright © 2020 Youstanzr. All rights reserved.
 //
 
 import UIKit

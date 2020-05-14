@@ -2,8 +2,8 @@
 //  LibraryTableView.swift
 //  YouTag
 //
-//  Created by Youstanzr Alqattan on 2/27/20.
-//  Copyright © 2020 Youstanzr Alqattan. All rights reserved.
+//  Created by Youstanzr on 2/27/20.
+//  Copyright © 2020 Youstanzr. All rights reserved.
 //
 
 import UIKit

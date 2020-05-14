@@ -2,8 +2,8 @@
 //  YouTagDownTests.swift
 //  YouTagDownTests
 //
-//  Created by Youstanzr Alqattan on 8/12/19.
-//  Copyright © 2019 Youstanzr Alqattan. All rights reserved.
+//  Created by Youstanzr on 8/12/19.
+//  Copyright © 2019 Youstanzr. All rights reserved.
 //
 
 import XCTest
