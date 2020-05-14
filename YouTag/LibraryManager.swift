@@ -355,29 +355,25 @@ class LibraryManager {
 	}
 	
 	static func getReleaseYear(_ durType: ValueType) -> Int {
-		if durType == .min {
-			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
-			var songDict = Dictionary<String, Any>()
-			var min: Int = Int.max
-			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, Any>
-				if Int(songDict["releaseYear"] as? String ?? "") ?? Int.max < min {
-					min = Int(songDict["releaseYear"] as? String ?? "") ?? Int.max
-				}
-			}
-			return min == Int.max ? 0 : min
-		} else if durType == .max {
-			let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
-			var songDict = Dictionary<String, Any>()
-			var max: Int = 0
-			for i in 0 ..< songArr.count {
-				songDict = songArr.object(at: i) as! Dictionary<String, Any>
-				if Int(songDict["releaseYear"] as? String ?? "") ?? 0 > max {
-					max = Int(songDict["releaseYear"] as? String ?? "") ?? 0
-				}
-			}
-			return max
-		}
+        let songs = fetchAllSongs()
+        if durType == .min {
+            var min: Int = Int.max
+            for song in songs {
+                if Int(song.releaseYear) ?? Int.max < min {
+                    min = Int(song.releaseYear) ?? Int.max
+                }
+            }
+            return min == Int.max ? 0 : min
+        } else if durType == .max {
+            var max: Int = 0
+            for song in songs {
+                if Int(song.releaseYear) ?? 0 > max {
+                    max = Int(song.releaseYear) ?? 0
+                }
+            }
+            return max
+        }
+        
 		return 0
 	}
 	
