@@ -125,6 +125,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		
 	override func viewWillAppear(_ animated: Bool) {
 		playlistManager.computePlaylist()
+		playlistManager.playlistLibraryView.scrollToTop()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
