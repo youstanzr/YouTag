@@ -47,26 +47,19 @@ class PlaylistLibraryView: LibraryTableView {
 	}
 	
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
-
-        print("Selected cell number \(indexPath.row) -> \(cell.song?.title ?? "")")
         guard let last = playlistArray.last else { return }
-//        playlistArray.insert(last, at: 0)
-//        playlistArray.removeLast()
-//        playlistArray.remove(at: indexPath.row)
-//        playlistArray.append(<#T##newElement: Song##Song#>)
-        print(#function)
+        let selectedSong = playlistArray[indexPath.row]
         
-
-//		playlistArray.insert(playlistArray.lastObject!, at: 0)
-//		playlistArray.removeLastObject()
-//		playlistArray.remove(cell.songDict)
-//		playlistArray.add(cell.songDict)
-//
-//		tableView.deselectRow(at: indexPath, animated: false)
-//		tableView.reloadData()
-//
-//		PLDelegate?.didSelectSong(songDict: cell.songDict)
+        // not sure if that works as intended
+        playlistArray.insert(last, at: 0)
+        playlistArray.removeLast()
+        playlistArray.remove(at: indexPath.row)
+        playlistArray.append(selectedSong)
+        
+        tableView.deselectRow(at: indexPath, animated: false)
+        tableView.reloadData()
+        
+        PLDelegate?.didSelectSong(song: selectedSong)
     }
 	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -76,5 +69,4 @@ class PlaylistLibraryView: LibraryTableView {
         playlistArray.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .automatic)
 	}
-	
 }

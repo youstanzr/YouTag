@@ -101,7 +101,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 	}
 	
 	func movePlaylistBackward() {
-        print("FWX_TODO (check if thats right code)")
+        // need to test
         guard let first = playlistLibraryView.playlistArray.first else { return }
         playlistLibraryView.playlistArray.append(first)
         playlistLibraryView.playlistArray.removeFirst()
