@@ -121,9 +121,11 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
                 return
             }
 			self.removeSpinner()
-			self.LM.addSongToLibrary(songTitle: video!.title, songUrl: video!.streamURL, songExtension: "mp4", thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], songID: videoID, completion: {
+			self.LM.addSongToLibrary(songTitle: video!.title, songUrl: video!.streamURL, songExtension: "mp4", thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], songID: videoID, completion: { [weak self] in
+                guard let self = self else { return }
+                
 				self.libraryTableView.refreshTableView()
-				self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+                self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: self.LM.libraryArray.count - 1, section: 0))
 			})
         }
     }
