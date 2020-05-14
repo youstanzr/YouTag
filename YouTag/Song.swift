@@ -56,7 +56,19 @@ extension Song {
         return Song(id: "", title: "", link: "", duration: "", fileExt: "")
     }
     
+    /// Helper to display artists as "artist, artist, artist"
     var artistsJoined: String {
         return artists.joined(separator: ", ")
     }
+    
+    /// Local image
+    var imageUrl: URL? {
+        return LocalFilesManager.getLocalFileURL(withNameAndExtension: id + ".jpg")
+    }
+    
+    /// Local (cached) file's path
+    var localUrl: URL? {
+        return LocalFilesManager.getLocalFileURL(withNameAndExtension: id + "." + fileExt)
+    }
+    
 }

@@ -10,7 +10,7 @@ import UIKit
 
 class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
-	var songDict: Dictionary<String, Any>!
+	var song: Song!
 	let LM = LibraryManager()
 	var tagsView: YYTTagView!
 	let dismissButton: UIButton = {
@@ -112,12 +112,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		
 		let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
 		thumbnailImageView.addGestureRecognizer(imageTap)
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as! String).jpg"))
-		if let imgData = imageData {
-			thumbnailImageView.image = UIImage(data: imgData)
-		} else {
-			thumbnailImageView.image = UIImage(named: "placeholder")
-		}
+        
+        if let imageUrl = song.imageUrl, let imgData = try? Data(contentsOf: imageUrl) {
+            thumbnailImageView.image = UIImage(data: imgData)
+        } else {
+            thumbnailImageView.image = UIImage(named: "placeholder")
+        }
+        
         self.view.addSubview(thumbnailImageView)
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 70).isActive = true
@@ -126,7 +127,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 4.0/3.0).isActive = true
 
 		titleTextField.delegate = self
-		titleTextField.text = songDict["title"] as? String
+        titleTextField.text = song?.title
         self.view.addSubview(titleTextField)
 		titleTextField.translatesAutoresizingMaskIntoConstraints = false
 		titleTextField.topAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: 15).isActive = true
@@ -134,7 +135,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		titleTextField.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
 		titleTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.8).isActive = true
 
-		let artistsTags = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
+        let artistsTags = NSMutableArray(array: (song?.artists ?? []) as NSArray)
 		artistsTagsView = YYTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		artistsTagsView.addTagPlaceHolder = "Artist"
 		self.view.addSubview(artistsTagsView)
@@ -145,7 +146,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		artistsTagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
 		albumTextField.delegate = self
-		albumTextField.text = songDict["album"] as? String
+        albumTextField.text = song?.album
 		self.view.addSubview(albumTextField)
 		albumTextField.translatesAutoresizingMaskIntoConstraints = false
 		albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: 10).isActive = true
@@ -154,7 +155,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		albumTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.65, constant: -2.5).isActive = true
 
 		releaseYrTextField.delegate = self
-		releaseYrTextField.text = songDict["releaseYear"] as? String
+        releaseYrTextField.text = song?.releaseYear
 		self.view.addSubview(releaseYrTextField)
 		releaseYrTextField.translatesAutoresizingMaskIntoConstraints = false
 		releaseYrTextField.topAnchor.constraint(equalTo: albumTextField.topAnchor).isActive = true
@@ -163,8 +164,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		releaseYrTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.35, constant: -2.5).isActive = true
 
 		lyricsTextView.delegate = self
-		if songDict["lyrics"] as! String != "" {
-			lyricsTextView.text = songDict["lyrics"] as? String
+        if !song.lyrics.isEmpty {
+            lyricsTextView.text = song.lyrics
 			lyricsTextView.textColor = .black
 		}
 		self.view.addSubview(lyricsTextView)
@@ -183,7 +184,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 		
 		songSizeLabel.text = "Song size: " + LocalFilesManager.getLocalFileSize(fileName_ext:
-			"\(songDict["id"] as! String).\((songDict["fileExtension"] as? String) ?? "m4a")")
+            "\(song.id).\((song.fileExt))")
 		self.view.addSubview(songSizeLabel)
 		songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
 		songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -15).isActive = true
@@ -191,7 +192,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		songSizeLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
-		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
+        let songTags = NSMutableArray(array: (song?.tags ?? []) as NSArray)
 		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
@@ -218,7 +219,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 			self.present(alert, animated: true, completion: nil)
 		} else {
 			self.updateSong()
-			LM.updateSong(newSong: songDict)
+			LM.updateSong(newSong: song)
 			LocalFilesManager.clearTmpDirectory()
 			dismiss(animated: true, completion: nil)
 		}
@@ -242,14 +243,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 	}
 	
     func updateSong() {
-		songDict["title"] = titleTextField.text
-		songDict["artists"] = artistsTagsView.tagsList
-		songDict["album"] = albumTextField.text
-		songDict["releaseYear"] = releaseYrTextField.text
-		songDict["lyrics"] = lyricsTextView.text != "Lyrics" ? lyricsTextView.text : ""
-		songDict["tags"] = tagsView.tagsList
+        song.title = titleTextField.text.orEmpty
+        song.artists = artistsTagsView.tagsList as NSArray as? [String] ?? []
+        song.album = albumTextField.text.orEmpty
+        song.releaseYear = releaseYrTextField.text.orEmpty
+        song.lyrics = lyricsTextView.text != "Lyrics" ? lyricsTextView.text : ""
+        song.tags = tagsView.tagsList as NSArray as? [String] ?? []
 		if thumbnailImageView.image != UIImage(named: "placeholder") {
-			LocalFilesManager.saveImage(thumbnailImageView.image, withName: songDict["id"] as! String)
+            LocalFilesManager.saveImage(thumbnailImageView.image, withName: song.id)
 		}
     }
 	

@@ -55,15 +55,15 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let song = LM.libraryArray[indexPath.row]
+        
         print("Selected cell number: \(indexPath.row)")
         let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
 		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
 		let songDetail_vc: SongDetailViewController = storyboard.instantiateViewController(withIdentifier: "SongDetailViewController") as! SongDetailViewController
         songDetail_vc.modalPresentationStyle = .fullScreen
         songDetail_vc.modalTransitionStyle = .coverVertical
-
-        print("FWX_TODO")
-//		songDetail_vc.songDict = cell.songDict
+		songDetail_vc.song = song
 
         let currentController = UIApplication.getCurrentViewController()
         currentController?.present(songDetail_vc, animated: true, completion: nil)

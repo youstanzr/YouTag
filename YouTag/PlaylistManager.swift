@@ -144,100 +144,100 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		if playlistFilters.tags.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songTags: NSMutableArray
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
+			songDict = playlist[i]
+            songTags = NSMutableArray(array: songDict.tags as NSArray)
 			if playlistFilters.tags.isSubset(of: songTags) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
 	}
 
-	func applyArtistFilter(on playlist: NSMutableArray) -> NSMutableArray {
+	func applyArtistFilter(on playlist: [Song]) -> [Song] {
 		if playlistFilters.artists.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songArtists: NSMutableArray
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songArtists = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
+			songDict = playlist[i]
+            songArtists = NSMutableArray(array: songDict.artists as NSArray)
 			if playlistFilters.artists.hasIntersect(with: songArtists) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
 	}
 
-	func applyAlbumFilter(on playlist: NSMutableArray) -> NSMutableArray {
+	func applyAlbumFilter(on playlist: [Song]) -> [Song] {
 		if playlistFilters.album.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songAlbum: String
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songAlbum = songDict["album"] as? String ?? ""
+			songDict = playlist[i]
+            songAlbum = songDict.album ?? ""
 			if playlistFilters.album.contains(songAlbum) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
 	}
 	
-	func applyReleaseYearFilter(on playlist: NSMutableArray) -> NSMutableArray {
+	func applyReleaseYearFilter(on playlist: [Song]) -> [Song] {
 		if playlistFilters.releaseYear.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songReleaseYear: String
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songReleaseYear = songDict["releaseYear"] as? String ?? ""
+			songDict = playlist[i]
+            songReleaseYear = songDict.releaseYear
 			if playlistFilters.releaseYear.contains(songReleaseYear) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
 	}
 
-	func applyReleaseYearRangeFilter(on playlist: NSMutableArray) -> NSMutableArray {
+	func applyReleaseYearRangeFilter(on playlist: [Song]) -> [Song] {
 		if playlistFilters.releaseYearRange.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songReleaseYear: Int
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songReleaseYear = Int(songDict["releaseYear"] as? String ?? "-1") ?? -1
+			songDict = playlist[i]
+            songReleaseYear = Int(songDict.releaseYear) ?? -1
 			if isValue(Double(songReleaseYear), inBoundList: playlistFilters.releaseYearRange) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
 	}
 
 	
-	func applyDurationFilter(on playlist: NSMutableArray) -> NSMutableArray {
+	func applyDurationFilter(on playlist: [Song]) -> [Song] {
 		if playlistFilters.duration.count == 0 {
 			return playlist
 		}
-		var songDict: Dictionary<String, Any>
+		var songDict: Song
 		var songDuration: TimeInterval
-		let newPlaylist = NSMutableArray()
+        var newPlaylist: [Song] = []
 		for i in 0 ..< playlist.count {
-			songDict = playlist.object(at: i) as! Dictionary<String, Any>
-			songDuration = (songDict["duration"] as! String).convertToTimeInterval()
+			songDict = playlist[i]
+            songDuration = songDict.duration.convertToTimeInterval()
 			if isValue(songDuration, inBoundList: playlistFilters.duration) {
-				newPlaylist.add(songDict)
+				newPlaylist.append(songDict)
 			}
 		}
 		return newPlaylist
