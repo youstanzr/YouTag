@@ -35,12 +35,12 @@ class LibraryManager {
 		return fetchAllSongs()
 	}
 	
-    fileprivate static func UpdateLibrary(songs: [Song]) {
-        let encoder = JSONEncoder()
-        guard let encoded = try? encoder.encode(songs) else {
-            return
+    fileprivate static func updateLibrary(songs: [Song]) {
+        let array = NSMutableArray()
+        for song in songs {
+            array.add(song.cachePresentable)
         }
-        UserDefaults.standard.set(encoded, forKey: "LibraryArray")
+        UserDefaults.standard.set(array, forKey: "LibraryArray")
     }
     
 	/*
@@ -133,8 +133,7 @@ class LibraryManager {
             LibraryManager.enrichSong(&song, fromMetadataDict: metadataDict)
             
             self.libraryArray.append(song)
-            LibraryManager.UpdateLibrary(songs: libraryArray)
-//            UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
+            LibraryManager.updateLibrary(songs: self.libraryArray)
             self.refreshLibraryArray()
             completion?()
 			
@@ -181,6 +180,8 @@ class LibraryManager {
                 enrichedSong.releaseYear = value as? String ?? ""
             case .tags:
                 enrichedSong.tags.append(value as? String ?? "")
+            case .fileExtension:
+                enrichedSong.fileExt = value as? String ?? ""
             case .artwork:
                 guard let data = value as? Data else { continue }
                 guard !LocalFilesManager.checkFileExist(enrichedSong.id + ".jpg") else {
@@ -211,7 +212,7 @@ class LibraryManager {
             libraryArray.remove(at: index)
             break
         }
-		UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
+		LibraryManager.updateLibrary(songs: self.libraryArray)
 	}
 
 	func checkSongExistInLibrary(songLink: String) -> Bool {
@@ -232,7 +233,7 @@ class LibraryManager {
             return
         }
         libraryArray[cachedSongIndex] = newSong
-        UserDefaults.standard.set(libraryArray, forKey: "LibraryArray")
+        LibraryManager.updateLibrary(songs: self.libraryArray)
     }
     
     private static func retriveByCacheKey(_ key: MetadataExtractor.LocalSupportedMetadata,

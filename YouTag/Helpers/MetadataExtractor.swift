@@ -16,20 +16,24 @@ class MetadataExtractor {
         case notSupported(key: String)
     }
     
-    enum LocalSupportedMetadata: String {
+    enum LocalSupportedMetadata: String, CaseIterable {
         
+        // into cache:
+        // artist, title, album, year, tags, artwork
+        // title, id
         case artist = "artists"
         case title
         case album
         case year = "releaseYear"
         case tags
         case artwork
-        case unknown
         case id
         case link
         case fileExtension
         case lyrics
         case duration
+        
+        case unknown
         
         var cacheKey: String { rawValue }
     }
@@ -50,38 +54,43 @@ class MetadataExtractor {
     /// Used to transform metadata into local supported metadata
     static func parseToSupported(from metadata: String) throws -> LocalSupportedMetadata {
         switch metadata {
-            case "title",
-                 "songName",
-                 "TIT2":
-                
-                return .title
-            case "artist",
-                 "TPE1":
-                
-                return .artist
-            case "albumName",
-                 "album",
-                 "TIT1",
-                 "TALB":
-                
-                return .artwork
-            case "type",
-                 "TCON":
-                
-                return .tags
-            case "year",
-                 "TYER",
-                 "TDAT",
-                 "TORY",
-                 "TDOR":
-                
-                return .year
-            case "artwork",
-                 "APIC":
-                
-                return .artwork
-            default:
-                throw ExtractorError.notSupported(key: metadata)
+        case "title",
+             "songName",
+             "TIT2":
+            
+            return .title
+        case "artist",
+             "TPE1":
+            
+            return .artist
+        case "albumName",
+             "album",
+             "TIT1",
+             "TALB":
+            
+            return .artwork
+        case "type",
+             "TCON":
+            
+            return .tags
+        case "year",
+             "TYER",
+             "TDAT",
+             "TORY",
+             "TDOR":
+            
+            return .year
+        case "artwork",
+             "APIC":
+            return .artwork
+        case "fileExtension":
+            return .fileExtension
+        case "tags":
+            return .tags
+        case "artists":
+            return .artist
+        default:
+            throw ExtractorError.notSupported(key: metadata)
         }
     }
 }
