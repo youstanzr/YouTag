@@ -43,9 +43,7 @@ class YYTTagCell: UICollectionViewCell {
     fileprivate var tagList: [String]?
     var areSuggestionsEnabled: Bool? {
         didSet {
-            if ((tagList != nil) && (areSuggestionsEnabled!)) {
-                textField.filterStrings(tagList ?? [""])
-            } else {
+            if !(areSuggestionsEnabled!) {
                 textField.filterStrings([])
             }
         }
@@ -108,8 +106,4 @@ class YYTTagCell: UICollectionViewCell {
 			textField.isHidden = true
 		}
 	}
-	
-    func setTagList(tagList: [String]) {
-        self.tagList = tagList
-    }
 }

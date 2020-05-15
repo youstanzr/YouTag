@@ -17,8 +17,6 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	weak var yytdelegate: YYTTagViewDelegate?
 	var addTagPlaceHolder: String!
 	var isAddEnabled: Bool!
-    var areSuggestionsEnabled: Bool!
-    var isForArtists: Bool!
 	var isDeleteEnabled: Bool!
 	var tagsList: NSMutableArray! {
 		didSet {
@@ -27,14 +25,16 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	}
     var suggestionsList: [String]? {
         didSet {
-            self.suggestionsList = self.suggestionsList?.filter{ !self.tagsList.contains($0) }
+            if let _ = suggestionsList {
+                self.suggestionsList = self.suggestionsList?.filter{ !self.tagsList.contains($0) }
+            }
         }
     }
 	var selectedTagList = NSMutableArray()
 	var isEditing: Bool = false
 	
 	
-    init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, areSuggestionsEnabled: Bool, isForArtists: Bool) {
+    init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, suggestionDataSource: [String]?) {
 		let layout = LeftAlignedCollectionViewFlowLayout()
 		layout.minimumInteritemSpacing = 5
 		layout.minimumLineSpacing = 7.5
@@ -51,8 +51,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		self.isAddEnabled = isAddEnabled
 		self.isDeleteEnabled = isDeleteEnabled
 		self.tagsList = tagsList
-        self.areSuggestionsEnabled = areSuggestionsEnabled
-        self.isForArtists = isForArtists
+        self.suggestionsList = suggestionDataSource
 		let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.addGestureRecognizer(tap)
@@ -174,14 +173,8 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		if isAddEnabled && indexPath.row == 0 {
 			print("Add Tag Button tapped")
 			isEditing = true
-			cell.switchMode(enableEditing: true)
-            if self.isForArtists {
-                self.suggestionsList = LibraryManager.getAll(.artists) as? [String]
-            } else {
-                self.suggestionsList = LibraryManager.getAll(.tags) as? [String]
-            }
-            cell.setTagList(tagList: self.suggestionsList!)
-            cell.areSuggestionsEnabled = self.areSuggestionsEnabled
+            cell.switchMode(enableEditing: true)
+            cell.textField.filterStrings(self.suggestionsList ?? [])
 			collectionView.performBatchUpdates(nil, completion: nil)
 		} else if self.allowsMultipleSelection {
 			cell.backgroundColor = GraphicColors.orange
