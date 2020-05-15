@@ -136,7 +136,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		titleTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.8).isActive = true
 
 		let artistsTags = NSMutableArray(array: songDict["artists"] as? NSArray ?? NSArray())
-		artistsTagsView = YYTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
+        artistsTagsView = YYTTagView(frame: .zero, tagsList: artistsTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true, areSuggestionsEnabled: true, isForArtists: true)
 		artistsTagsView.addTagPlaceHolder = "Artist"
 		self.view.addSubview(artistsTagsView)
 		artistsTagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -193,7 +193,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
 		let songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true)
+		tagsView = YYTTagView(frame: .zero, tagsList: songTags, isAddEnabled: true, isMultiSelection: false, isDeleteEnabled: true, areSuggestionsEnabled: true, isForArtists: false)
 		tagsView.addTagPlaceHolder = "Tag"
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false

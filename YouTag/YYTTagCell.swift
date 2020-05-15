@@ -26,10 +26,6 @@ class YYTTagCell: UICollectionViewCell {
 		txtfld.returnKeyType = .done
 		return txtfld
 	}()
-    let suggestionTableView: UITableView = {
-        let tableView = UITableView()
-        return tableView
-    }()
 	let imageView: UIImageView = {
 		let imgView = UIImageView()
 		imgView.contentMode = .scaleAspectFit
@@ -44,13 +40,21 @@ class YYTTagCell: UICollectionViewCell {
 	
 	fileprivate var titleLabelDefaultLeadingAnchor: NSLayoutConstraint?
 	fileprivate var titleLabelWithImageLeadingAnchor: NSLayoutConstraint?
+    fileprivate var tagList: [String]?
+    var areSuggestionsEnabled: Bool? {
+        didSet {
+            if ((tagList != nil) && (areSuggestionsEnabled!)) {
+                textField.filterStrings(tagList ?? [""])
+            } else {
+                textField.filterStrings([])
+            }
+        }
+    }
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.layer.cornerRadius = self.frame.height / 2.0
 		self.layer.borderWidth = 2.0
-        self.clipsToBounds = false
-        self.contentView.clipsToBounds = false
 		
 		// calculates the insets of the maximum square touching the corners of the cell
 		let imageViewInset = 0.5 * self.frame.height / (2.0 * sqrt(2.0)) + 2
@@ -79,23 +83,7 @@ class YYTTagCell: UICollectionViewCell {
 		textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5).isActive = true
 		textField.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
 		textField.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 6).isActive = true  // Because the font is shifted upward
-        textField.addTarget(self, action: #selector(YYTTagCell.textChanged), for: .editingChanged) // adding text change selector
 	}
-    
-    // This function will fire whenever the user is typing out a new tag to add to a song
-    @objc func textChanged(txtField: UITextField) {
-        let tagList = LibraryManager.getAll(.tags)
-        for i in 0 ..< tagList.count {
-            print("Tag: \(tagList[i])")
-        }
-        if (txtField.text!.length == 0) {
-            suggestionTableView.isHidden = true
-        } else {
-            suggestionTableView.isHidden = false
-        }
-        (txtField as! SearchTextField).filterStrings(tagList as! [String])
-        UIApplication.shared.keyWindow!.bringSubviewToFront(suggestionTableView)
-    }
     
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
@@ -121,4 +109,7 @@ class YYTTagCell: UICollectionViewCell {
 		}
 	}
 	
+    func setTagList(tagList: [String]) {
+        self.tagList = tagList
+    }
 }
