@@ -79,7 +79,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 
-		tagsView = YYTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true)
+		tagsView = YYTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isDeleteEnabled: true)
 		tagsView.yytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
