@@ -8,6 +8,7 @@
 
 import UIKit
 
+// This is the view that shows up whenever you add a new song from the web and want to edit its details before adding to your library
 class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
 	var songDict: Dictionary<String, Any>!

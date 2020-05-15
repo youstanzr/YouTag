@@ -201,6 +201,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			tagsList.add(textField.text!.capitalized)
 			self.reloadData()
 		}
+//        UIApplication.shared.keyWindow!.sendSubviewToBack(textField.superview?.superview as! YYTTagCell)
 		(textField.superview?.superview as! YYTTagCell).switchMode(enableEditing: false)
 		self.performBatchUpdates(nil, completion: nil)
 	}
