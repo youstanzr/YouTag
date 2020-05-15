@@ -27,8 +27,8 @@
 		2B78638B2301AE56001DD6FD /* YouTag.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863892301AE56001DD6FD /* YouTag.xcdatamodeld */; };
 		2B78638D2301AE57001DD6FD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B78638C2301AE57001DD6FD /* Assets.xcassets */; };
 		2B7863902301AE57001DD6FD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B78638E2301AE57001DD6FD /* LaunchScreen.storyboard */; };
-		2B78639B2301AE57001DD6FD /* YouTagDownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B78639A2301AE57001DD6FD /* YouTagDownTests.swift */; };
-		2B7863A62301AE57001DD6FD /* YouTagDownUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863A52301AE57001DD6FD /* YouTagDownUITests.swift */; };
+		2B78639B2301AE57001DD6FD /* YouTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B78639A2301AE57001DD6FD /* YouTagTests.swift */; };
+		2B7863A62301AE57001DD6FD /* YouTagUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863A52301AE57001DD6FD /* YouTagUITests.swift */; };
 		2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF7241ABB0A002FA583 /* YYTTagView.swift */; };
 		2B810EFA241ACD1C002FA583 /* YYTTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */; };
 		2B810EFC241D31AE002FA583 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EFB241D31AE002FA583 /* Song.swift */; };
@@ -79,10 +79,10 @@
 		2B78638F2301AE57001DD6FD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2B7863912301AE57001DD6FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B7863962301AE57001DD6FD /* YouTagTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YouTagTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B78639A2301AE57001DD6FD /* YouTagDownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagDownTests.swift; sourceTree = "<group>"; };
+		2B78639A2301AE57001DD6FD /* YouTagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagTests.swift; sourceTree = "<group>"; };
 		2B78639C2301AE57001DD6FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B7863A12301AE57001DD6FD /* YouTagUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YouTagUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B7863A52301AE57001DD6FD /* YouTagDownUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagDownUITests.swift; sourceTree = "<group>"; };
+		2B7863A52301AE57001DD6FD /* YouTagUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagUITests.swift; sourceTree = "<group>"; };
 		2B7863A72301AE57001DD6FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B810EF7241ABB0A002FA583 /* YYTTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagView.swift; sourceTree = "<group>"; };
 		2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagCell.swift; sourceTree = "<group>"; };
@@ -182,7 +182,7 @@
 		2B7863992301AE57001DD6FD /* YouTagTests */ = {
 			isa = PBXGroup;
 			children = (
-				2B78639A2301AE57001DD6FD /* YouTagDownTests.swift */,
+				2B78639A2301AE57001DD6FD /* YouTagTests.swift */,
 				2B78639C2301AE57001DD6FD /* Info.plist */,
 			);
 			path = YouTagTests;
@@ -191,7 +191,7 @@
 		2B7863A42301AE57001DD6FD /* YouTagUITests */ = {
 			isa = PBXGroup;
 			children = (
-				2B7863A52301AE57001DD6FD /* YouTagDownUITests.swift */,
+				2B7863A52301AE57001DD6FD /* YouTagUITests.swift */,
 				2B7863A72301AE57001DD6FD /* Info.plist */,
 			);
 			path = YouTagUITests;
@@ -375,7 +375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B78639B2301AE57001DD6FD /* YouTagDownTests.swift in Sources */,
+				2B78639B2301AE57001DD6FD /* YouTagTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,7 +383,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B7863A62301AE57001DD6FD /* YouTagDownUITests.swift in Sources */,
+				2B7863A62301AE57001DD6FD /* YouTagUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

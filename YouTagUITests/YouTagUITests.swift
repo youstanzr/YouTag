@@ -1,6 +1,6 @@
 //
-//  YouTagDownUITests.swift
-//  YouTagDownUITests
+//  YouTagUITests.swift
+//  YouTagUITests
 //
 //  Created by Youstanzr on 8/12/19.
 //  Copyright © 2019 Youstanzr. All rights reserved.
@@ -8,7 +8,7 @@
 
 import XCTest
 
-class YouTagDownUITests: XCTestCase {
+class YouTagUITests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
