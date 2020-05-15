@@ -1,15 +1,15 @@
 //
-//  YouTagDownTests.swift
-//  YouTagDownTests
+//  YouTagTests.swift
+//  YouTagTests
 //
 //  Created by Youstanzr on 8/12/19.
 //  Copyright © 2019 Youstanzr. All rights reserved.
 //
 
 import XCTest
-@testable import YouTagDown
+@testable import YouTag
 
-class YouTagDownTests: XCTestCase {
+class YouTagTests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.

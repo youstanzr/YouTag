@@ -10,8 +10,8 @@ import UIKit
 
 class YYTFilterTagView: YYTTagView {
 	
-    override init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, areSuggestionsEnabled: Bool, isForArtists: Bool) {
-        super.init(frame: frame, tagsList: tagsList, isAddEnabled: isAddEnabled, isMultiSelection: isMultiSelection, isDeleteEnabled: isDeleteEnabled, areSuggestionsEnabled: areSuggestionsEnabled, isForArtists: isForArtists)
+	init(frame: CGRect, tagsList: NSMutableArray, isDeleteEnabled: Bool) {
+		super.init(frame: frame, tagsList: tagsList, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled)
 	}
 	
 	required init?(coder: NSCoder) {
