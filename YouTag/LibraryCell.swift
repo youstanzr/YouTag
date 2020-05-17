@@ -11,7 +11,7 @@ import MarqueeLabel
 
 class LibraryCell : UITableViewCell {
   
-	var songDict = Dictionary<String, Any>()
+    var song: Song!
 	let thumbnailImageView: UIImageView = {
 		let imgView = UIImageView()
 		imgView.layer.cornerRadius = 5.0
@@ -81,15 +81,15 @@ class LibraryCell : UITableViewCell {
     }
 	
 	func refreshCell() {
-		self.titleLabel.text = songDict["title"] as? String
-		self.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as? String ?? "").jpg"))
+        self.titleLabel.text = song.title
+        self.artistLabel.text = song.artists.joined(separator: ", ")
+        let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(song.id).jpg"))
 		if let imgData = imageData {
 			self.thumbnailImageView.image = UIImage(data: imgData)
 		} else {
 			self.thumbnailImageView.image = UIImage(named: "placeholder")
 		}
-		self.durationLabel.text = songDict["duration"] as? String
+        self.durationLabel.text = song.duration
 		
 		titleLabel.labelize = true
 		titleLabel.restartLabel()

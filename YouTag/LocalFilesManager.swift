@@ -79,7 +79,6 @@ class LocalFilesManager {
 		var dict = Dictionary<String, Any>()
 		let asset = AVAsset(url: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).\(songExtension)"))
 		for item in asset.metadata {
-//			print(String(describing: item.commonKey?.rawValue) + "\t" + String(describing: item.key) + " -> " + String(describing: item.value))
 			guard let key = item.commonKey?.rawValue ?? item.key?.description, let value = item.value else {
 				continue
 			}
