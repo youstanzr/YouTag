@@ -227,6 +227,21 @@ extension UITableView {
 }
 
 
+extension CGRect {
+	
+	/// SwifterSwift: Create a `CGRect` instance with center and size
+	/// - Parameters:
+	///   - center: center of the new rect
+	///   - size: size of the new rect
+	init(center: CGPoint, size: CGSize) {
+		let origin = CGPoint(x: center.x - size.width / 2.0, y: center.y - size.height / 2.0)
+		self.init(origin: origin, size: size)
+	}
+	
+}
+
+
+
 // MARK: TimeInterval
 extension TimeInterval {
 
