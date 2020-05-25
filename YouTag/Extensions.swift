@@ -27,6 +27,14 @@ extension UIApplication {
 		return base
 	}
 	
+	var version: String? {
+		return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+	}
+
+	var buildNumber: String? {
+		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String
+	}
+
 }
 
 // MARK: UIViewController
