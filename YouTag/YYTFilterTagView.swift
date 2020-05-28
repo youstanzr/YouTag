@@ -10,8 +10,8 @@ import UIKit
 
 class YYTFilterTagView: YYTTagView {
 	
-	init(frame: CGRect, tagsList: NSMutableArray, isDeleteEnabled: Bool) {
-		super.init(frame: frame, tagsList: tagsList, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled)
+	init(frame: CGRect, tagsList: NSMutableArray, isDeleteEnabled: Bool, suggestionDataSource: [String]?) {
+		super.init(frame: frame, tagsList: tagsList, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled, suggestionDataSource: suggestionDataSource)
 	}
 	
 	required init?(coder: NSCoder) {
@@ -20,20 +20,20 @@ class YYTFilterTagView: YYTTagView {
 	
 	func getImageForType(_ type: String) -> UIImage {
 		switch type {
-			case "tags":
-				return UIImage(named: "tag")!
-			case "artists":
-				return UIImage(named: "artist")!
-			case "album":
-				return UIImage(named: "album")!
-			case "releaseYearRange":
-				return UIImage(named: "calendar")!
-			case "releaseYear":
-				return UIImage(named: "calendar")!
-			case "duration":
-				return UIImage(named: "duration")!
-			default:
-				return UIImage()
+		case "tags":
+			return UIImage(named: "tag")!
+		case "artists":
+			return UIImage(named: "artist")!
+		case "album":
+			return UIImage(named: "album")!
+		case "releaseYearRange":
+			return UIImage(named: "calendar")!
+		case "releaseYear":
+			return UIImage(named: "calendar")!
+		case "duration":
+			return UIImage(named: "duration")!
+		default:
+			return UIImage()
 		}
 	}
 	
@@ -66,8 +66,8 @@ class YYTFilterTagView: YYTTagView {
 	}
 	
 	override func collectionView(_ collectionView: UICollectionView,
-						layout collectionViewLayout: UICollectionViewLayout,
-						sizeForItemAt indexPath: IndexPath) -> CGSize {
+								 layout collectionViewLayout: UICollectionViewLayout,
+								 sizeForItemAt indexPath: IndexPath) -> CGSize {
 		if isAddEnabled && indexPath.row == 0 {
 			let cellSize = isEditing ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
 			isEditing = false
@@ -79,5 +79,5 @@ class YYTFilterTagView: YYTTagView {
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475 : titleWidth
 		return CGSize(width: titleWidth + 34, height: 32)
 	}
-
+	
 }

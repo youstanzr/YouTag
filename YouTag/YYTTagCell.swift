@@ -9,7 +9,7 @@
 import UIKit
 
 class YYTTagCell: UICollectionViewCell {
-
+	
 	let titleLabel: UILabel = {
 		let label = UILabel()
 		label.textAlignment = .center
@@ -40,15 +40,7 @@ class YYTTagCell: UICollectionViewCell {
 	
 	fileprivate var titleLabelDefaultLeadingAnchor: NSLayoutConstraint?
 	fileprivate var titleLabelWithImageLeadingAnchor: NSLayoutConstraint?
-    fileprivate var tagList: [String]?
-    var areSuggestionsEnabled: Bool? {
-        didSet {
-            if !(areSuggestionsEnabled!) {
-                textField.filterStrings([])
-            }
-        }
-    }
-
+	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.layer.cornerRadius = self.frame.height / 2.0
@@ -63,7 +55,7 @@ class YYTTagCell: UICollectionViewCell {
 		imageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: imageViewInset).isActive = true
 		imageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: imageViewInset).isActive = true
 		imageView.widthAnchor.constraint(equalTo: self.imageView.heightAnchor).isActive = true
-
+		
 		self.contentView.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
 		titleLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
@@ -73,7 +65,7 @@ class YYTTagCell: UICollectionViewCell {
 		titleLabelWithImageLeadingAnchor = titleLabel.leadingAnchor.constraint(equalTo: self.imageView.trailingAnchor)
 		titleLabelDefaultLeadingAnchor?.isActive = true
 		titleLabelWithImageLeadingAnchor?.isActive = false
-
+		
 		textField.isHidden = true
 		self.contentView.addSubview(textField)
 		textField.translatesAutoresizingMaskIntoConstraints = false
@@ -82,7 +74,7 @@ class YYTTagCell: UICollectionViewCell {
 		textField.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
 		textField.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 6).isActive = true  // Because the font is shifted upward
 	}
-    
+	
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}

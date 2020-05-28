@@ -44,10 +44,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		imgView.contentMode = .scaleAspectFit
 		return imgView
 	}()
-
 	
 	override func viewDidLoad() {
-        super.viewDidLoad()
+		super.viewDidLoad()
 		self.view.backgroundColor = GraphicColors.backgroundWhite
 		self.view.addSubview(logoImageView)
 		logoImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +54,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		logoImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 44).isActive = true
 		logoImageView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.1).isActive = true
 		logoImageView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.07).isActive = true
-
+		
 		self.view.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
 		titleLabel.leadingAnchor.constraint(equalTo: self.logoImageView.trailingAnchor, constant: 2.5).isActive = true
@@ -70,16 +69,16 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		menuButton.topAnchor.constraint(equalTo: self.logoImageView.topAnchor).isActive = true
 		menuButton.widthAnchor.constraint(equalTo: self.logoImageView.widthAnchor).isActive = true
 		menuButton.heightAnchor.constraint(equalTo: self.logoImageView.heightAnchor).isActive = true
-
-        filterButton.addTarget(self, action: #selector(filterButtonAction), for: .touchUpInside)
-        self.view.addSubview(filterButton)
+		
+		filterButton.addTarget(self, action: #selector(filterButtonAction), for: .touchUpInside)
+		self.view.addSubview(filterButton)
 		filterButton.translatesAutoresizingMaskIntoConstraints = false
 		filterButton.trailingAnchor.constraint(equalTo: self.menuButton.trailingAnchor).isActive = true
 		filterButton.topAnchor.constraint(equalTo: self.menuButton.bottomAnchor, constant: 15).isActive = true
 		filterButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
 		filterButton.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.2).isActive = true
-
-		tagsView = YYTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: true, suggestionDataSource: nil)
+		
+		tagsView = YYTFilterTagView(frame: .zero, tagsList: NSMutableArray(), isDeleteEnabled: true, suggestionDataSource: nil)
 		tagsView.yytdelegate = self
 		self.view.addSubview(tagsView)
 		tagsView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,11 +93,11 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		versionLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.25).isActive = true
 		versionLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -1).isActive = true
 		versionLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
+		
 		playlistManager.nowPlayingView.backgroundColor = .clear
 		playlistManager.nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
 		playlistManager.nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
-        self.view.addSubview(playlistManager.nowPlayingView)
+		self.view.addSubview(playlistManager.nowPlayingView)
 		playlistManager.nowPlayingView.translatesAutoresizingMaskIntoConstraints = false
 		playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
@@ -106,13 +105,13 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.2).isActive = true
 		
 		playlistManager.playlistLibraryView.backgroundColor = .clear
-        self.view.addSubview(playlistManager.playlistLibraryView)
+		self.view.addSubview(playlistManager.playlistLibraryView)
 		playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
 		playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
 		playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
 		playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 5).isActive = true
 		playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
-
+		
 		filterPickerView = FilterPickerView()
 		filterPickerView.delegate = self
 		self.view.addSubview(filterPickerView)
@@ -122,7 +121,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		filterPickerView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
 		filterPickerView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 	}
-		
+	
 	override func viewWillAppear(_ animated: Bool) {
 		playlistManager.computePlaylist()
 		playlistManager.playlistLibraryView.scrollToTop()
@@ -131,23 +130,23 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 	override func viewWillDisappear(_ animated: Bool) {
 		playlistManager.audioPlayer.pause()
 	}
-    	
-    @objc func menuButtonAction(sender: UIButton!) {
-        print("Menu Button tapped")
-        let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
-        LVC.modalPresentationStyle = .fullScreen
-        LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: {
+	
+	@objc func menuButtonAction(sender: UIButton!) {
+		print("Menu Button tapped")
+		let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+		let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
+		LVC.modalPresentationStyle = .fullScreen
+		LVC.modalTransitionStyle = .coverVertical
+		self.present(LVC, animated: true, completion: {
 			self.tagsView.removeAllTags()
 		})
-    }
-
-    @objc func filterButtonAction(sender: UIButton!) {
-        print("Filter Button tapped")
+	}
+	
+	@objc func filterButtonAction(sender: UIButton!) {
+		print("Filter Button tapped")
 		filterPickerView.show(animated: true)
-    }
-
+	}
+	
 	// MARK: YYTTagViewDelegate
 	//For tag list that shows the chosen tags
 	func tagsListChanged(newTagsList: NSMutableArray) {
@@ -170,5 +169,5 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		tagsView.tagsList = playlistManager.playlistFilters.getFilters()
 		tagsView.reloadData()
 	}
-
+	
 }
