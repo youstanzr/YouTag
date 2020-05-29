@@ -48,8 +48,12 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		return txtField
 	}()
 	var artistsTagsView: YYTTagView!
-	let albumTextField: UITextField = {
-		let txtField = UITextField()
+	let albumTextField: SearchTextField = {
+		let txtField = SearchTextField()
+		txtField.theme.bgColor = .white
+		txtField.theme.separatorColor = .darkGray
+		txtField.theme.borderColor = GraphicColors.orange
+		txtField.maxNumberOfResults = 5
 		txtField.backgroundColor = .clear
 		txtField.textAlignment = .left
 		txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
@@ -145,6 +149,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 		artistsTagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor).isActive = true
 		artistsTagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor).isActive = true
 
+		albumTextField.filterStrings(LibraryManager.getAll(.album) as? [String] ?? [])
+		albumTextField.theme.font = UIFont(name: "DINCondensed-Bold", size: 14)!
+		albumTextField.highlightAttributes = [NSAttributedString.Key.backgroundColor: UIColor.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:albumTextField.theme.font]
+		albumTextField.itemSelectionHandler = {item, itemPosition in
+			self.albumTextField.text = item[itemPosition].title
+			self.albumTextField.resignFirstResponder()
+		}
 		albumTextField.delegate = self
 		albumTextField.text = songDict["album"] as? String
 		self.view.addSubview(albumTextField)
