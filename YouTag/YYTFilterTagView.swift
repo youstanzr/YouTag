@@ -66,8 +66,8 @@ class YYTFilterTagView: YYTTagView {
 	}
 	
 	override func collectionView(_ collectionView: UICollectionView,
-					layout collectionViewLayout: UICollectionViewLayout,
-					sizeForItemAt indexPath: IndexPath) -> CGSize {
+						layout collectionViewLayout: UICollectionViewLayout,
+						sizeForItemAt indexPath: IndexPath) -> CGSize {
 		if isAddEnabled && indexPath.row == 0 {
 			let cellSize = isEditing ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
 			isEditing = false
@@ -79,5 +79,5 @@ class YYTFilterTagView: YYTTagView {
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475 : titleWidth
 		return CGSize(width: titleWidth + 34, height: 32)
 	}
-	
+
 }
