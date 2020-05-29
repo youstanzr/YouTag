@@ -144,17 +144,18 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
 			tagCell.textField.textColor = .white
 			tagCell.textField.placeholder = addTagPlaceHolder
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 		} else {
 			tagCell.backgroundColor = tagCell.isSelected ? GraphicColors.orange : UIColor.clear
 			tagCell.titleLabel.textColor = .darkGray
 			tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.textField.textColor = .darkGray
-			tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
 			tagCell.layer.borderColor = GraphicColors.orange.cgColor
 			let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
 			tagCell.titleLabel.text = tagsList.object(at: index) as? String
 		}
+		tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
+		tagCell.textField.theme.font = UIFont(name: "DINCondensed-Bold", size: 14)!
+		tagCell.textField.highlightAttributes = [NSAttributedString.Key.backgroundColor: UIColor.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:tagCell.textField.theme.font]
 		return tagCell
 	}
 	

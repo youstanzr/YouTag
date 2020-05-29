@@ -19,6 +19,10 @@ class YYTTagCell: UICollectionViewCell {
 	}()
 	let textField: SearchTextField = {
 		let txtfld = SearchTextField()
+		txtfld.theme.bgColor = .white
+		txtfld.theme.separatorColor = .darkGray
+		txtfld.theme.borderColor = GraphicColors.orange
+		txtfld.maxNumberOfResults = 5
 		txtfld.addPadding(padding: .equalSpacing(7.5))
 		txtfld.tintColor = .white
 		txtfld.backgroundColor = UIColor.clear
