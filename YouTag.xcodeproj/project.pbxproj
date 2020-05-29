@@ -39,6 +39,7 @@
 		2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
 		2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */; };
+		5BBD3CBD246E413A001E6FD0 /* SearchTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBD3CBC246E413A001E6FD0 /* SearchTextField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
 		2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTFilterTagView.swift; sourceTree = "<group>"; };
+		5BBD3CBC246E413A001E6FD0 /* SearchTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTextField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +169,7 @@
 				2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */,
 				2B810EF7241ABB0A002FA583 /* YYTTagView.swift */,
 				2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */,
+				5BBD3CBC246E413A001E6FD0 /* SearchTextField.swift */,
 				2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */,
 				2B6179652408985C009149CB /* Extensions.swift */,
 				2B810EFB241D31AE002FA583 /* Song.swift */,
@@ -349,6 +352,7 @@
 				2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */,
 				2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */,
 				2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */,
+				5BBD3CBD246E413A001E6FD0 /* SearchTextField.swift in Sources */,
 				2B61796224087FBF009149CB /* LibraryCell.swift in Sources */,
 				2B61796424088E1C009149CB /* LibraryManager.swift in Sources */,
 				2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */,

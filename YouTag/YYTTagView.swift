@@ -21,13 +21,23 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	var tagsList: NSMutableArray! {
 		didSet {
 			selectedTagList.removeAllObjects()
+			if let _ = suggestionsList {
+				self.suggestionsList = self.suggestionsList?.filter{ !self.tagsList.contains($0) }
+			}
+		}
+	}
+	var suggestionsList: [String]? {
+		didSet {
+			if let _ = suggestionsList {
+				self.suggestionsList = self.suggestionsList?.filter{ !self.tagsList.contains($0) }
+			}
 		}
 	}
 	var selectedTagList = NSMutableArray()
 	var isEditing: Bool = false
 	
 	
-	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool) {
+	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, suggestionDataSource: [String]?) {
 		let layout = LeftAlignedCollectionViewFlowLayout()
 		layout.minimumInteritemSpacing = 5
 		layout.minimumLineSpacing = 7.5
@@ -44,6 +54,8 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		self.isAddEnabled = isAddEnabled
 		self.isDeleteEnabled = isDeleteEnabled
 		self.tagsList = tagsList
+		self.suggestionsList = suggestionDataSource
+		
 		let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.addGestureRecognizer(tap)
@@ -166,6 +178,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			print("Add Tag Button tapped")
 			isEditing = true
 			cell.switchMode(enableEditing: true)
+			cell.textField.filterStrings(self.suggestionsList ?? [])
 			collectionView.performBatchUpdates(nil, completion: nil)
 		} else if self.allowsMultipleSelection {
 			cell.backgroundColor = GraphicColors.orange

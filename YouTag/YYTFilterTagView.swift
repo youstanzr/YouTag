@@ -11,7 +11,7 @@ import UIKit
 class YYTFilterTagView: YYTTagView {
 	
 	init(frame: CGRect, tagsList: NSMutableArray, isDeleteEnabled: Bool) {
-		super.init(frame: frame, tagsList: tagsList, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled)
+		super.init(frame: frame, tagsList: tagsList, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled, suggestionDataSource: nil)
 	}
 	
 	required init?(coder: NSCoder) {

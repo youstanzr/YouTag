@@ -152,7 +152,7 @@ class FilterPickerView: UIView {
 		pickerView.topAnchor.constraint(equalTo: filterSegment.bottomAnchor).isActive = true
 		pickerView.bottomAnchor.constraint(equalTo: addButton.topAnchor).isActive = true
 		
-		tagView = YYTTagView(frame: .zero, tagsList: LibraryManager.getAll(.tags), isAddEnabled: false, isMultiSelection: true, isDeleteEnabled: false)
+        tagView = YYTTagView(frame: .zero, tagsList: LibraryManager.getAll(.tags), isAddEnabled: false, isMultiSelection: true, isDeleteEnabled: false, suggestionDataSource: nil)
 		pickerView.addSubview(tagView)
 		tagView.translatesAutoresizingMaskIntoConstraints = false
 		tagView.leadingAnchor.constraint(equalTo: pickerView.leadingAnchor, constant: 5).isActive = true
