@@ -13,7 +13,7 @@ protocol YYTTagViewDelegate: class {
 }
 
 class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
-	
+
 	weak var yytdelegate: YYTTagViewDelegate?
 	var addTagPlaceHolder: String!
 	var isAddEnabled: Bool!
@@ -21,7 +21,9 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 	var tagsList: NSMutableArray! {
 		didSet {
 			selectedTagList.removeAllObjects()
-			
+			if let _ = suggestionsList {
+				self.suggestionsList = self.suggestionsList?.filter{ !self.tagsList.contains($0) }
+			}
 		}
 	}
 	var suggestionsList: [String]? {
@@ -53,6 +55,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		self.isDeleteEnabled = isDeleteEnabled
 		self.tagsList = tagsList
 		self.suggestionsList = suggestionDataSource
+		
 		let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
 		tap.cancelsTouchesInView = false
 		self.addGestureRecognizer(tap)
@@ -63,11 +66,11 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			self.addGestureRecognizer(lpgr)
 		}
 	}
-	
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
+		
 	func removeTag(at index: Int) {
 		if isAddEnabled {
 			self.selectedTagList.remove(tagsList.object(at: index - 1))
@@ -79,20 +82,20 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
-	
+
 	func removeAllTags() {
 		self.tagsList.removeAllObjects()
 		self.selectedTagList.removeAllObjects()
 		yytdelegate?.tagsListChanged(newTagsList: self.tagsList)
 		self.reloadData()
 	}
-	
+
 	func deselectAllTags() {
 		guard let selectedItems = indexPathsForSelectedItems else { return }
 		for indexPath in selectedItems { collectionView(self, didDeselectItemAt: indexPath) }
 		self.reloadData()
 	}
-	
+
 	// MARK: Long Press Gesture Recognizer
 	@objc func handleLongPress(gestureReconizer: UILongPressGestureRecognizer) {
 		if gestureReconizer.state != .began {
@@ -124,7 +127,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 			UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
 		}
 	}
-	
+
 	// MARK: Collection View
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return isAddEnabled ? tagsList.count+1:tagsList.count
@@ -168,7 +171,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475:titleWidth
 		return CGSize(width: titleWidth, height: 32)
 	}
-	
+		
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
 		if isAddEnabled && indexPath.row == 0 {
@@ -228,7 +231,7 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 			guard layoutAttribute.representedElementCategory == .cell else {
 				return
 			}
-			
+
 			if Int(layoutAttribute.frame.origin.y) >= Int(maxY) || layoutAttribute.frame.origin.x == sectionInset.left {
 				leftMargin = sectionInset.left
 			}
@@ -239,7 +242,7 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 			else {
 				layoutAttribute.frame.origin.x = leftMargin
 			}
-			
+
 			leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
 			maxY = max(layoutAttribute.frame.maxY , maxY)
 		}
