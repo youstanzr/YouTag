@@ -41,6 +41,7 @@ class YYTTagCell: UICollectionViewCell {
 	fileprivate var titleLabelDefaultLeadingAnchor: NSLayoutConstraint?
 	fileprivate var titleLabelWithImageLeadingAnchor: NSLayoutConstraint?
 	
+	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.layer.cornerRadius = self.frame.height / 2.0
@@ -98,4 +99,5 @@ class YYTTagCell: UICollectionViewCell {
 			textField.isHidden = true
 		}
 	}
+
 }
