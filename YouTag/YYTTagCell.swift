@@ -19,6 +19,10 @@ class YYTTagCell: UICollectionViewCell {
 	}()
 	let textField: SearchTextField = {
 		let txtfld = SearchTextField()
+		txtfld.theme.bgColor = .white
+		txtfld.theme.separatorColor = .darkGray
+		txtfld.theme.borderColor = GraphicColors.orange
+		txtfld.maxNumberOfResults = 5
 		txtfld.addPadding(padding: .equalSpacing(7.5))
 		txtfld.tintColor = .white
 		txtfld.backgroundColor = UIColor.clear
@@ -67,6 +71,10 @@ class YYTTagCell: UICollectionViewCell {
 		titleLabelDefaultLeadingAnchor?.isActive = true
 		titleLabelWithImageLeadingAnchor?.isActive = false
 
+		textField.itemSelectionHandler = {item, itemPosition in
+			self.textField.text = item[itemPosition].title
+			self.textField.resignFirstResponder()
+		}
 		textField.isHidden = true
 		self.contentView.addSubview(textField)
 		textField.translatesAutoresizingMaskIntoConstraints = false
@@ -97,6 +105,7 @@ class YYTTagCell: UICollectionViewCell {
 		} else {
 			titleLabel.isHidden = false
 			textField.isHidden = true
+			textField.resignFirstResponder()
 		}
 	}
 	
