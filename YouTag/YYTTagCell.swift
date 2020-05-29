@@ -71,6 +71,10 @@ class YYTTagCell: UICollectionViewCell {
 		titleLabelDefaultLeadingAnchor?.isActive = true
 		titleLabelWithImageLeadingAnchor?.isActive = false
 
+		textField.itemSelectionHandler = {item, itemPosition in
+			self.textField.text = item[itemPosition].title
+			self.textField.resignFirstResponder()
+		}
 		textField.isHidden = true
 		self.contentView.addSubview(textField)
 		textField.translatesAutoresizingMaskIntoConstraints = false
@@ -101,6 +105,7 @@ class YYTTagCell: UICollectionViewCell {
 		} else {
 			titleLabel.isHidden = false
 			textField.isHidden = true
+			textField.resignFirstResponder()
 		}
 	}
 	
