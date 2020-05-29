@@ -45,6 +45,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		return imgView
 	}()
 	
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		self.view.backgroundColor = GraphicColors.backgroundWhite
