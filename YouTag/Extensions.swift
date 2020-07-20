@@ -208,6 +208,21 @@ extension UIView {
 		}
 	}
 	
+	func snapshotOfView() -> UIView {
+		
+		UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, 0.0)
+		self.layer.render(in: UIGraphicsGetCurrentContext()!)
+		let image = UIGraphicsGetImageFromCurrentImageContext()!
+		UIGraphicsEndImageContext()
+		let viewSnapshot : UIView = UIImageView(image: image)
+		viewSnapshot.layer.masksToBounds = false
+		viewSnapshot.layer.cornerRadius = 0.0
+		viewSnapshot.layer.shadowOffset = CGSize(width: -5.0, height: 0.0)
+		viewSnapshot.layer.shadowRadius = 5.0
+		viewSnapshot.layer.shadowOpacity = 0.4
+		return viewSnapshot
+	}
+
 }
 
 // MARK: UITableView
