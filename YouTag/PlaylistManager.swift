@@ -143,7 +143,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 		for i in 0 ..< playlist.count {
 			songDict = playlist.object(at: i) as! Dictionary<String, Any>
 			songTags = NSMutableArray(array: songDict["tags"] as? NSArray ?? NSArray())
-			if playlistFilters.tags.isSubset(of: songTags) {
+			if playlistFilters.tags.hasIntersect(with: songTags) {
 				newPlaylist.add(songDict)
 			}
 		}

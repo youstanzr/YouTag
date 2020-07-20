@@ -17,6 +17,10 @@ class PlaylistLibraryView: LibraryTableView {
 	weak var PLDelegate: PlaylistLibraryViewDelegate?
 	
 	var playlistArray = NSMutableArray()
+	private struct LongPressPersistentValues {
+		static var indexPath: IndexPath?
+		static var cellSnapShot: UIView?
+	}
 
 	
     required init?(coder aDecoder: NSCoder) {
@@ -26,6 +30,9 @@ class PlaylistLibraryView: LibraryTableView {
 	override init(frame: CGRect, style: UITableView.Style) {
 		super.init(frame: frame, style: style)
 		playlistArray = LM.libraryArray
+		let longpress = UILongPressGestureRecognizer(target: self, action: #selector(longPressGestureRecognized(gestureRecognizer:)))
+		longpress.minimumPressDuration = 0.3
+		self.addGestureRecognizer(longpress)
     }
 	
 	override func refreshTableView() {
@@ -67,5 +74,98 @@ class PlaylistLibraryView: LibraryTableView {
 			tableView.reloadData()
 		}
 	}
-	
+
+	// MARK: Long pressing gesture to rearrange cells
+	@objc func longPressGestureRecognized(gestureRecognizer: UIGestureRecognizer) {
+
+		let longpress = gestureRecognizer as! UILongPressGestureRecognizer
+		let state = longpress.state
+		var locationInView = longpress.location(in: self)
+
+		if (locationInView.y - self.contentOffset.y < 0) {
+			locationInView.y = self.contentOffset.y
+		} else if (locationInView.y - self.contentOffset.y > self.frame.height) {
+			locationInView.y = self.contentOffset.y + self.frame.height
+		}
+
+		guard let indexPath = self.indexPathForRow(at: locationInView) else { return }
+
+		switch state {
+			case .began:
+				LongPressPersistentValues.indexPath = indexPath
+				let cell = self.cellForRow(at: indexPath) as! LibraryCell
+				LongPressPersistentValues.cellSnapShot = cell.snapshotOfView()
+				var center = cell.center
+				LongPressPersistentValues.cellSnapShot?.center = center
+				LongPressPersistentValues.cellSnapShot?.alpha = 0.0
+				self.addSubview(LongPressPersistentValues.cellSnapShot!)
+
+				UIView.animate(withDuration: 0.25, animations: {
+					center.y = locationInView.y
+					LongPressPersistentValues.cellSnapShot?.center = center
+					LongPressPersistentValues.cellSnapShot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
+					LongPressPersistentValues.cellSnapShot?.alpha = 0.98
+					cell.alpha = 0.0
+				}, completion: { (finished) -> Void in
+					if finished {
+						cell.isHidden = true
+					}
+				})
+
+			case .changed:
+				var center = LongPressPersistentValues.cellSnapShot?.center
+				center?.y = locationInView.y
+				LongPressPersistentValues.cellSnapShot?.center = center!
+//				print(self.contentOffset.y ,locationInView.y, self.frame.height)
+//				print(indexPath.row as Any, self.indexPathForRow(at: center!)?.row as Any)
+
+				if (indexPath != LongPressPersistentValues.indexPath) {
+
+//					//AutoScroll
+//					if (locationInView.y - self.contentOffset.y < self.frame.height*0.2 && indexPath.row > 1) {
+//
+//						print("move up")
+////						var p = self.contentOffset
+////						p.y -= (self.cellForRow(at: self.indexPathsForVisibleRows![1])?.frame.height)!
+////						self.setContentOffset(p, animated: true)
+//						var indexP = indexPath
+//						indexP.row -= 1
+//						self.scrollToRow(at: indexPath, at: .top, animated: true)
+//					}
+//					else if (locationInView.y - self.contentOffset.y > self.frame.height*0.8 && indexPath.row < playlistArray.count) {
+//
+//						print("move down")
+////						var p = self.contentOffset
+////						p.y += (self.cellForRow(at: self.indexPathsForVisibleRows!.last!)?.frame.height)!
+////						self.setContentOffset(p, animated: true)
+//						var indexP = indexPath
+//						indexP.row += 1
+//						self.scrollToRow(at: indexPath, at: .bottom, animated: true)
+//					}
+
+					playlistArray.exchangeObject(at: playlistArray.count-indexPath.row-2, withObjectAt: playlistArray.count-(LongPressPersistentValues.indexPath?.row)!-2)
+					self.moveRow(at: LongPressPersistentValues.indexPath!, to: self.indexPathForRow(at: center!)!)
+
+					LongPressPersistentValues.indexPath = indexPath
+			}
+
+			default:
+				let cell = self.cellForRow(at: LongPressPersistentValues.indexPath!) as! LibraryCell
+				cell.isHidden = false
+				cell.alpha = 0.0
+				UIView.animate(withDuration: 0.25, animations: {
+					LongPressPersistentValues.cellSnapShot?.center = cell.center
+					LongPressPersistentValues.cellSnapShot?.transform = .identity
+					LongPressPersistentValues.cellSnapShot?.alpha = 0.0
+					cell.alpha = 1.0
+				}, completion: { (finished) -> Void in
+					if finished {
+						LongPressPersistentValues.indexPath = nil
+						LongPressPersistentValues.cellSnapShot?.removeFromSuperview()
+						LongPressPersistentValues.cellSnapShot = nil
+					}
+				})
+		}
+	}
+
 }
