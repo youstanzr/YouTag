@@ -347,4 +347,27 @@ class LibraryManager {
 		return str
 	}
 
+	static func getBackupString() -> String {
+		let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+		var songDict = Dictionary<String, Any>()
+		var bkpStr = ""
+		for i in 0 ..< songArr.count {
+			songDict = songArr.object(at: i) as! Dictionary<String, Any>
+			bkpStr += "{\n"
+			bkpStr += "id: " + (songDict["id"] as! String) + ",\n"
+			bkpStr += "title: " + (songDict["title"] as! String) + ",\n"
+			bkpStr += "artists: [" + (songDict["artists"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
+			bkpStr += "album: " + (songDict["album"] as! String) + ",\n"
+			bkpStr += "releaseYear: " + (songDict["releaseYear"] as! String) + ",\n"
+			bkpStr += "duration: " + (songDict["duration"] as! String) + ",\n"
+			bkpStr += "lyrics: " + (songDict["lyrics"] as! String) + ",\n"
+			bkpStr += "tags: [" + (songDict["tags"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
+			bkpStr += "link: " + (songDict["link"] as! String) + "\n"
+			bkpStr += "},\n"
+		}
+		bkpStr.removeLast(2)
+		return bkpStr
+	}
+
+	
 }
