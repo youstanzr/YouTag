@@ -362,7 +362,7 @@ class LibraryManager {
 			bkpStr += "duration: " + (songDict["duration"] as! String) + ",\n"
 			bkpStr += "lyrics: " + (songDict["lyrics"] as! String) + ",\n"
 			bkpStr += "tags: [" + (songDict["tags"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
-			bkpStr += "link: " + (songDict["link"] as! String) + "\n"
+			bkpStr += "link: " + (songDict["link"] as? String ?? "") + "\n"
 			bkpStr += "},\n"
 		}
 		bkpStr.removeLast(2)
