@@ -51,7 +51,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 	}()
 	let logoView: UIView = {
 		let view = UIView()
-		view.backgroundColor = UIColor.red.withAlphaComponent(0.1)
+		view.backgroundColor = .clear
 		return view
 	}()
 	
