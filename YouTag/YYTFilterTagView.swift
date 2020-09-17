@@ -69,8 +69,8 @@ class YYTFilterTagView: YYTTagView {
 						layout collectionViewLayout: UICollectionViewLayout,
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
 		if isAddEnabled && indexPath.row == 0 {
-			let cellSize = isEditing ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
-			isEditing = false
+			let cellSize = isEditingEnabled ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
+			isEditingEnabled = false
 			return cellSize
 		}
 		let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
