@@ -118,7 +118,8 @@ class LibraryManager {
 				UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
 				self.refreshLibraryArray()
 				completion?()
-			} else {
+			} else {	// In case of error in adding the song to the library
+				_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).jpg")  // Delete the downloaded thumbnail if available
 				let alert = UIAlertController(title: "Error", message: errorStr, preferredStyle: UIAlertController.Style.alert)
 				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
 				currentViewController?.present(alert, animated: true, completion: nil)
