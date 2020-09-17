@@ -61,6 +61,7 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Calendar image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Duration image: [@author](https://www.flaticon.com/authors/freepik)
 - Filter image: [@author](https://www.flaticon.com/authors/freepik)
+- Setting image: [@author](https://www.flaticon.com/authors/freepik)
 - List image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Loop image: [@author](https://www.flaticon.com/authors/pixel-perfect)
 - Music Note image: [@author](https://www.flaticon.com/authors/those-icons)

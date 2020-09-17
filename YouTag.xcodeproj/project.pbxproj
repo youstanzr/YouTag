@@ -29,6 +29,7 @@
 		2B7863902301AE57001DD6FD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B78638E2301AE57001DD6FD /* LaunchScreen.storyboard */; };
 		2B78639B2301AE57001DD6FD /* YouTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B78639A2301AE57001DD6FD /* YouTagTests.swift */; };
 		2B7863A62301AE57001DD6FD /* YouTagUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863A52301AE57001DD6FD /* YouTagUITests.swift */; };
+		2B7AA3A0251309B000E26160 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AA39F251309B000E26160 /* SettingViewController.swift */; };
 		2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF7241ABB0A002FA583 /* YYTTagView.swift */; };
 		2B810EFA241ACD1C002FA583 /* YYTTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */; };
 		2B810EFC241D31AE002FA583 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B810EFB241D31AE002FA583 /* Song.swift */; };
@@ -85,6 +86,7 @@
 		2B7863A12301AE57001DD6FD /* YouTagUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YouTagUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B7863A52301AE57001DD6FD /* YouTagUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTagUITests.swift; sourceTree = "<group>"; };
 		2B7863A72301AE57001DD6FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2B7AA39F251309B000E26160 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		2B810EF7241ABB0A002FA583 /* YYTTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagView.swift; sourceTree = "<group>"; };
 		2B810EF9241ACD1C002FA583 /* YYTTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTTagCell.swift; sourceTree = "<group>"; };
 		2B810EFB241D31AE002FA583 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				2B7863842301AE56001DD6FD /* ViewController.swift */,
 				2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */,
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
+				2B7AA39F251309B000E26160 /* SettingViewController.swift */,
 				2B157C2C24208369001DB815 /* DownloadWebViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
@@ -350,6 +353,7 @@
 				2B6179662408985C009149CB /* Extensions.swift in Sources */,
 				2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */,
 				2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */,
+				2B7AA3A0251309B000E26160 /* SettingViewController.swift in Sources */,
 				2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */,
 				2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */,
 				5BBD3CBD246E413A001E6FD0 /* SearchTextField.swift in Sources */,
