@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
         "state": {
           "branch": null,
-          "revision": "becd9a729a37bdbef5bc39dc3c702b99f9e3d046",
-          "version": "5.2.2"
+          "revision": "097e1f03166d49b31f824507fb85ad843b14fc13",
+          "version": "5.3.0"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/cbpowell/MarqueeLabel",
         "state": {
           "branch": null,
-          "revision": "8cd051e549b4fcbc469cc1cb7c55ae10f49caef8",
-          "version": "4.0.2"
+          "revision": "d92fe1583dbf43fa3b70229a49fa7da6b36750d4",
+          "version": "4.0.5"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/0xced/XCDYouTubeKit",
         "state": {
           "branch": null,
-          "revision": "921be4631067eb9e44ecb604b244e9d603aedb90",
-          "version": "2.14.1"
+          "revision": "b35528de27f7452a9cb6ced213e0592fee89b663",
+          "version": "2.15.0"
         }
       }
     ]
