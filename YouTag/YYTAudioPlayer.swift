@@ -140,10 +140,14 @@ class YYTAudioPlayer: NSObject, AVAudioPlayerDelegate {
 	
 	func prev() {
 		if !isSuspended {
-			playlistManager.movePlaylistBackward()
-			currentSongIndex = currentSongIndex % songsPlaylist.count
-			if setupPlayer(withSongAtindex: currentSongIndex) {
-				play()
+			if Float(audioPlayer?.currentTime ?? 0) < 10.0 {
+				playlistManager.movePlaylistBackward()
+				currentSongIndex = currentSongIndex % songsPlaylist.count
+				if setupPlayer(withSongAtindex: currentSongIndex) {
+					play()
+				}
+			} else {
+				self.audioPlayer.currentTime = 0.0
 			}
 		}
 	}

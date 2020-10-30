@@ -121,7 +121,7 @@ class LibraryViewController: UIViewController, DownloadWebViewDelegate {
                 return
             }
 			self.removeSpinner()
-			self.LM.addSongToLibrary(songTitle: video!.title, songUrl: video!.streamURL, songExtension: "mp4", thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], songID: videoID, completion: {
+			self.LM.addSongToLibrary(songTitle: video!.title, songUrl: video!.streamURL!, songExtension: "mp4", thumbnailUrl: video!.thumbnailURLs![video!.thumbnailURLs!.count/2], songID: videoID, completion: {
 				self.libraryTableView.refreshTableView()
 				self.libraryTableView.tableView(self.libraryTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
 			})

@@ -24,6 +24,11 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		btn.setImage(UIImage(named: "filter"), for: UIControl.State.normal)
 		return btn
 	}()
+	var settingButton: UIButton = {
+		let btn = UIButton()
+		btn.setImage(UIImage(named: "settings"), for: UIControl.State.normal)
+		return btn
+	}()
 	let titleLabel: UILabel = {
 		let lbl = UILabel()
 		lbl.text = "YouTag"
@@ -44,33 +49,54 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 		imgView.contentMode = .scaleAspectFit
 		return imgView
 	}()
+	let logoView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+		return view
+	}()
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		self.view.backgroundColor = GraphicColors.backgroundWhite
-		self.view.addSubview(logoImageView)
-		logoImageView.translatesAutoresizingMaskIntoConstraints = false
-		logoImageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
-		logoImageView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 44).isActive = true
-		logoImageView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.1).isActive = true
-		logoImageView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.07).isActive = true
 		
-		self.view.addSubview(titleLabel)
+		self.view.addSubview(logoView)
+		logoView.translatesAutoresizingMaskIntoConstraints = false
+		logoView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+		logoView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 44).isActive = true
+		logoView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.29).isActive = true
+		logoView.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.09).isActive = true
+		
+		logoView.addSubview(logoImageView)
+		logoImageView.translatesAutoresizingMaskIntoConstraints = false
+		logoImageView.leadingAnchor.constraint(equalTo: logoView.leadingAnchor).isActive = true
+		logoImageView.centerYAnchor.constraint(equalTo: logoView.centerYAnchor).isActive = true
+		logoImageView.widthAnchor.constraint(equalTo: logoView.widthAnchor, multiplier: 0.4).isActive = true
+		logoImageView.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
+
+		logoView.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
-		titleLabel.leadingAnchor.constraint(equalTo: self.logoImageView.trailingAnchor, constant: 2.5).isActive = true
-		titleLabel.topAnchor.constraint(equalTo: logoImageView.topAnchor).isActive = true
-		titleLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.3).isActive = true
-		titleLabel.heightAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.09).isActive = true
+		titleLabel.trailingAnchor.constraint(equalTo: logoView.trailingAnchor).isActive = true
+		titleLabel.centerYAnchor.constraint(equalTo: logoView.centerYAnchor, constant: 3).isActive = true
+		titleLabel.widthAnchor.constraint(equalTo: logoView.widthAnchor, multiplier: 0.58).isActive = true
+		titleLabel.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
 		
 		menuButton.addTarget(self, action: #selector(menuButtonAction), for: .touchUpInside)
 		self.view.addSubview(menuButton)
 		menuButton.translatesAutoresizingMaskIntoConstraints = false
 		menuButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10).isActive = true
-		menuButton.topAnchor.constraint(equalTo: self.logoImageView.topAnchor).isActive = true
-		menuButton.widthAnchor.constraint(equalTo: self.logoImageView.widthAnchor).isActive = true
-		menuButton.heightAnchor.constraint(equalTo: self.logoImageView.heightAnchor).isActive = true
+		menuButton.topAnchor.constraint(equalTo: self.logoView.topAnchor).isActive = true
+		menuButton.widthAnchor.constraint(equalTo: self.logoView.heightAnchor, multiplier: 0.8).isActive = true
+		menuButton.heightAnchor.constraint(equalTo: self.logoView.heightAnchor).isActive = true
 		
+		settingButton.addTarget(self, action: #selector(settingButtonAction), for: .touchUpInside)
+		self.view.addSubview(settingButton)
+		settingButton.translatesAutoresizingMaskIntoConstraints = false
+		settingButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
+		settingButton.topAnchor.constraint(equalTo: self.logoView.topAnchor).isActive = true
+		settingButton.widthAnchor.constraint(equalTo: self.logoView.heightAnchor, multiplier: 0.9).isActive = true
+		settingButton.heightAnchor.constraint(equalTo: self.logoView.heightAnchor, multiplier: 0.9).isActive = true
+
 		filterButton.addTarget(self, action: #selector(filterButtonAction), for: .touchUpInside)
 		self.view.addSubview(filterButton)
 		filterButton.translatesAutoresizingMaskIntoConstraints = false
@@ -142,6 +168,18 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 			self.tagsView.removeAllTags()
 		})
 	}
+	
+	@objc func settingButtonAction(sender: UIButton!) {
+		print("Setting Button tapped")
+		let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+		let SVC: SettingViewController = storyboard.instantiateViewController(withIdentifier: "SettingViewController") as! SettingViewController
+		SVC.modalPresentationStyle = .fullScreen
+		SVC.modalTransitionStyle = .coverVertical
+		self.present(SVC, animated: true, completion: {
+			self.tagsView.removeAllTags()
+		})
+	}
+
 	
 	@objc func filterButtonAction(sender: UIButton!) {
 		print("Filter Button tapped")

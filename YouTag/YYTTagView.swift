@@ -34,7 +34,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		}
 	}
 	var selectedTagList = NSMutableArray()
-	var isEditing: Bool = false
+	var isEditingEnabled: Bool = false
 	
 	
 	init(frame: CGRect, tagsList: NSMutableArray, isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, suggestionDataSource: [String]?) {
@@ -163,8 +163,8 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 						layout collectionViewLayout: UICollectionViewLayout,
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
 		if isAddEnabled && indexPath.row == 0 {
-			let cellSize = isEditing ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
-			isEditing = false
+			let cellSize = isEditingEnabled ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
+			isEditingEnabled = false
 			return cellSize
 		}
 		let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
@@ -177,7 +177,7 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 		let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
 		if isAddEnabled && indexPath.row == 0 {
 			print("Add Tag Button tapped")
-			isEditing = true
+			isEditingEnabled = true
 			cell.switchMode(enableEditing: true)
 			cell.textField.filterStrings(self.suggestionsList ?? [])
 			collectionView.performBatchUpdates(nil, completion: nil)

@@ -118,7 +118,8 @@ class LibraryManager {
 				UserDefaults.standard.set(self.libraryArray, forKey: "LibraryArray")
 				self.refreshLibraryArray()
 				completion?()
-			} else {
+			} else {	// In case of error in adding the song to the library
+				_ = LocalFilesManager.deleteFile(withNameAndExtension: "\(sID).jpg")  // Delete the downloaded thumbnail if available
 				let alert = UIAlertController(title: "Error", message: errorStr, preferredStyle: UIAlertController.Style.alert)
 				alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
 				currentViewController?.present(alert, animated: true, completion: nil)
@@ -346,4 +347,27 @@ class LibraryManager {
 		return str
 	}
 
+	static func getBackupString() -> String {
+		let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
+		var songDict = Dictionary<String, Any>()
+		var bkpStr = ""
+		for i in 0 ..< songArr.count {
+			songDict = songArr.object(at: i) as! Dictionary<String, Any>
+			bkpStr += "{\n"
+			bkpStr += "id: " + (songDict["id"] as! String) + ",\n"
+			bkpStr += "title: " + (songDict["title"] as! String) + ",\n"
+			bkpStr += "artists: [" + (songDict["artists"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
+			bkpStr += "album: " + (songDict["album"] as! String) + ",\n"
+			bkpStr += "releaseYear: " + (songDict["releaseYear"] as! String) + ",\n"
+			bkpStr += "duration: " + (songDict["duration"] as! String) + ",\n"
+			bkpStr += "lyrics: " + (songDict["lyrics"] as! String) + ",\n"
+			bkpStr += "tags: [" + (songDict["tags"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
+			bkpStr += "link: " + (songDict["link"] as? String ?? "") + "\n"
+			bkpStr += "},\n"
+		}
+		bkpStr.removeLast(2)
+		return bkpStr
+	}
+
+	
 }
