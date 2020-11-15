@@ -76,11 +76,12 @@ class SettingViewController: UIViewController {
 	}
 
 	@objc func importBackupButtonAction(sender: UIButton) {
+		let LM = LibraryManager()
 		var bkpStr = ""
 		let alert = UIAlertController(title: "Import Backup", message: "Kindly click ok when the backup string is copied to your clipboard", preferredStyle: UIAlertController.Style.alert)
 		alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:{ (UIAlertAction) in
 			bkpStr = UIPasteboard.general.string ?? ""
-			print(bkpStr)
+			LM.importBackupString(bkpString: bkpStr)
 		}))
 		self.present(alert, animated: true, completion:nil)
 	}
