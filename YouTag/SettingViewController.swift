@@ -69,18 +69,19 @@ class SettingViewController: UIViewController {
 	}
 	
 	@objc func exportBackupButtonAction(sender: UIButton) {
-		UIPasteboard.general.string = LibraryManager.getBackupString()
+		UIPasteboard.general.string = LibraryManager.exportBackupString()
 		let alert = UIAlertController(title: "Backup Exported", message: "Backup string has been copied to your clipboard. Kindly paste your backup string into a safe place to be used later when needed\n\n Note: thumbnails are not included in the backup and will reset to default thumbnail when importing", preferredStyle: UIAlertController.Style.alert)
 		alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:nil))
 		self.present(alert, animated: true, completion: nil)
 	}
 
 	@objc func importBackupButtonAction(sender: UIButton) {
+		let LM = LibraryManager()
 		var bkpStr = ""
 		let alert = UIAlertController(title: "Import Backup", message: "Kindly click ok when the backup string is copied to your clipboard", preferredStyle: UIAlertController.Style.alert)
 		alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler:{ (UIAlertAction) in
 			bkpStr = UIPasteboard.general.string ?? ""
-			print(bkpStr)
+			LM.importBackupString(bkpString: bkpStr)
 		}))
 		self.present(alert, animated: true, completion:nil)
 	}

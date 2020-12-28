@@ -347,27 +347,52 @@ class LibraryManager {
 		return str
 	}
 
-	static func getBackupString() -> String {
+	static func exportBackupString() -> String {
 		let songArr = UserDefaults.standard.value(forKey: "LibraryArray") as? NSArray ?? NSArray()
 		var songDict = Dictionary<String, Any>()
-		var bkpStr = ""
+		var bkpStr = "[\n"
 		for i in 0 ..< songArr.count {
 			songDict = songArr.object(at: i) as! Dictionary<String, Any>
 			bkpStr += "{\n"
-			bkpStr += "id: " + (songDict["id"] as! String) + ",\n"
-			bkpStr += "title: " + (songDict["title"] as! String) + ",\n"
-			bkpStr += "artists: [" + (songDict["artists"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
-			bkpStr += "album: " + (songDict["album"] as! String) + ",\n"
-			bkpStr += "releaseYear: " + (songDict["releaseYear"] as! String) + ",\n"
-			bkpStr += "duration: " + (songDict["duration"] as! String) + ",\n"
-			bkpStr += "lyrics: " + (songDict["lyrics"] as! String) + ",\n"
-			bkpStr += "tags: [" + (songDict["tags"] as? NSArray ?? NSArray()).componentsJoined(by: ", ") + "],\n"
-			bkpStr += "link: " + (songDict["link"] as? String ?? "") + "\n"
+			bkpStr += "\"id\": \"" + (songDict["id"] as! String) + "\",\n"
+			bkpStr += "\"title\": \"" + (songDict["title"] as! String) + "\",\n"
+			bkpStr += "\"artists\": [\"" + (songDict["artists"] as? NSArray ?? NSArray()).componentsJoined(by: "\", \"") + "\"],\n"
+			bkpStr += "\"album\": \"" + (songDict["album"] as! String) + "\",\n"
+			bkpStr += "\"releaseYear\": \"" + (songDict["releaseYear"] as! String) + "\",\n"
+			bkpStr += "\"lyrics\": \"" + (songDict["lyrics"] as! String) + "\",\n"
+			bkpStr += "\"tags\": [\"" + (songDict["tags"] as? NSArray ?? NSArray()).componentsJoined(by: "\", \"") + "\"],\n"
+			bkpStr += "\"link\": \"" + (songDict["link"] as? String ?? "") + "\",\n"
+			bkpStr += "\"fileExtension\": \"" + (songDict["fileExtension"] as? String ?? "m4a") + "\"\n"
 			bkpStr += "},\n"
 		}
 		bkpStr.removeLast(2)
-		return bkpStr
+		bkpStr += "\n]"
+		return bkpStr.replacingOccurrences(of: "[\"\"]", with: "[]")
 	}
 
-	
+	func importBackupString(bkpString: String) {
+		struct bkpSongStruct: Decodable {
+			let id: String
+			let title: String
+			let artists: Array<String>
+			let album: String
+			let releaseYear: String
+			let lyrics: String
+			let tags: Array<String>
+			let link: String
+			let fileExtension: String
+		}
+		print(bkpString)
+		let bkpSongs: [bkpSongStruct] = try! JSONDecoder().decode([bkpSongStruct].self, from: bkpString.data(using: .utf8)!)
+		print(bkpSongs)
+		
+		let dispatchGroup = DispatchGroup()  // To keep track of the async download group
+		for bkpSong in bkpSongs {
+			dispatchGroup.enter()
+			self.addSongToLibrary(songTitle: bkpSong.title, songUrl: URL(string: bkpSong.link)!, songExtension: bkpSong.fileExtension, thumbnailUrl: nil, songID: bkpSong.id, completion: {
+				dispatchGroup.leave()
+			})
+			dispatchGroup.wait()
+		}
+	}
 }
