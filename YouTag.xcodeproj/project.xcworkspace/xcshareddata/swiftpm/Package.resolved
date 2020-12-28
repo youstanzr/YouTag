@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
         "state": {
           "branch": null,
-          "revision": "097e1f03166d49b31f824507fb85ad843b14fc13",
-          "version": "5.3.0"
+          "revision": "eaf6e622dd41b07b251d8f01752eab31bc811493",
+          "version": "5.4.1"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/0xced/XCDYouTubeKit",
         "state": {
           "branch": null,
-          "revision": "b35528de27f7452a9cb6ced213e0592fee89b663",
-          "version": "2.15.0"
+          "revision": "23f765941b36d6d28215ab81a37af1039d29138b",
+          "version": "2.15.2"
         }
       }
     ]
