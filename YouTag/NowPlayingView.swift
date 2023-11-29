@@ -8,7 +8,7 @@
 import UIKit
 import MarqueeLabel
 
-protocol NowPlayingViewDelegate: class {
+protocol NowPlayingViewDelegate: AnyObject {
 	func shufflePlaylist()
 }
 

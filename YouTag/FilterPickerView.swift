@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol FilterPickerViewDelegate: class {
+protocol FilterPickerViewDelegate: AnyObject {
 	func processNewFilter(type: String, filters: NSMutableArray)
 }
 

@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-protocol YYTAudioPlayerDelegate: class {
+protocol YYTAudioPlayerDelegate: AnyObject {
 	func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float)
 	func audioPlayerPlayingStatusChanged(isPlaying: Bool)
 }

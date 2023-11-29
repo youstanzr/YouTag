@@ -9,7 +9,7 @@
 import UIKit
 import WebKit
 
-protocol DownloadWebViewDelegate: class {
+protocol DownloadWebViewDelegate: AnyObject {
 	func requestedDownloadLink(link: String, contentType fileExtension: String)
 }
 

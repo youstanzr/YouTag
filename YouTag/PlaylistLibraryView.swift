@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol PlaylistLibraryViewDelegate: class {
+protocol PlaylistLibraryViewDelegate: AnyObject {
 	func didSelectSong(songDict: Dictionary<String, Any>)
 }
 

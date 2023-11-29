@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol YYTTagViewDelegate: class {
+protocol YYTTagViewDelegate: AnyObject {
 	func tagsListChanged(newTagsList: NSMutableArray)
 }
 
