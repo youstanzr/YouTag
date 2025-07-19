@@ -9,135 +9,143 @@
 import Foundation
 
 struct PlaylistFilters {
-	
-	enum FilterType: String {
-		case tag = "tags"
-		case artist = "artists"
-		case album = "album"
-		case releaseYearRange = "releaseYearRange"
-		case releaseYear = "releaseYear"
-		case duration = "duration"
-	}
-	var tags: NSMutableArray
-	var artists: NSMutableArray
-	var album: NSMutableArray
-	var releaseYearRange: NSMutableArray
-	var releaseYear: NSMutableArray
-	var duration: NSMutableArray
-	
-	func getFilters() -> NSMutableArray {
-		let resultArr = NSMutableArray()
-		var tempDuration: [TimeInterval]
-		var tempArr: NSMutableArray
-		for i in 0 ..< tags.count {
-			resultArr.add(NSMutableArray(objects: "tags", tags.object(at: i)))
-		}
-		for i in 0 ..< artists.count {
-			resultArr.add(NSMutableArray(objects: "artists", artists.object(at: i)))
-		}
-		for i in 0 ..< album.count {
-			resultArr.add(NSMutableArray(objects: "album", album.object(at: i)))
-		}
-		for i in 0 ..< releaseYearRange.count {
-			tempArr = releaseYearRange.object(at: i) as! NSMutableArray
-			resultArr.add(NSMutableArray(objects: "releaseYearRange", "\(tempArr.object(at: 0)) - \(tempArr.object(at: 1))"))
-		}
-		for i in 0 ..< releaseYear.count {
-			resultArr.add(NSMutableArray(objects: "releaseYear", releaseYear.object(at: i)))
-		}
-		for i in 0 ..< duration.count {
-			tempDuration = (duration.object(at: i) as! NSMutableArray) as! [TimeInterval]
-			tempArr = NSMutableArray(array: tempDuration.map{ ($0 as TimeInterval).stringFromTimeInterval() })
-			resultArr.add(NSMutableArray(objects: "duration", "\(tempArr.object(at: 0)) - \(tempArr.object(at: 1))"))
-		}
-		return resultArr
-	}
-	
-	mutating func deleteFilter(using arr: NSMutableArray) {
-		var tuple: NSMutableArray
-		var temp: [String]
-		var tempArr: NSMutableArray
-		for i in 0 ..< arr.count {
-			tuple = arr.object(at: i) as! NSMutableArray
-			if tuple.object(at: 0) as! String == "tags" {
-				tags.remove(tuple.object(at: 1) as! String)
-			} else if tuple.object(at: 0) as! String == "artists" {
-				artists.remove(tuple.object(at: 1) as! String)
-			} else if tuple.object(at: 0) as! String == "album" {
-				album.remove(tuple.object(at: 1) as! String)
-			} else if tuple.object(at: 0) as! String == "releaseYearRange" {
-				temp = ((tuple.object(at: 1) as! String).components(separatedBy: " - "))
-				tempArr = NSMutableArray(array: temp.map{ Int($0)! })
-				releaseYearRange.remove(tempArr)
-			} else if tuple.object(at: 0) as! String == "releaseYear" {
-				releaseYear.remove(tuple.object(at: 1) as! String)
-			} else if tuple.object(at: 0) as! String == "duration" {
-				temp = ((tuple.object(at: 1) as! String).components(separatedBy: " - "))
-				tempArr = NSMutableArray(array: temp.map{ ($0 as String).convertToTimeInterval() })
-				duration.remove(tempArr)
-			}
-		}
-	}
-	
-	mutating func addUniqueFilter(_ filters: NSMutableArray, type: FilterType) {
-		if [FilterType.tag, FilterType.artist, FilterType.album, FilterType.releaseYear].contains(type) {	// if type was equal to one of those types
-			addStringFilter(filters, type: type)
-		} else if type == FilterType.releaseYearRange {
-			addReleaseYrRangeFilter(filters)
-		} else if type == FilterType.duration {
-			addDurationFilter(filters)
-		} else {
-			return
-		}
-	}
-	
-	mutating fileprivate func addStringFilter (_ filters: NSMutableArray, type: FilterType) {
-		var resultArr: NSMutableArray
-		if type == FilterType.tag {
-			resultArr = tags
-		} else if type == FilterType.artist {
-			resultArr = artists
-		} else if type == FilterType.album {
-			resultArr = album
-		} else if type == FilterType.releaseYear {
-			resultArr = releaseYear
-		} else {
-			resultArr = NSMutableArray()
-		}
-		
-		var i = 0
-		while i < filters.count {
-			if !resultArr.contains(filters.object(at: i) as! String) {
-				resultArr.add(filters.object(at: i) as! String)
-			}
-			i += 1
-		}
-		
-		if type == FilterType.tag {
-			tags = resultArr
-		} else if type == FilterType.artist {
-			artists = resultArr
-		} else if type == FilterType.album {
-			album = resultArr
-		} else if type == FilterType.releaseYear {
-			releaseYear = resultArr
-		}
-	}
-	
-	mutating fileprivate func addReleaseYrRangeFilter (_ filters: NSMutableArray) {
-		// array of Int array: [lower value, upper value]
-		let tempObj = NSMutableArray(objects: filters.object(at: 0) as! Int, filters.object(at: 1) as! Int)
-		if !releaseYearRange.contains(tempObj) {
-			releaseYearRange.add(tempObj)
-		}
-	}
+    
+    enum FilterType: String {
+        case tag = "tags"
+        case artist = "artist"
+        case album = "album"
+        case releaseYearRange = "releaseYearRange"
+        case releaseYear = "releaseYear"
+        case duration = "duration"
+    }
 
-	mutating fileprivate func addDurationFilter (_ filters: NSMutableArray) {
-		// array of TimeInterval array: [lower value, upper value]
-		let tempObj = NSMutableArray(objects: filters.object(at: 0) as! TimeInterval, filters.object(at: 1) as! TimeInterval)
-		if !duration.contains(tempObj) {
-			duration.add(tempObj)
-		}
-	}
+    var tags: [String] = []
+    var artists: [String] = []
+    var albums: [String] = []
+    var releaseYearRanges: [[Int]] = []
+    var releaseYears: [Int] = []
+    var durations: [[TimeInterval]] = []
+    
+    // MARK: - Retrieve Filters
+    func getFilters() -> [[String]] {
+        var resultArr: [[String]] = []
+        // Tags
+        for tag in tags {
+            resultArr.append([FilterType.tag.rawValue, tag])
+        }
+        // Artists
+        for artist in artists {
+            resultArr.append([FilterType.artist.rawValue, artist])
+        }
+        // Albums
+        for album in albums {
+            resultArr.append([FilterType.album.rawValue, album])
+        }
+        // Release Year Ranges
+        for range in releaseYearRanges where range.count == 2 {
+            let value = "\(range[0]) - \(range[1])"
+            resultArr.append([FilterType.releaseYearRange.rawValue, value])
+        }
+        // Release Years
+        for year in releaseYears {
+            resultArr.append([FilterType.releaseYear.rawValue, "\(year)"])
+        }
+        // Durations
+        for durationRange in durations where durationRange.count == 2 {
+            let lower = durationRange[0].formattedString()
+            let upper = durationRange[1].formattedString()
+            let value = "\(lower) - \(upper)"
+            resultArr.append([FilterType.duration.rawValue, value])
+        }
+        return resultArr
+    }
+            
+    // MARK: - Delete Filters
+    mutating func deleteFilter(type: FilterType, value: Any) {
+        switch type {
+        case .tag:
+            if let val = value as? String { tags.removeAll { $0 == val } }
+        case .artist:
+            if let val = value as? String { artists.removeAll { $0 == val } }
+        case .album:
+            if let val = value as? String { albums.removeAll { $0 == val } }
+        case .releaseYearRange:
+            if let str = value as? String {
+                let parts = str.components(separatedBy: " - ").map { $0.trimmingCharacters(in: .whitespaces) }
+                releaseYearRanges.removeAll { $0 == [Int(parts[0]), Int(parts[1])] }
+            }
+        case .releaseYear:
+            if let year = Int(value as! String) { releaseYears.removeAll { $0 == year } }
+        case .duration:
+            if let str = value as? String {
+                let parts = str.components(separatedBy: " - ")
+                let times = parts.map { $0.convertToTimeInterval() }
+                // Remove any entry equal to this pair
+                durations.removeAll { $0 == times }
+            }
+        }
+    }
 
+    // MARK: - Add Unique Filters
+    
+    mutating func addUniqueFilter(type: FilterType, values: [Any]) {
+        switch type {
+        case .tag:
+            var newTags = tags
+            addUniqueStrings(&newTags, values: values as? [String] ?? [])
+            tags = newTags
+        case .artist:
+            var newArtists = artists
+            addUniqueStrings(&newArtists, values: values as? [String] ?? [])
+            artists = newArtists
+        case .album:
+            var newAlbums = albums
+            addUniqueStrings(&newAlbums, values: values as? [String] ?? [])
+            albums = newAlbums
+        case .releaseYearRange:
+            var newReleaseYearRanges = releaseYearRanges
+            addUniqueRanges(&newReleaseYearRanges, values: [values.compactMap { $0 as? Int }])
+            releaseYearRanges = newReleaseYearRanges
+        case .releaseYear:
+            var newReleaseYears = releaseYears
+            addUniqueInts(&newReleaseYears, values: values as? [Int] ?? [])
+            releaseYears = newReleaseYears
+        case .duration:
+            var newDurations = durations
+            addUniqueRanges(&newDurations, values: values as? [[TimeInterval]] ?? [])
+            durations = newDurations
+        }
+    }
+        
+    // MARK: - Helper Methods
+    
+    private mutating func addUniqueStrings(_ target: inout [String], values: [String]) {
+        for value in values where !target.contains(value) {
+            target.append(value)
+        }
+    }
+    
+    private mutating func addUniqueInts(_ target: inout [Int], values: [Int]) {
+        for value in values where !target.contains(value) {
+            target.append(value)
+        }
+    }
+    
+    private mutating func addUniqueRanges<T: Equatable>(_ target: inout [[T]], values: [[T]]) {
+        for value in values where !target.contains(value) {
+            target.append(value)
+        }
+    }
+    
+}
+
+// MARK: - TimeInterval Extension for Formatting
+
+extension TimeInterval {
+    func formattedString() -> String {
+        let time = NSInteger(self)
+        let seconds = time % 60
+        let minutes = (time / 60) % 60
+        return String(format: "%0.2d:%0.2d", minutes, seconds)
+    }
 }

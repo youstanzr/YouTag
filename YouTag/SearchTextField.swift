@@ -24,7 +24,7 @@ open class SearchTextField: UITextField {
     
     /// Indicate if keyboard is showing or not
     open var keyboardIsShowing = false
-
+    
     /// How long to wait before deciding typing has stopped
     open var typingStoppedDelay = 0.8
     
@@ -40,7 +40,7 @@ open class SearchTextField: UITextField {
                 
                 self.placeholderLabel?.textColor = placeholderColor
             }
-           
+            
             if let hightlightedFont = self.highlightAttributes[.font] as? UIFont {
                 self.highlightAttributes[.font] = hightlightedFont.withSize(self.theme.font.pointSize)
             }
@@ -114,7 +114,7 @@ open class SearchTextField: UITextField {
     
     /// Min number of characters to start filtering
     open var minCharactersNumberToStartFiltering: Int = 0
-
+    
     /// Force no filtering (display the entire filtered data source)
     open var forceNoFiltering: Bool = false
     
@@ -126,7 +126,7 @@ open class SearchTextField: UITextField {
     
     /// Set the results list's header
     open var resultsListHeader: UIView?
-
+    
     // Move the table around to customize for your layout
     open var tableXOffset: CGFloat = 0.0
     open var tableYOffset: CGFloat = 0.0
@@ -144,7 +144,7 @@ open class SearchTextField: UITextField {
     fileprivate var timer: Timer? = nil
     fileprivate var placeholderLabel: UILabel?
     fileprivate static let cellIdentifier = "APSearchTextFieldCell"
-    fileprivate let indicator = UIActivityIndicatorView(style: .gray)
+    fileprivate let indicator = UIActivityIndicatorView(style: .medium)
     fileprivate var maxTableViewSize: CGFloat = 0
     
     fileprivate var filteredResults = [SearchTextFieldItem]()
@@ -530,24 +530,19 @@ open class SearchTextField: UITextField {
     // MARK: - Prepare for draw table result
     
     fileprivate func prepareDrawTableResult() {
-        guard let frame = self.superview?.convert(self.frame, to: UIApplication.shared.keyWindow) else { return }
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.windows.first(where: { $0.isKeyWindow }) })
+            .first,
+              let frame = self.superview?.convert(self.frame, to: window) else { return }
+        
         if let keyboardFrame = keyboardFrame {
             var newFrame = frame
             newFrame.size.height += theme.cellHeight
             
-            if keyboardFrame.intersects(newFrame) {
-                direction = .up
-            } else {
-                direction = .down
-            }
-            
+            direction = keyboardFrame.intersects(newFrame) ? .up : .down
             redrawSearchTableView()
         } else {
-            if self.center.y + theme.cellHeight > UIApplication.shared.keyWindow!.frame.size.height {
-                direction = .up
-            } else {
-                direction = .down
-            }
+            direction = (self.center.y + theme.cellHeight > window.frame.size.height) ? .up : .down
         }
     }
 }

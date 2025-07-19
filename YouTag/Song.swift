@@ -8,28 +8,61 @@
 
 import Foundation
 
-struct Song : Codable{
-
-	var title: String
-	var artist: String
-	var id: String
-	var duration: String
-	var tags: [String]
-	
-	init() {
-		title = ""
-		artist = ""
-		id = ""
-		duration = ""
-		tags = []
-	}
-	
-	init(title: String, artist: String, id: String, duration: String, tags: [String]) {
-		self.title = title
-		self.artist = artist
-		self.id = id
-		self.duration = duration
-		self.tags = tags
-	}
-	
+struct Song: Codable, Equatable {
+    var title: String
+    var artists: [String]
+    var id: String
+    var duration: String
+    var tags: [String]
+    var album: String?
+    var releaseYear: String?
+    var lyrics: String?
+    var thumbnailPath: String?
+    var fileBookmark: Data?
+    
+    // Default initializer
+    init() {
+        self.title = ""
+        self.artists = []
+        self.id = ""
+        self.duration = ""
+        self.tags = []
+        self.album = nil
+        self.releaseYear = nil
+        self.lyrics = nil
+        self.thumbnailPath = nil
+        self.fileBookmark = nil
+    }
+    
+    // Custom initializer
+    init(id: String, title: String, artists: [String] = [], album: String? = nil, releaseYear: String? = nil, duration: String, lyrics: String? = nil, fileBookmark: Data? = nil, thumbnailPath: String? = nil, tags: [String] = []) {
+        self.id = id
+        self.title = title
+        self.artists = artists
+        self.album = album
+        self.releaseYear = releaseYear
+        self.duration = duration
+        self.lyrics = lyrics
+        self.fileBookmark = fileBookmark
+        self.thumbnailPath = thumbnailPath
+        self.tags = tags
+    }
+    
+    static func from(url: URL) -> Song {
+        let fileName = url.deletingPathExtension().lastPathComponent
+        let bookmark: Data? = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
+        
+        return Song(
+            id: UUID().uuidString,
+            title: fileName,
+            artists: [],
+            album: nil,
+            releaseYear: nil,
+            duration: "",
+            lyrics: nil,
+            fileBookmark: bookmark,
+            thumbnailPath: nil,
+            tags: []
+        )
+    }
 }

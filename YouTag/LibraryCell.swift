@@ -11,100 +11,146 @@ import MarqueeLabel
 
 class LibraryCell : UITableViewCell {
   
-	var songDict = Dictionary<String, Any>()
-	let thumbnailImageView: UIImageView = {
-		let imgView = UIImageView()
-		imgView.layer.cornerRadius = 5.0
-		imgView.layer.borderWidth = 1.0
-		imgView.layer.borderColor = UIColor.lightGray.cgColor
-		imgView.layer.masksToBounds = true
-		return imgView
-	}()
-	let titleLabel: MarqueeLabel = {
-		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
-		lbl.trailingBuffer = 40.0
-		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
-		lbl.textAlignment = .left
-		return lbl
-	}()
-	let artistLabel: MarqueeLabel = {
-		let lbl = MarqueeLabel.init(frame: .zero, duration: 8.0, fadeLength: 10.0)
-		lbl.textColor = GraphicColors.gray
-		lbl.trailingBuffer = 40.0
-		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
-		lbl.textAlignment = .left
-		return lbl
-	}()
-	let durationLabel: UILabel = {
-		let lbl = UILabel()
-		lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
-		lbl.textAlignment = .right
-		return lbl
-	}()
+    static let thumbnailCache = NSCache<NSString, UIImage>()
+    
+    // MARK: - UI Elements
+    private let thumbnailImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 5
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
 
-	
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = .label
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let artistLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let durationLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 1
+        label.textAlignment = .right
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-		self.backgroundColor = .clear
-		
-        self.contentView.addSubview(thumbnailImageView)
-		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
-		thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true
-		thumbnailImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-		thumbnailImageView.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -15).isActive = true
-		thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
-		
-        self.contentView.addSubview(titleLabel)
-		titleLabel.translatesAutoresizingMaskIntoConstraints = false
-		titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10).isActive = true
-		titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5).isActive = true
-		titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor, constant: 5).isActive = true
-		titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.55, constant: -5).isActive = true
-		
-		self.contentView.addSubview(artistLabel)
-		artistLabel.translatesAutoresizingMaskIntoConstraints = false
-		artistLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
-		artistLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 0.8).isActive = true
-		artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-		artistLabel.heightAnchor.constraint(equalTo: titleLabel.heightAnchor).isActive = true
-
-		self.contentView.addSubview(durationLabel)
-		durationLabel.translatesAutoresizingMaskIntoConstraints = false
-		durationLabel.leadingAnchor.constraint(equalTo: artistLabel.trailingAnchor).isActive = true
-		durationLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 0.2).isActive = true
-		durationLabel.topAnchor.constraint(equalTo: artistLabel.topAnchor).isActive = true
-		durationLabel.heightAnchor.constraint(equalTo: artistLabel.heightAnchor).isActive = true
+        setupUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-	
-	func refreshCell() {
-		self.titleLabel.text = songDict["title"] as? String
-		self.artistLabel.text = (songDict["artists"] as? NSArray ?? NSArray())!.componentsJoined(by: ", ")
-		let imageData = try? Data(contentsOf: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songDict["id"] as? String ?? "").jpg"))
-		if let imgData = imageData {
-			self.thumbnailImageView.image = UIImage(data: imgData)
-		} else {
-			self.thumbnailImageView.image = UIImage(named: "placeholder")
-		}
-		self.durationLabel.text = songDict["duration"] as? String
-		
-		titleLabel.labelize = true
-		titleLabel.restartLabel()
-		if titleLabel.text!.isRTL {
-			titleLabel.type = .continuousReverse
-		} else {
-			titleLabel.type = .continuous
-		}
 
-		artistLabel.labelize = true
-		artistLabel.restartLabel()
-		if artistLabel.text!.isRTL {
-			artistLabel.type = .continuousReverse
-		} else {
-			titleLabel.type = .continuous
-		}
-	}
+    // MARK: - Cell Configuration
+    func refreshCell(with song: Song) {
+        titleLabel.text = song.title.isEmpty ? "Unknown Title" : song.title
+        let artistsText = song.artists.joined(separator: ", ")
+        artistLabel.text = artistsText.isEmpty ? "" : artistsText
+        durationLabel.text = song.duration
+
+        loadThumbnail(from: song.thumbnailPath)
+    }
+
+    // MARK: - Thumbnail Loading
+//    private func loadThumbnail(from path: String?) {
+//        // Build the full URL under Documents/.images
+//        guard let filename = path, !filename.isEmpty else {
+//            thumbnailImageView.image = UIImage(named: "placeholder")
+//            return
+//        }
+//
+//        let fileURL = LocalFilesManager.getImageFileURL(for: filename)
+//        
+//        DispatchQueue.global(qos: .background).async {
+//            if let data = try? Data(contentsOf: fileURL),
+//               let image = UIImage(data: data) {
+//                DispatchQueue.main.async {
+//                    self.thumbnailImageView.image = image
+//                }
+//            } else {
+//                DispatchQueue.main.async {
+//                    self.thumbnailImageView.image = UIImage(named: "placeholder")
+//                }
+//            }
+//        }
+//    }
+    
+    private func loadThumbnail(from path: String?) {
+      guard let filename = path, !filename.isEmpty else {
+        thumbnailImageView.image = UIImage(named: "placeholder")
+        return
+      }
+
+      // 1) Check cache
+      if let img = LibraryCell.thumbnailCache.object(forKey: filename as NSString) {
+        thumbnailImageView.image = img
+        return
+      }
+
+      // 2) Not cached -> fetch from disk async
+      let fileURL = LocalFilesManager.getImageFileURL(for: filename)
+      DispatchQueue.global(qos: .background).async {
+        let img: UIImage?
+        if let data = try? Data(contentsOf: fileURL) {
+          img = UIImage(data: data)
+        } else {
+          img = UIImage(named: "placeholder")
+        }
+        DispatchQueue.main.async {
+          // 3) Cache and display
+          if let img = img {
+            LibraryCell.thumbnailCache.setObject(img, forKey: filename as NSString)
+          }
+          self.thumbnailImageView.image = img
+        }
+      }
+    }
+
+    // MARK: - Setup UI
+    private func setupUI() {
+        contentView.addSubview(thumbnailImageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(artistLabel)
+        contentView.addSubview(durationLabel)
+
+        NSLayoutConstraint.activate([
+            thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            thumbnailImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            thumbnailImageView.widthAnchor.constraint(equalToConstant: 60),
+            thumbnailImageView.heightAnchor.constraint(equalToConstant: 60),
+
+            titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: durationLabel.leadingAnchor, constant: -10),
+
+            artistLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
+            artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            artistLabel.trailingAnchor.constraint(lessThanOrEqualTo: durationLabel.leadingAnchor, constant: -10),
+
+            durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            durationLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            durationLabel.widthAnchor.constraint(equalToConstant: 60)
+        ])
+    }
+
 }

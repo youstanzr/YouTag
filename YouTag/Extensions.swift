@@ -13,8 +13,14 @@ import AVFoundation
 // MARK: UIApplication
 extension UIApplication {
 	
-	class func getCurrentViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
-		
+    class func getCurrentViewController(base: UIViewController? = {
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }?
+            .rootViewController
+    }()) -> UIViewController? {
+
 		if let nav = base as? UINavigationController {
 			return getCurrentViewController(base: nav.visibleViewController)
 			
@@ -47,7 +53,7 @@ extension UIViewController {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
 
-		let ai = UIActivityIndicatorView.init(style: .whiteLarge)
+        let ai = UIActivityIndicatorView(style: .large)
         ai.startAnimating()
         ai.center = spinnerView.center
         

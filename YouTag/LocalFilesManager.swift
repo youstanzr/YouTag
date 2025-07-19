@@ -8,136 +8,177 @@
 
 import UIKit
 import AVFoundation
-import Alamofire
 
 class LocalFilesManager {
-	
-	required init?(coder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
+    
+    // MARK: - File Paths
+    /// Get the file URL for metadata storage (DB, images) in the app’s directory
+    static func getMetadataFileURL(for fileName: String) -> URL {
+        let appDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return appDirectory.appendingPathComponent(fileName)
+    }
+    
+    /// Get the file URL for images stored in the `.images` directory
+    static func getImageFileURL(for fileName: String) -> URL {
+        return getMetadataFileURL(for: ".images/\(fileName)")
+    }
 
-	static func getLocalFileURL(withNameAndExtension fileName_ext: String) -> URL {
-		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName_ext)
-	}
-	
-	static func getLocalFileSize(fileName_ext: String) -> String {
-		do {
-			let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-			let documentsDirectory = paths[0]
-			let dataPathStr = documentsDirectory + "/\(fileName_ext)"
-			let attr = try FileManager.default.attributesOfItem(atPath: dataPathStr)
-			let fileSize = attr[FileAttributeKey.size] as! UInt64
-			return ByteCountFormatter().string(fromByteCount: Int64(bitPattern: fileSize))
-		} catch {
-			print("Error: \(error.localizedDescription)")
-			return ""
-		}
-	}
-	
-	static func downloadFile(from link: URL, filename: String, extension ext: String, completion: ((Error?) -> Void)? = nil) {
-		let destination: DownloadRequest.Destination = { _, _ in
-			let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-			let fileURL = documentsURL.appendingPathComponent(filename + "." + ext)
+    /// Resolve stored security‑scoped bookmark data into a URL
+    static func getMediaFileURL(from bookmarkData: Data) -> URL? {
+        var isStale = false
+        do {
+            let url = try URL(
+                resolvingBookmarkData: bookmarkData,
+                options: [],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            )
+            if isStale {
+                print("Warning: bookmark data was stale for URL \(url)")
+            }
+            return url
+        } catch {
+            print("Error resolving bookmark data: \(error)")
+            return nil
+        }
+    }
 
-			return (fileURL, [.removePreviousFile, .createIntermediateDirectories])
-		}
+    /// Convenience: get media URL directly from a Song’s bookmark
+    static func getMediaFileURL(for song: Song) -> URL? {
+        guard let bm = song.fileBookmark else { return nil }
+        return getMediaFileURL(from: bm)
+    }
 
-		AF.download(link, to: destination).downloadProgress { progress in
-			UIApplication.getCurrentViewController()?.updateProgressView(to: progress.fractionCompleted)
-		}.response { response in
-			if response.error == nil, let filePath = response.fileURL?.path {
-				print("Downloaded successfully to " + filePath)
-				completion?(nil)
-			} else {
-				print("Error downlaoding file: " + (response.error?.localizedDescription ?? "Unknown error"))
-				completion?(response.error)
-			}
-		}
-	}
-	
-	static func extractAudioFromVideo(songID: String, completion: ((Error?) -> Void)? = nil) {
-		print("Extracting audio from video")
-		let in_url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("\(songID).mp4")
-		let out_url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("\(songID).m4a")
-		let asset = AVURLAsset(url: in_url)
-		
-		asset.writeAudioTrack(to: out_url, success: {
-			print("Converted video-mp4 to audio-m4a: \(out_url.absoluteString)")
-			completion?(nil)
-		}) { (error) in
-			print(error.localizedDescription)
-			completion?(error)
-		}
-	}
-	
-	static func extractDurationForSong(songID: String, songExtension: String) -> String {
-		let asset = AVAsset(url: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).\(songExtension)"))
-		return TimeInterval(CMTimeGetSeconds(asset.duration)).stringFromTimeInterval()
-	}
+    /// Creates and returns bookmark data for a given file URL, handling security-scoped access.
+    static func getBookmarkData(for url: URL) -> Data? {
+        do {
+            guard url.startAccessingSecurityScopedResource() else {
+                print("⚠️ Could not access security scoped resource for bookmark: \(url)")
+                return nil
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+            let bookmark = try url.bookmarkData(
+                options: [],
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            )
+            return bookmark
+        } catch {
+            print("🔴 Failed to create bookmark for url \(url): \(error)")
+            return nil
+        }
+    }
 
-	static func extractSongMetadata(songID: String, songExtension: String) -> Dictionary<String, Any> {
-		var dict = Dictionary<String, Any>()
-		let asset = AVAsset(url: LocalFilesManager.getLocalFileURL(withNameAndExtension: "\(songID).\(songExtension)"))
-		for item in asset.metadata {
-//			print(String(describing: item.commonKey?.rawValue) + "\t" + String(describing: item.key) + " -> " + String(describing: item.value))
-			guard let key = item.commonKey?.rawValue ?? item.key?.description, let value = item.value else {
-				continue
-			}
-			dict[key] = value
-		}
-		return dict
-	}
+    // MARK: - File Operations
+    
+    /// Get the size of a file as a formatted string
+    static func getLocalFileSize(fileURL: URL) -> String {
+        do {
+            let attr = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+            let fileSize = attr[FileAttributeKey.size] as! UInt64
+            return ByteCountFormatter().string(fromByteCount: Int64(bitPattern: fileSize))
+        } catch {
+            print("Error @getLocalFileSize: \(error.localizedDescription)")
+            return ""
+        }
+    }
 
-	static func saveImage(_ image: UIImage?, withName filename: String) {
-		guard let img = image else {
-			return
-		}
-		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-		let documentsDirectory = paths[0]
-		let dataPathStr = documentsDirectory + "/" + filename + ".jpg"
-		
-		let dataPath = URL(fileURLWithPath: dataPathStr)
-		do {
-			try img.jpegData(compressionQuality: 1.0)?.write(to: dataPath, options: .atomic)
-		} catch {
-			print("file cant not be save at path \(dataPath), with error : \(error)");
-		}
-	}
+    /// Check if a file exists at a given path
+    static func checkFileExist(_ fileURL: URL) -> Bool {
+        return FileManager.default.fileExists(atPath: fileURL.path)
+    }
 
-	static func deleteFile(withNameAndExtension filename_ext: String) -> Bool {
-		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-		let documentsDirectory = paths[0]
-		let dataPathStr = documentsDirectory + "/" + filename_ext
-		if FileManager.default.fileExists(atPath: dataPathStr) {
-			do {
-				try FileManager.default.removeItem(atPath: dataPathStr)
-				print("Removed file: \(dataPathStr)")
-			} catch let removeError {
-				print("couldn't remove file at path", removeError.localizedDescription)
-				return false
-			}
-		}
-		return true
-	}
-	
-	static func checkFileExist (_ filename_ext: String) -> Bool {
-		let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-		let documentsDirectory = paths[0]
-		let dataPathStr = documentsDirectory + "/" + filename_ext
-		return FileManager.default.fileExists(atPath: dataPathStr)
-	}
-	
-	static func clearTmpDirectory() {
-		do {
-			let tmpDirURL = FileManager.default.temporaryDirectory
-			let tmpDirectory = try FileManager.default.contentsOfDirectory(atPath: tmpDirURL.path)
-			try tmpDirectory.forEach { file in
-				let fileUrl = tmpDirURL.appendingPathComponent(file)
-				try FileManager.default.removeItem(atPath: fileUrl.path)
-			}
-		} catch {
-			print("Cleaning Tmp Directory Failed: " + error.localizedDescription)
-		}
-	}
+    /// Delete a file
+    static func deleteFile(at fileURL: URL) -> Bool {
+        if checkFileExist(fileURL) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+                print("Removed file: \(fileURL.path)")
+                return true
+            } catch let removeError {
+                print("Couldn't remove file at path", removeError.localizedDescription)
+                return false
+            }
+        }
+        return false
+    }
+
+    
+    // MARK: - Metadata Extraction
+    
+    /// Extract duration of a media file
+    static func extractDurationForSong(fileURL: URL) async -> String {
+        let asset = AVAsset(url: fileURL)
+        do {
+            // Load duration using async/await
+            let duration: CMTime = try await asset.load(.duration)
+            return TimeInterval(duration.seconds).stringFromTimeInterval()
+        } catch {
+            print("Error loading duration for \(fileURL): \(error)")
+            return "00:00"
+        }
+    }
+
+    /// Extract metadata from a media file
+    static func extractSongMetadata(from fileURL: URL) async -> [String: Any] {
+        var dict: [String: Any] = [:]
+        let asset = AVAsset(url: fileURL)
+        do {
+            // Load all metadata items asynchronously
+            let items: [AVMetadataItem] = try await asset.load(.metadata)
+            for item in items {
+                // Load the item's value
+                if let key = item.commonKey?.rawValue ?? (item.key as? String),
+                   let value = try await item.load(.value) {
+                    dict[key] = value
+                }
+            }
+        } catch {
+            print("Error loading metadata for \(fileURL): \(error)")
+        }
+        return dict
+    }
+
+    // MARK: - Image Handling
+    
+    /// Save an image to the `.images` directory, ensuring the directory exists. Returns the saved file URL.
+    static func saveImage(_ image: UIImage, withName name: String) -> URL? {
+        // Ensure images directory exists
+        ensureImagesDirectoryExists()
+        guard let data = image.jpegData(compressionQuality: 0.9) else { return nil }
+        let fileURL = getImageFileURL(for: "\(name).jpg")
+        do {
+            try data.write(to: fileURL)
+            return fileURL
+        } catch {
+            print("Error saving image: \(error)")
+            return nil
+        }
+    }
+
+    /// Deletes an image from the `.images` directory by filename.
+    /// - Parameter fileName: The image’s filename (e.g. "abc123.jpg").
+    /// - Returns: True if deletion succeeded, false otherwise.
+    static func deleteImage(named fileName: String?) {
+        // Ensure we have a valid filename
+        guard let name = fileName, !name.isEmpty else { return }
+        // Build the URL in the images directory
+        let url = getImageFileURL(for: name)
+        // Use the existing deleteFile helper
+        _ = deleteFile(at: url)
+    }
+
+    /// Ensure the `.images` directory exists, creating it if necessary.
+    static func ensureImagesDirectoryExists() {
+        let imagesDir = getMetadataFileURL(for: ".images")
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: imagesDir.path) {
+            do {
+                try fm.createDirectory(at: imagesDir, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Error creating images directory: \(error)")
+            }
+        }
+    }
 
 }

@@ -54,5 +54,15 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>NSDocumentsDirectoryUsageDescription</key>
+    <string>This app needs access to your files to play and tag your media.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to your media files to add them to your library.</string>
 </dict>
 </plist>

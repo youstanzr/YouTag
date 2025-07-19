@@ -8,164 +8,132 @@
 
 import UIKit
 
-protocol PlaylistLibraryViewDelegate: class {
-	func didSelectSong(songDict: Dictionary<String, Any>)
+protocol PlaylistLibraryViewDelegate: AnyObject {
+    func didSelectSong(song: Song)
 }
 
 class PlaylistLibraryView: LibraryTableView {
 
-	weak var PLDelegate: PlaylistLibraryViewDelegate?
-	
-	var playlistArray = NSMutableArray()
-	private struct LongPressPersistentValues {
-		static var indexPath: IndexPath?
-		static var cellSnapShot: UIView?
-	}
+    weak var PLDelegate: PlaylistLibraryViewDelegate?
 
-	
+    private var longPressValues: (indexPath: IndexPath?, cellSnapShot: UIView?) = (nil, nil)
+    
+    // MARK: - Initializers
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
-	override init(frame: CGRect, style: UITableView.Style) {
-		super.init(frame: frame, style: style)
-		playlistArray = LM.libraryArray
-		let longpress = UILongPressGestureRecognizer(target: self, action: #selector(longPressGestureRecognized(gestureRecognizer:)))
-		longpress.minimumPressDuration = 0.3
-		self.addGestureRecognizer(longpress)
+    override init(frame: CGRect, style: UITableView.Style) {
+        super.init(frame: frame, style: style)
+        addLongPressGesture()
     }
-	
-	override func refreshTableView() {
-		self.reloadData()
-	}
-		
-	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return playlistArray.count-1
+
+    // MARK: - Log Press Gesture Event
+    private func addLongPressGesture() {
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressGestureRecognized(_:)))
+        longPress.minimumPressDuration = 0.3
+        self.addGestureRecognizer(longPress)
     }
-    
-	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath as IndexPath) as! LibraryCell
 
-		let songDict = playlistArray.object(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count) as! Dictionary<String, Any>
-		cell.songDict = songDict
-		cell.refreshCell()
-		return cell
-	}
-	
-	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		let cell = tableView.cellForRow(at: indexPath) as! LibraryCell
-
-		print("Selected cell number \(indexPath.row) -> \(cell.songDict["title"] ?? "")")
-
-		playlistArray.insert(playlistArray.lastObject!, at: 0)
-		playlistArray.removeLastObject()
-		playlistArray.remove(cell.songDict)
-		playlistArray.add(cell.songDict)
-		
-		tableView.deselectRow(at: indexPath, animated: false)
-		tableView.reloadData()
-		
-		PLDelegate?.didSelectSong(songDict: cell.songDict)
+    // MARK: - UITableView Data Source
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return max(0, PlaylistManager.shared.currentPlaylist.count - 1)
     }
-	
-	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-		if (editingStyle == .delete) {
-			playlistArray.removeObject(at: (playlistArray.count - 2 - indexPath.row) % playlistArray.count)
-			tableView.reloadData()
-		}
-	}
 
-	// MARK: Long pressing gesture to rearrange cells
-	@objc func longPressGestureRecognized(gestureRecognizer: UIGestureRecognizer) {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "LibraryCell", for: indexPath) as? LibraryCell else {
+            return UITableViewCell()
+        }
+        
+        guard !PlaylistManager.shared.currentPlaylist.isEmpty else { return UITableViewCell() }
 
-		let longpress = gestureRecognizer as! UILongPressGestureRecognizer
-		let state = longpress.state
-		var locationInView = longpress.location(in: self)
+        let adjustedIndex = (PlaylistManager.shared.currentPlaylist.count - 2 - indexPath.row) % PlaylistManager.shared.currentPlaylist.count
+        let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
+        
+        cell.refreshCell(with: song)
+        return cell
+    }
 
-		if (locationInView.y - self.contentOffset.y < 0) {
-			locationInView.y = self.contentOffset.y
-		} else if (locationInView.y - self.contentOffset.y > self.frame.height) {
-			locationInView.y = self.contentOffset.y + self.frame.height
-		}
+    // MARK: - UITableView Delegate
 
-		guard let indexPath = self.indexPathForRow(at: locationInView) else { return }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let adjustedIndex = (PlaylistManager.shared.currentPlaylist.count - 2 - indexPath.row) % PlaylistManager.shared.currentPlaylist.count
+        let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
 
-		switch state {
-			case .began:
-				LongPressPersistentValues.indexPath = indexPath
-				let cell = self.cellForRow(at: indexPath) as! LibraryCell
-				LongPressPersistentValues.cellSnapShot = cell.snapshotOfView()
-				var center = cell.center
-				LongPressPersistentValues.cellSnapShot?.center = center
-				LongPressPersistentValues.cellSnapShot?.alpha = 0.0
-				self.addSubview(LongPressPersistentValues.cellSnapShot!)
+        print("Selected cell number \(indexPath.row) -> \(song.title)")
+        
+        // Rotate playlist so selected song plays last
+        PlaylistManager.shared.currentPlaylist.insert(PlaylistManager.shared.currentPlaylist.last!, at: 0)
+        PlaylistManager.shared.currentPlaylist.removeLast()
+        PlaylistManager.shared.currentPlaylist.removeAll { $0.id == song.id }
 
-				UIView.animate(withDuration: 0.25, animations: {
-					center.y = locationInView.y
-					LongPressPersistentValues.cellSnapShot?.center = center
-					LongPressPersistentValues.cellSnapShot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
-					LongPressPersistentValues.cellSnapShot?.alpha = 0.98
-					cell.alpha = 0.0
-				}, completion: { (finished) -> Void in
-					if finished {
-						cell.isHidden = true
-					}
-				})
+        PlaylistManager.shared.currentPlaylist.append(song)
 
-			case .changed:
-				var center = LongPressPersistentValues.cellSnapShot?.center
-				center?.y = locationInView.y
-				LongPressPersistentValues.cellSnapShot?.center = center!
-//				print(self.contentOffset.y ,locationInView.y, self.frame.height)
-//				print(indexPath.row as Any, self.indexPathForRow(at: center!)?.row as Any)
+        tableView.deselectRow(at: indexPath, animated: false)
+        tableView.reloadData()
+        
+        PLDelegate?.didSelectSong(song: song)
+    }
 
-				if (indexPath != LongPressPersistentValues.indexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let adjustedIndex = (PlaylistManager.shared.currentPlaylist.count - 2 - indexPath.row) % PlaylistManager.shared.currentPlaylist.count
+            PlaylistManager.shared.currentPlaylist.remove(at: adjustedIndex)
+            tableView.reloadData()
+        }
+    }
 
-//					//AutoScroll
-//					if (locationInView.y - self.contentOffset.y < self.frame.height*0.2 && indexPath.row > 1) {
-//
-//						print("move up")
-////						var p = self.contentOffset
-////						p.y -= (self.cellForRow(at: self.indexPathsForVisibleRows![1])?.frame.height)!
-////						self.setContentOffset(p, animated: true)
-//						var indexP = indexPath
-//						indexP.row -= 1
-//						self.scrollToRow(at: indexPath, at: .top, animated: true)
-//					}
-//					else if (locationInView.y - self.contentOffset.y > self.frame.height*0.8 && indexPath.row < playlistArray.count) {
-//
-//						print("move down")
-////						var p = self.contentOffset
-////						p.y += (self.cellForRow(at: self.indexPathsForVisibleRows!.last!)?.frame.height)!
-////						self.setContentOffset(p, animated: true)
-//						var indexP = indexPath
-//						indexP.row += 1
-//						self.scrollToRow(at: indexPath, at: .bottom, animated: true)
-//					}
-
-					playlistArray.exchangeObject(at: playlistArray.count-indexPath.row-2, withObjectAt: playlistArray.count-(LongPressPersistentValues.indexPath?.row)!-2)
-					self.moveRow(at: LongPressPersistentValues.indexPath!, to: self.indexPathForRow(at: center!)!)
-
-					LongPressPersistentValues.indexPath = indexPath
-			}
-
-			default:
-				let cell = self.cellForRow(at: LongPressPersistentValues.indexPath!) as! LibraryCell
-				cell.isHidden = false
-				cell.alpha = 0.0
-				UIView.animate(withDuration: 0.25, animations: {
-					LongPressPersistentValues.cellSnapShot?.center = cell.center
-					LongPressPersistentValues.cellSnapShot?.transform = .identity
-					LongPressPersistentValues.cellSnapShot?.alpha = 0.0
-					cell.alpha = 1.0
-				}, completion: { (finished) -> Void in
-					if finished {
-						LongPressPersistentValues.indexPath = nil
-						LongPressPersistentValues.cellSnapShot?.removeFromSuperview()
-						LongPressPersistentValues.cellSnapShot = nil
-					}
-				})
-		}
-	}
-
+    // MARK: - Long Press Gesture for Rearranging Cells
+    @objc private func longPressGestureRecognized(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        let locationInView = gestureRecognizer.location(in: self)
+        guard let indexPath = self.indexPathForRow(at: locationInView) else { return }
+        
+        switch gestureRecognizer.state {
+        case .began:
+            guard let cell = self.cellForRow(at: indexPath) as? LibraryCell else { return }
+            longPressValues.indexPath = indexPath
+            longPressValues.cellSnapShot = cell.snapshotOfView()
+            longPressValues.cellSnapShot?.center = cell.center
+            longPressValues.cellSnapShot?.alpha = 0.0
+            self.addSubview(longPressValues.cellSnapShot!)
+            
+            UIView.animate(withDuration: 0.25) {
+                self.longPressValues.cellSnapShot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
+                self.longPressValues.cellSnapShot?.alpha = 0.98
+                cell.alpha = 0.0
+            } completion: { finished in
+                if finished {
+                    cell.isHidden = true
+                }
+            }
+            
+        case .changed:
+            guard let cellSnapShot = longPressValues.cellSnapShot else { return }
+            cellSnapShot.center.y = locationInView.y
+            
+            if indexPath != longPressValues.indexPath {
+                PlaylistManager.shared.currentPlaylist.swapAt(indexPath.row, longPressValues.indexPath!.row)
+                self.moveRow(at: longPressValues.indexPath!, to: indexPath)
+                longPressValues.indexPath = indexPath
+            }
+            
+        default:
+            guard let originalIndexPath = longPressValues.indexPath,
+                  let cell = self.cellForRow(at: originalIndexPath) as? LibraryCell else { return }
+            
+            UIView.animate(withDuration: 0.25) {
+                self.longPressValues.cellSnapShot?.center = cell.center
+                self.longPressValues.cellSnapShot?.transform = .identity
+                self.longPressValues.cellSnapShot?.alpha = 0.0
+                cell.alpha = 1.0
+            } completion: { finished in
+                if finished {
+                    self.longPressValues.cellSnapShot?.removeFromSuperview()
+                    self.longPressValues = (nil, nil)
+                    cell.isHidden = false
+                }
+            }
+        }
+    }
 }

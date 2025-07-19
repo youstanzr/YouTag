@@ -45,7 +45,6 @@ class YYTTagCell: UICollectionViewCell {
 	fileprivate var titleLabelDefaultLeadingAnchor: NSLayoutConstraint?
 	fileprivate var titleLabelWithImageLeadingAnchor: NSLayoutConstraint?
 
-
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.layer.cornerRadius = self.frame.height / 2.0
@@ -88,14 +87,20 @@ class YYTTagCell: UICollectionViewCell {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-	func refreshImageView() {
-		imageView.isHidden = false
-		imageView.image = image
-		titleLabelDefaultLeadingAnchor?.isActive = false
-		titleLabelWithImageLeadingAnchor?.isActive = true
-		self.layoutIfNeeded()
-	}
-	
+    func refreshImageView() {
+        if let img = image {
+            imageView.isHidden = false
+            imageView.image = img
+            titleLabelDefaultLeadingAnchor?.isActive = false
+            titleLabelWithImageLeadingAnchor?.isActive = true
+        } else {
+            imageView.isHidden = true
+            titleLabelDefaultLeadingAnchor?.isActive = true
+            titleLabelWithImageLeadingAnchor?.isActive = false
+        }
+        self.layoutIfNeeded()
+    }
+    
 	func switchMode(enableEditing: Bool) {
 		textField.text = ""
 		if enableEditing {

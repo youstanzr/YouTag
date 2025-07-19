@@ -1,34 +1,24 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "Alamofire",
-        "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
-        "state": {
-          "branch": null,
-          "revision": "eaf6e622dd41b07b251d8f01752eab31bc811493",
-          "version": "5.4.1"
-        }
-      },
-      {
-        "package": "MarqueeLabel",
-        "repositoryURL": "https://github.com/cbpowell/MarqueeLabel",
-        "state": {
-          "branch": null,
-          "revision": "d92fe1583dbf43fa3b70229a49fa7da6b36750d4",
-          "version": "4.0.5"
-        }
-      },
-      {
-        "package": "XCDYouTubeKit",
-        "repositoryURL": "https://github.com/0xced/XCDYouTubeKit",
-        "state": {
-          "branch": null,
-          "revision": "23f765941b36d6d28215ab81a37af1039d29138b",
-          "version": "2.15.2"
-        }
+  "originHash" : "b1b90d8f51e8324d59bb87f1b203fd6d14b0586bbfbb52b98c4616057b97de52",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "marqueelabel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cbpowell/MarqueeLabel",
+      "state" : {
+        "revision" : "877e810534cda9afabb8143ae319b7c3341b121b",
+        "version" : "4.5.0"
+      }
+    }
+  ],
+  "version" : 3
 }
