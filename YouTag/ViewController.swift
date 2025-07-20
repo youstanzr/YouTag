@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SQLite3
 
 // TODO: tags added in Library table view cell
 // TODO: make db, images, and songs in the app folder
@@ -108,7 +107,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         view.addSubview(filterButton)
         
         // Tags View
-        tagsView = YYTFilterTagView(frame: .zero, tagsList: [], isDeleteEnabled: true)
+        tagsView = YYTFilterTagView(frame: .zero, tupleTags: [], isDeleteEnabled: true)
         tagsView.yytdelegate = self
         view.addSubview(tagsView)
         
@@ -252,6 +251,22 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                 playlistManager.playlistFilters.addUniqueFilter(type: type, values: durationFilters)
         }
         playlistManager.computePlaylist()
-        tagsView.updateTags(with: playlistManager.playlistFilters.getFilters())
+        // Update tags view using helper conversion
+        let rawFilters = playlistManager.playlistFilters.getFilters()
+        let tupleFilters = convertFiltersToTuples(rawFilters)
+        tagsView.updateTags(with: tupleFilters)
     }
+    
+    // MARK: Helpers
+    /// Converts an array of [String] pairs into [(FilterType, String)] tuples.
+    private func convertFiltersToTuples(_ rawFilters: [[String]]) -> [(PlaylistFilters.FilterType, String)] {
+        return rawFilters.compactMap { pair in
+            guard pair.count == 2,
+                  let filterType = PlaylistFilters.FilterType(rawValue: pair[0]) else {
+                return nil
+            }
+            return (filterType, pair[1])
+        }
+    }
+
 }

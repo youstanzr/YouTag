@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         /*
          To allow the sound continue playing in background mode
-         AVAudioSession:	An intermediary object that communicates to the system how you intend to use audio in your app.
+         AVAudioSession: An intermediary object that communicates to the system how you intend to use audio in your app.
          */
         configureAudioSession()
 
@@ -29,9 +29,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             name: AVAudioSession.interruptionNotification,
             object: nil
         )
-                
-        LibraryManager.shared.setupDatabase()
         
+        // Prepare App Data
+        LibraryManager.shared.setupDatabase()
+        LocalFilesManager.ensureImagesDirectoryExists()
+        LocalFilesManager.getSongsDirectoryURL()
+
         return true
     }
     
@@ -43,12 +46,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-        LibraryManager.shared.closeDatabase()
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-        LibraryManager.shared.setupDatabase()
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -58,7 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
-        LibraryManager.shared.closeDatabase()
     }
     
     

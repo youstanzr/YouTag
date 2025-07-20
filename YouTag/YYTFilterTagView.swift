@@ -10,20 +10,21 @@ import UIKit
 
 class YYTFilterTagView: YYTTagView {
     
-    private var tupleTags: [[String]] = [[]]
+    private var tupleTags: [(PlaylistFilters.FilterType, String)] = []
 
-    init(frame: CGRect, tagsList: [[String]], isDeleteEnabled: Bool) {
-        let extractedTags = tagsList.compactMap { $0.count > 1 ? $0[1] : nil } // Avoid out-of-bounds error
-        super.init(frame: frame, tagsList: extractedTags, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled, suggestionDataSource: nil)
+    init(frame: CGRect, tupleTags: [(PlaylistFilters.FilterType, String)], isDeleteEnabled: Bool) {
+        self.tupleTags = tupleTags
+        let titles = tupleTags.map { $0.1 }
+        super.init(frame: frame, tagsList: titles, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled, suggestionDataSource: nil)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateTags(with newTags: [[String]]) {
+    func updateTags(with newTags: [(PlaylistFilters.FilterType, String)]) {
         self.tupleTags = newTags
-        self.tagsList = newTags.compactMap { $0[1] }
+        self.tagsList = newTags.map { $0.1 }
         self.reloadData() // Refresh UI
     }
     
@@ -32,7 +33,9 @@ class YYTFilterTagView: YYTTagView {
         selectedTagList.removeAll { $0 == tagsList[actualIndex] }
         tagsList.remove(at: actualIndex)
         tupleTags.remove(at: actualIndex)
-        yytdelegate?.tagsListChanged(newTagsList: tupleTags)
+        // Convert tupleTags back into [[String]] for the delegate
+        let stringArray = tupleTags.map { [$0.0.rawValue, $0.1] }
+        yytdelegate?.tagsListChanged(newTagsList: stringArray)
         reloadData()
     }
 
@@ -40,28 +43,26 @@ class YYTFilterTagView: YYTTagView {
         tagsList.removeAll()
         tupleTags.removeAll()
         selectedTagList.removeAll()
-        yytdelegate?.tagsListChanged(newTagsList: tupleTags)
+        // Notify delegate with an empty array of string tuples
+        yytdelegate?.tagsListChanged(newTagsList: [])
         reloadData()
     }
 
-    
-    func getImageForType(_ type: String) -> UIImage {
-        switch type {
-            case "tags":
-                return UIImage(named: "tag")!
-            case "artist":
-                return UIImage(named: "artist")!
-            case "album":
-                return UIImage(named: "album")!
-            case "releaseYearRange":
-                return UIImage(named: "calendar")!
-            case "releaseYear":
-                return UIImage(named: "calendar")!
-            case "duration":
-                return UIImage(named: "duration")!
-            default:
-                return UIImage()
+    private func getImageForType(_ filter: PlaylistFilters.FilterType) -> UIImage {
+        let imageName: String
+        switch filter {
+        case .tag:
+            imageName = "tag"
+        case .artist:
+            imageName = "artist"
+        case .album:
+            imageName = "album"
+        case .releaseYear, .releaseYearRange:
+            imageName = "calendar"
+        case .duration:
+            imageName = "duration"
         }
+        return UIImage(named: imageName) ?? UIImage()
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -82,12 +83,12 @@ class YYTFilterTagView: YYTTagView {
             tagCell.textField.textColor = .darkGray
             tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
             tagCell.layer.borderColor = GraphicColors.orange.cgColor
-            
+
             let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
-            let tuple = tupleTags[index]
-            tagCell.titleLabel.text = tuple[1]
-            tagCell.desc = tuple[0]
-            tagCell.image = getImageForType(tagCell.desc)
+            let (filter, title) = tupleTags[index]
+            tagCell.titleLabel.text = title
+            tagCell.desc = filter.rawValue
+            tagCell.image = getImageForType(filter)
         }
         return tagCell
     }

@@ -103,21 +103,39 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
     // MARK: - Document Picker Delegate
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
+            // Initialize a Song model with defaults
             var song = Song.from(url: url)
-            Task {
-                // 1) Extract duration via helper
-                song.duration = await LocalFilesManager.extractDurationForSong(fileURL: url)
 
-                // 2) Extract and apply metadata via helper
-                let metadata = await LocalFilesManager.extractSongMetadata(from: url)
+            // Compute destination name and copy into sandbox
+            let ext = url.pathExtension
+            let destName = "\(song.id).\(ext)"
+            
+            Task {
+                // 1) Copy the file into Documents/Songs
+                guard let localURL = LocalFilesManager.copySongFile(from: url, named: destName) else {
+                    // If copy fails, alert and skip
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(
+                            title: "Import Error",
+                            message: "Could not copy \(url.lastPathComponent) into the app folder.",
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
+                        UIApplication.getCurrentViewController()?.present(alert, animated: true)
+                    }
+                    return
+                }
+                // Store the relative path
+                song.filePath = localURL.lastPathComponent
+
+                // 2) Extract duration from the copied file
+                song.duration = await LocalFilesManager.extractDurationForSong(fileURL: localURL)
+
+                // 3) Extract metadata from the copied file
+                let metadata = await LocalFilesManager.extractSongMetadata(from: localURL)
                 song = LibraryManager.shared.enrichSong(fromMetadata: metadata, for: song)
 
-                // 3) Create and assign bookmark
-                if let bookmark = LocalFilesManager.getBookmarkData(for: url) {
-                    song.fileBookmark = bookmark
-                }
-
-                // 4) Insert into DB and refresh UI on main thread
+                // 4) Insert into DB and refresh UI
                 LibraryManager.shared.addSongToLibrary(song: song)
                 DispatchQueue.main.async {
                     self.libraryTableView.refreshTableView()

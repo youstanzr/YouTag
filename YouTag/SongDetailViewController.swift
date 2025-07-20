@@ -105,6 +105,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         return lbl
     }()
 
+    let filenameLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.textColor = GraphicColors.gray
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
+        lbl.textAlignment = .left
+        return lbl
+    }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -165,12 +173,20 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         view.addSubview(dismissButton)
 
         // Song Size Label
-        if let fileURL = LocalFilesManager.getMediaFileURL(for: song) {
+        if let fileURL = LibraryManager.shared.urlForSong(song) {
             songSizeLabel.text = "Song size: \(LocalFilesManager.getLocalFileSize(fileURL: fileURL))"
         } else {
             songSizeLabel.text = "Song size: Unknown"
         }
         view.addSubview(songSizeLabel)
+
+        // Filename Label
+        if let fileURL = LibraryManager.shared.urlForSong(song) {
+            filenameLabel.text = "Filename: \(fileURL.lastPathComponent)"
+        } else {
+            filenameLabel.text = "Filename: Unknown"
+        }
+        view.addSubview(filenameLabel)
 
         setupConstraints()
     }
@@ -267,10 +283,19 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Song Size Label
         songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -15),
+            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -30),
             songSizeLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
             songSizeLabel.heightAnchor.constraint(equalToConstant: 15)
+        ])
+
+        // Filename Label
+        filenameLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            filenameLabel.topAnchor.constraint(equalTo: songSizeLabel.bottomAnchor, constant: 5),
+            filenameLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
+            filenameLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
+            filenameLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
 
         // Dismiss Button

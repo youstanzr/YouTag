@@ -18,7 +18,7 @@ struct Song: Codable, Equatable {
     var releaseYear: String?
     var lyrics: String?
     var thumbnailPath: String?
-    var fileBookmark: Data?
+    var filePath: String?
     
     // Default initializer
     init() {
@@ -31,11 +31,11 @@ struct Song: Codable, Equatable {
         self.releaseYear = nil
         self.lyrics = nil
         self.thumbnailPath = nil
-        self.fileBookmark = nil
+        self.filePath = nil
     }
     
     // Custom initializer
-    init(id: String, title: String, artists: [String] = [], album: String? = nil, releaseYear: String? = nil, duration: String, lyrics: String? = nil, fileBookmark: Data? = nil, thumbnailPath: String? = nil, tags: [String] = []) {
+    init(id: String, title: String, artists: [String] = [], album: String? = nil, releaseYear: String? = nil, duration: String, lyrics: String? = nil, filePath: String? = nil, thumbnailPath: String? = nil, tags: [String] = []) {
         self.id = id
         self.title = title
         self.artists = artists
@@ -43,24 +43,29 @@ struct Song: Codable, Equatable {
         self.releaseYear = releaseYear
         self.duration = duration
         self.lyrics = lyrics
-        self.fileBookmark = fileBookmark
+        self.filePath = filePath
         self.thumbnailPath = thumbnailPath
         self.tags = tags
     }
     
     static func from(url: URL) -> Song {
         let fileName = url.deletingPathExtension().lastPathComponent
-        let bookmark: Data? = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
-        
+
+        let df = DateFormatter()
+        df.dateFormat = "yyMMddHHmmss"
+        let timestamp = df.string(from: Date())
+        let uuidPart = String(UUID().uuidString.prefix(7))
+        let combinedID = "\(timestamp)_\(uuidPart)"
+
         return Song(
-            id: UUID().uuidString,
+            id: combinedID,
             title: fileName,
             artists: [],
             album: nil,
             releaseYear: nil,
             duration: "",
             lyrics: nil,
-            fileBookmark: bookmark,
+            filePath: nil,
             thumbnailPath: nil,
             tags: []
         )

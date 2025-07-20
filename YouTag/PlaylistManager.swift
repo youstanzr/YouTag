@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SQLite3
 
 private extension String {
     var nilIfEmpty: String? { isEmpty ? nil : self }
@@ -21,12 +20,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     var playlistLibraryView: PlaylistLibraryView!
     var audioPlayer: YYTAudioPlayer!
     var playlistFilters = PlaylistFilters(tags: [], artists: [], albums: [], releaseYearRanges: [], releaseYears: [], durations: [])
-    var database: OpaquePointer?
     var currentPlaylist: [Song] = []
 
     override init() {
         super.init()
-        database = LibraryManager.shared.db
         audioPlayer = YYTAudioPlayer()
         playlistLibraryView = PlaylistLibraryView(frame: .zero, style: .plain)
         playlistLibraryView.PLDelegate = self
@@ -37,11 +34,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     // MARK: - Playlist Management
     func computePlaylist() {
         let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters)
-        // guard against songa with invalid file link
+        // Filter out any songs whose file is missing
         let playableSongs = songs.filter { song in
             guard let url = LibraryManager.shared.urlForSong(song) else { return false }
-            defer { url.stopAccessingSecurityScopedResource() }
-            return (try? url.checkResourceIsReachable()) == true
+            return FileManager.default.fileExists(atPath: url.path)
         }
         updatePlaylistLibrary(toPlaylist: playableSongs)
     }
@@ -62,17 +58,16 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     func didSelectSong(song: Song) {
         nowPlayingView.loadSong(song: song)
         refreshNowPlayingView()
+        audioPlayer.play()
     }
     
     func movePlaylistForward() {
-        guard currentPlaylist.count > 1 else { return }
         let lastSong = currentPlaylist.removeLast()
         currentPlaylist.insert(lastSong, at: 0)
         refreshPlaylistLibraryView()
     }
     
     func movePlaylistBackward() {
-        guard currentPlaylist.count > 1 else { return }
         let firstSong = currentPlaylist.removeFirst()
         currentPlaylist.append(firstSong)
         refreshPlaylistLibraryView()
@@ -103,9 +98,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         } else {
             // Advance to the next song
             movePlaylistForward()
-            if let song = currentPlaylist.last {
-                _ = audioPlayer.play(song: song)
-            }
+            audioPlayer.play()
         }
     }
     

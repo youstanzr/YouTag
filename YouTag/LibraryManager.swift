@@ -20,8 +20,8 @@ class LibraryManager {
     static let shared = LibraryManager() // Singleton instance
 
     struct Constants {
-        static let databaseName = ".libraryDB.sqlite"
-        static let imageDirectory = ".images"
+        static let databaseName = "libraryDB.db"
+        static let imageDirectory = "images"
     }
 
     var db: OpaquePointer?
@@ -82,7 +82,7 @@ class LibraryManager {
             releaseYear TEXT,
             duration TEXT,
             lyrics TEXT,
-            fileBookmark BLOB NOT NULL,
+            filePath TEXT NOT NULL,
             thumbnailPath TEXT
         );
         """
@@ -137,7 +137,7 @@ class LibraryManager {
         }
 
         let fetchQuery = """
-        SELECT id, title, album, releaseYear, duration, lyrics, fileBookmark, thumbnailPath
+        SELECT id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath
         FROM Songs;
         """
         let songs = fetchSongs(from: fetchQuery)
@@ -145,12 +145,11 @@ class LibraryManager {
 
         for song in libraryArray {
             if let url = urlForSong(song) {
-                defer { url.stopAccessingSecurityScopedResource() }
                 if (try? url.checkResourceIsReachable()) != true {
                     print("⚠️ Unreachable file for song \(song.title) (\(song.id))")
                 }
             } else {
-                print("⚠️ Invalid bookmark for song \(song.title) (\(song.id))")
+                print("⚠️ Invalid filePath for song \(song.title) (\(song.id))")
             }
         }
     }
@@ -174,7 +173,7 @@ class LibraryManager {
     /// Returns filtered songs based on PlaylistFilters.
     func getFilteredSongs(with filters: PlaylistFilters) -> [Song] {
         var query = """
-        SELECT id, title, album, releaseYear, duration, lyrics, fileBookmark, thumbnailPath
+        SELECT id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath
         FROM Songs
         WHERE 1=1 
         """
@@ -238,7 +237,7 @@ class LibraryManager {
 
         let placeholders = tags.map { _ in "?" }.joined(separator: ", ")
         let query = """
-        SELECT s.id, s.title, s.album, s.releaseYear, s.duration, s.lyrics, s.fileBookmark, s.thumbnailPath
+        SELECT s.id, s.title, s.album, s.releaseYear, s.duration, s.lyrics, s.filePath, s.thumbnailPath
         FROM Songs s
         JOIN SongTags st ON s.id = st.song_id
         JOIN Tags t ON st.tag_id = t.id
@@ -400,14 +399,9 @@ class LibraryManager {
         let duration = getColumnText(4)
         let lyrics = getColumnText(5)
 
-        // fileBookmark at index 6
-        let fileBookmark: Data? = {
-            let len = sqlite3_column_bytes(statement, 6)
-            guard len > 0, let ptr = sqlite3_column_blob(statement, 6) else { return nil }
-            return Data(bytes: ptr, count: Int(len))
-        }()
-
-        let thumbnailPath = getColumnText(7)
+        // filePath at index 6
+        let filePath = getColumnText(6).isEmpty ? nil : getColumnText(6)
+        let thumbnailPath = getColumnText(7).isEmpty ? nil : getColumnText(7)
 
         // Fetch tags and artists
         let tags = getTagsForSong(id: id)
@@ -421,8 +415,8 @@ class LibraryManager {
             releaseYear: releaseYear.isEmpty ? nil : releaseYear,
             duration: duration,
             lyrics: lyrics.isEmpty ? nil : lyrics,
-            fileBookmark: fileBookmark,
-            thumbnailPath: thumbnailPath.isEmpty ? nil : thumbnailPath,
+            filePath: filePath,
+            thumbnailPath: thumbnailPath,
             tags: tags
         )
     }
@@ -431,7 +425,7 @@ class LibraryManager {
     // MARK: - Add Song
     func addSongToLibrary(song: Song) {
         let insertSongQuery = """
-        INSERT INTO Songs (id, title, album, releaseYear, duration, lyrics, fileBookmark, thumbnailPath)
+        INSERT INTO Songs (id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         """
 
@@ -446,7 +440,7 @@ class LibraryManager {
             "- Tags: \(song.tags.joined(separator: ", "))",
             "- Lyrics: \(song.lyrics ?? "NULL")",
             "- Thumbnail Path: \(song.thumbnailPath ?? "NULL")",
-            "- Bookmark size: \(song.fileBookmark?.count ?? 0) bytes"
+            "- FilePath: \(song.filePath ?? "NULL")"
         )
 
         var statement: OpaquePointer?
@@ -477,11 +471,7 @@ class LibraryManager {
         let formattedDuration = song.duration.convertToTimeInterval().formattedString()
         sqlite3_bind_text(statement, 5, formattedDuration, -1, transient)
         sqlite3_bind_text(statement, 6, song.lyrics ?? "", -1, transient)
-        if let bookmark = song.fileBookmark {
-            sqlite3_bind_blob(statement, 7, (bookmark as NSData).bytes, Int32(bookmark.count), transient)
-        } else {
-            sqlite3_bind_null(statement, 7)
-        }
+        sqlite3_bind_text(statement, 7, song.filePath ?? "", -1, transient)
         sqlite3_bind_text(statement, 8, song.thumbnailPath ?? "", -1, transient)
     }
     
@@ -578,7 +568,7 @@ class LibraryManager {
     func updateSongDetails(song: Song) {
         let query = """
         UPDATE Songs
-        SET title = ?, album = ?, releaseYear = ?, duration = ?, lyrics = ?, fileBookmark = ?, thumbnailPath = ?
+        SET title = ?, album = ?, releaseYear = ?, duration = ?, lyrics = ?, filePath = ?, thumbnailPath = ?
         WHERE id = ?;
         """
         
@@ -592,11 +582,7 @@ class LibraryManager {
             let formattedDuration = song.duration.convertToTimeInterval().formattedString()
             sqlite3_bind_text(statement, 4, formattedDuration, -1, transient)
             sqlite3_bind_text(statement, 5, song.lyrics ?? "", -1, transient)
-            if let bookmark = song.fileBookmark {
-                sqlite3_bind_blob(statement, 6, (bookmark as NSData).bytes, Int32(bookmark.count), transient)
-            } else {
-                sqlite3_bind_null(statement, 6)
-            }
+            sqlite3_bind_text(statement, 6, song.filePath ?? "", -1, transient)
             sqlite3_bind_text(statement, 7, song.thumbnailPath ?? "", -1, transient)
             sqlite3_bind_text(statement, 8, song.id, -1, transient)
             sqlite3_step(statement)
@@ -615,11 +601,25 @@ class LibraryManager {
     func deleteSongFromLibrary(songID: String) {
         print("Delete song \(songID)")
 
+        // 1. Fetch filePath for the song
+        var filePathToDelete: String?
+        let selectFilePathQuery = "SELECT filePath FROM Songs WHERE id = ?;"
+        var stmt: OpaquePointer?
+        let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        if sqlite3_prepare_v2(db, selectFilePathQuery, -1, &stmt, nil) == SQLITE_OK {
+            sqlite3_bind_text(stmt, 1, songID, -1, transient)
+            if sqlite3_step(stmt) == SQLITE_ROW {
+                if let cstr = sqlite3_column_text(stmt, 0) {
+                    filePathToDelete = String(cString: cstr)
+                }
+            }
+        }
+        sqlite3_finalize(stmt)
+
         let deleteSongQuery = "DELETE FROM Songs WHERE id = ?;"
         let deleteSongTagsQuery = "DELETE FROM SongTags WHERE song_id = ?;"
         let deleteSongArtistsQuery = "DELETE FROM SongArtists WHERE song_id = ?;"
 
-        let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         var statement: OpaquePointer?
 
         // Delete SongTags links
@@ -636,7 +636,7 @@ class LibraryManager {
         }
         sqlite3_finalize(statement)
 
-        // Delete the Song
+        // Delete the Song row
         if sqlite3_prepare_v2(db, deleteSongQuery, -1, &statement, nil) == SQLITE_OK {
             sqlite3_bind_text(statement, 1, songID, -1, transient)
             let stepResult = sqlite3_step(statement)
@@ -646,6 +646,19 @@ class LibraryManager {
             }
         }
         sqlite3_finalize(statement)
+
+        // 2. Remove the actual file from Documents/Songs
+        if let filePath = filePathToDelete, !filePath.isEmpty {
+            let fileURL = LocalFilesManager.getSongFileURL(for: filePath)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                do {
+                    try FileManager.default.removeItem(at: fileURL)
+                    print("🗑️ Removed song file at \(fileURL.path)")
+                } catch {
+                    print("⚠️ Error removing song file at \(fileURL.path): \(error)")
+                }
+            }
+        }
 
         purgeUnusedTags()
         purgeUnusedArtists()
@@ -710,13 +723,13 @@ class LibraryManager {
 
     // MARK: - Security-Scoped URL Helper
     func urlForSong(_ song: Song) -> URL? {
-        guard let bookmark = song.fileBookmark,
-              let url = LocalFilesManager.getMediaFileURL(from: bookmark),
-              url.startAccessingSecurityScopedResource() else {
-            print("❌ Unable to access media for song \(song.id)")
+        guard let fileName = song.filePath,
+              !fileName.isEmpty else {
+            print("❌ Missing filePath for song \(song.id)")
             return nil
         }
-        return url
+        let url = LocalFilesManager.getSongFileURL(for: fileName)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
     
     // MARK: - Metadata Enrichment
@@ -759,10 +772,10 @@ class LibraryManager {
             case "artwork":
                 // Save album artwork to local images directory and update thumbnailPath
                 if let imageData = value as? Data,
-                   let image = UIImage(data: imageData) {
-                    let fileName = "\(enrichedSong.id).jpg"
-                    LocalFilesManager.saveImage(image, withName: enrichedSong.id)
-                    enrichedSong.thumbnailPath = fileName
+                   let image = UIImage(data: imageData),
+                   let fileURL = LocalFilesManager.saveImage(image, withName: enrichedSong.id) {
+                    // Store only the filename so fetchThumbnail uses getImageFileURL
+                    enrichedSong.thumbnailPath = fileURL.lastPathComponent
                 }
             default:
                 break

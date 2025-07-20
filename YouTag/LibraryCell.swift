@@ -23,8 +23,8 @@ class LibraryCell : UITableViewCell {
         return imageView
     }()
 
-    private let titleLabel: UILabel = {
-        let label = UILabel()
+    private let titleLabel: MarqueeLabel = {
+        let label = MarqueeLabel()
         label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textColor = .label
         label.numberOfLines = 1
@@ -32,8 +32,8 @@ class LibraryCell : UITableViewCell {
         return label
     }()
 
-    private let artistLabel: UILabel = {
-        let label = UILabel()
+    private let artistLabel: MarqueeLabel = {
+        let label = MarqueeLabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
@@ -68,62 +68,56 @@ class LibraryCell : UITableViewCell {
         artistLabel.text = artistsText.isEmpty ? "" : artistsText
         durationLabel.text = song.duration
 
+        // Restart marquee and set direction based on text
+        titleLabel.labelize = true
+        titleLabel.restartLabel()
+        if titleLabel.text != nil && titleLabel.text!.isRTL {
+            titleLabel.type = .continuousReverse
+        } else {
+            titleLabel.type = .continuous
+        }
+
+        artistLabel.labelize = true
+        artistLabel.restartLabel()
+        if artistLabel.text != nil && artistLabel.text!.isRTL {
+            artistLabel.type = .continuousReverse
+        } else {
+            artistLabel.type = .continuous
+        }
+
         loadThumbnail(from: song.thumbnailPath)
     }
 
     // MARK: - Thumbnail Loading
-//    private func loadThumbnail(from path: String?) {
-//        // Build the full URL under Documents/.images
-//        guard let filename = path, !filename.isEmpty else {
-//            thumbnailImageView.image = UIImage(named: "placeholder")
-//            return
-//        }
-//
-//        let fileURL = LocalFilesManager.getImageFileURL(for: filename)
-//        
-//        DispatchQueue.global(qos: .background).async {
-//            if let data = try? Data(contentsOf: fileURL),
-//               let image = UIImage(data: data) {
-//                DispatchQueue.main.async {
-//                    self.thumbnailImageView.image = image
-//                }
-//            } else {
-//                DispatchQueue.main.async {
-//                    self.thumbnailImageView.image = UIImage(named: "placeholder")
-//                }
-//            }
-//        }
-//    }
-    
     private func loadThumbnail(from path: String?) {
-      guard let filename = path, !filename.isEmpty else {
-        thumbnailImageView.image = UIImage(named: "placeholder")
-        return
-      }
-
-      // 1) Check cache
-      if let img = LibraryCell.thumbnailCache.object(forKey: filename as NSString) {
-        thumbnailImageView.image = img
-        return
-      }
-
-      // 2) Not cached -> fetch from disk async
-      let fileURL = LocalFilesManager.getImageFileURL(for: filename)
-      DispatchQueue.global(qos: .background).async {
-        let img: UIImage?
-        if let data = try? Data(contentsOf: fileURL) {
-          img = UIImage(data: data)
-        } else {
-          img = UIImage(named: "placeholder")
+        guard let filename = path, !filename.isEmpty else {
+            thumbnailImageView.image = UIImage(named: "placeholder")
+            return
         }
-        DispatchQueue.main.async {
-          // 3) Cache and display
-          if let img = img {
-            LibraryCell.thumbnailCache.setObject(img, forKey: filename as NSString)
-          }
-          self.thumbnailImageView.image = img
+
+        // 1) Check cache
+        if let img = LibraryCell.thumbnailCache.object(forKey: filename as NSString) {
+            thumbnailImageView.image = img
+            return
         }
-      }
+
+        // 2) Not cached -> fetch from disk async
+        let fileURL = LocalFilesManager.getImageFileURL(for: filename)
+        DispatchQueue.global(qos: .background).async {
+            let img: UIImage?
+            if let data = try? Data(contentsOf: fileURL) {
+                img = UIImage(data: data)
+            } else {
+                img = UIImage(named: "placeholder")
+            }
+            DispatchQueue.main.async {
+                // 3) Cache and display
+                if let img = img {
+                    LibraryCell.thumbnailCache.setObject(img, forKey: filename as NSString)
+                }
+                self.thumbnailImageView.image = img
+            }
+        }
     }
 
     // MARK: - Setup UI

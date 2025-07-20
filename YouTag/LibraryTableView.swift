@@ -131,25 +131,26 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
     // MARK: - UIDocumentPickerDelegate
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        // Ensure we have an indexPath and a single selected file
         guard let indexPath = pendingRelinkIndexPath,
               let fileURL = urls.first else { return }
         
-        let accessed = fileURL.startAccessingSecurityScopedResource()
-        defer { if accessed { fileURL.stopAccessingSecurityScopedResource() } }
-        
-        do {
-            let bookmarkData = try fileURL.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
-            // Update song and database
-            let reversedSongs = Array(LibraryManager.shared.libraryArray.reversed())
-            var song = reversedSongs[indexPath.row]
-            song.fileBookmark = bookmarkData
+        // Determine the destination filename and copy into Documents/Songs
+        let songList = Array(LibraryManager.shared.libraryArray.reversed())
+        var song = songList[indexPath.row]
+        let ext = fileURL.pathExtension
+        let destName = "\(song.id).\(ext)"
+        if let localURL = LocalFilesManager.copySongFile(from: fileURL, named: destName) {
+            // Update the song's filePath to the sandbox copy
+            song.filePath = localURL.lastPathComponent
+            // Persist the change to the database
             LibraryManager.shared.updateSongDetails(song: song)
-            // Refresh the table
-            self.refreshTableView()
-        } catch {
-            print("❌ Failed to create bookmark for relink: \(error)")
+        } else {
+            print("❌ Failed to copy selected file for relink")
         }
         
+        // Refresh the library display and clear the pending index
+        self.refreshTableView()
         pendingRelinkIndexPath = nil
     }
     

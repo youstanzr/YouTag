@@ -17,57 +17,6 @@ class LocalFilesManager {
         let appDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return appDirectory.appendingPathComponent(fileName)
     }
-    
-    /// Get the file URL for images stored in the `.images` directory
-    static func getImageFileURL(for fileName: String) -> URL {
-        return getMetadataFileURL(for: ".images/\(fileName)")
-    }
-
-    /// Resolve stored security‑scoped bookmark data into a URL
-    static func getMediaFileURL(from bookmarkData: Data) -> URL? {
-        var isStale = false
-        do {
-            let url = try URL(
-                resolvingBookmarkData: bookmarkData,
-                options: [],
-                relativeTo: nil,
-                bookmarkDataIsStale: &isStale
-            )
-            if isStale {
-                print("Warning: bookmark data was stale for URL \(url)")
-            }
-            return url
-        } catch {
-            print("Error resolving bookmark data: \(error)")
-            return nil
-        }
-    }
-
-    /// Convenience: get media URL directly from a Song’s bookmark
-    static func getMediaFileURL(for song: Song) -> URL? {
-        guard let bm = song.fileBookmark else { return nil }
-        return getMediaFileURL(from: bm)
-    }
-
-    /// Creates and returns bookmark data for a given file URL, handling security-scoped access.
-    static func getBookmarkData(for url: URL) -> Data? {
-        do {
-            guard url.startAccessingSecurityScopedResource() else {
-                print("⚠️ Could not access security scoped resource for bookmark: \(url)")
-                return nil
-            }
-            defer { url.stopAccessingSecurityScopedResource() }
-            let bookmark = try url.bookmarkData(
-                options: [],
-                includingResourceValuesForKeys: nil,
-                relativeTo: nil
-            )
-            return bookmark
-        } catch {
-            print("🔴 Failed to create bookmark for url \(url): \(error)")
-            return nil
-        }
-    }
 
     // MARK: - File Operations
     
@@ -141,7 +90,13 @@ class LocalFilesManager {
 
     // MARK: - Image Handling
     
-    /// Save an image to the `.images` directory, ensuring the directory exists. Returns the saved file URL.
+    /// Get the file URL for images stored in the `images` directory
+    static func getImageFileURL(for fileName: String) -> URL {
+        return getMetadataFileURL(for: "images/\(fileName)")
+    }
+
+    /// Save an image to the `images` directory, ensuring the directory exists. Returns the saved file URL.
+    @discardableResult
     static func saveImage(_ image: UIImage, withName name: String) -> URL? {
         // Ensure images directory exists
         ensureImagesDirectoryExists()
@@ -156,21 +111,22 @@ class LocalFilesManager {
         }
     }
 
-    /// Deletes an image from the `.images` directory by filename.
+    /// Deletes an image from the `images` directory by filename.
     /// - Parameter fileName: The image’s filename (e.g. "abc123.jpg").
     /// - Returns: True if deletion succeeded, false otherwise.
-    static func deleteImage(named fileName: String?) {
+    @discardableResult
+    static func deleteImage(named fileName: String?) -> Bool {
         // Ensure we have a valid filename
-        guard let name = fileName, !name.isEmpty else { return }
+        guard let name = fileName, !name.isEmpty else { return false }
         // Build the URL in the images directory
         let url = getImageFileURL(for: name)
-        // Use the existing deleteFile helper
-        _ = deleteFile(at: url)
+        // Delete and return the result
+        return deleteFile(at: url)
     }
 
-    /// Ensure the `.images` directory exists, creating it if necessary.
+    /// Ensure the `images` directory exists, creating it if necessary.
     static func ensureImagesDirectoryExists() {
-        let imagesDir = getMetadataFileURL(for: ".images")
+        let imagesDir = getMetadataFileURL(for: "images")
         let fm = FileManager.default
         if !fm.fileExists(atPath: imagesDir.path) {
             do {
@@ -179,6 +135,51 @@ class LocalFilesManager {
                 print("Error creating images directory: \(error)")
             }
         }
+    }
+
+    // MARK: - Songs Handling
+
+    /// Returns the URL to the `Documents/Songs` directory, creating it if necessary.
+    @discardableResult
+    static func getSongsDirectoryURL() -> URL {
+        let songsDir = getMetadataFileURL(for: "Songs")
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: songsDir.path) {
+            do {
+                try fm.createDirectory(at: songsDir, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Error creating Songs directory: \(error)")
+            }
+        }
+        return songsDir
+    }
+
+    /// Builds a file URL inside the `Documents/Songs` directory for the given filename.
+    static func getSongFileURL(for fileName: String) -> URL {
+        return getSongsDirectoryURL().appendingPathComponent(fileName)
+    }
+
+    /// Copies an external media file into `Documents/Songs` and returns the new URL.
+    static func copySongFile(from sourceURL: URL, named destFileName: String) -> URL? {
+        let destinationURL = getSongFileURL(for: destFileName)
+        let fm = FileManager.default
+        // Remove existing file if present
+        try? fm.removeItem(at: destinationURL)
+        do {
+            try fm.copyItem(at: sourceURL, to: destinationURL)
+            return destinationURL
+        } catch {
+            print("Failed to copy song file to Songs directory: \(error)")
+            return nil
+        }
+    }
+    
+    /// Deletes a copied song file from Documents/Songs by its filename (e.g. "abc123.mp3").
+    @discardableResult
+    static func deleteSongFile(named fileName: String?) -> Bool {
+        guard let name = fileName, !name.isEmpty else { return false }
+        let url = getSongFileURL(for: name)
+        return deleteFile(at: url)
     }
 
 }

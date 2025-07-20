@@ -249,16 +249,16 @@ extension UITableView {
 
 
 extension CGRect {
-	
-	/// SwifterSwift: Create a `CGRect` instance with center and size
-	/// - Parameters:
-	///   - center: center of the new rect
-	///   - size: size of the new rect
-	init(center: CGPoint, size: CGSize) {
-		let origin = CGPoint(x: center.x - size.width / 2.0, y: center.y - size.height / 2.0)
-		self.init(origin: origin, size: size)
-	}
-	
+    
+    /// SwifterSwift: Create a `CGRect` instance with center and size
+    /// - Parameters:
+    ///   - center: center of the new rect
+    ///   - size: size of the new rect
+    init(center: CGPoint, size: CGSize) {
+        let origin = CGPoint(x: center.x - size.width / 2.0, y: center.y - size.height / 2.0)
+        self.init(origin: origin, size: size)
+    }
+    
 }
 
 
@@ -286,11 +286,13 @@ extension AVAsset {
     func writeAudioTrack(to url: URL,
                          success: @escaping () -> (),
                          failure: @escaping (Error) -> ()) {
-        do {
-            let asset = try audioAsset()
-            asset.write(to: url, success: success, failure: failure)
-        } catch {
-            failure(error)
+        Task {
+            do {
+                let asset = try await audioAsset()
+                asset.write(to: url, success: success, failure: failure)
+            } catch {
+                failure(error)
+            }
         }
     }
 
@@ -327,12 +329,11 @@ extension AVAsset {
         }
     }
 
-    private func audioAsset() throws -> AVAsset {
+    private func audioAsset() async throws -> AVAsset {
         // Create a new container to hold the audio track
         let composition = AVMutableComposition()
-        // Create an array of audio tracks in the given asset
-        // Typically, there is only one
-        let audioTracks = tracks(withMediaType: .audio)
+        // Load audio tracks asynchronously
+        let audioTracks = try await loadTracks(withMediaType: .audio)
 
         // Iterate through the audio tracks while
         // Adding them to a new AVAsset
@@ -340,11 +341,13 @@ extension AVAsset {
             let compositionTrack = composition.addMutableTrack(withMediaType: .audio,
                                                                preferredTrackID: kCMPersistentTrackID_Invalid)
             do {
+                // Load the timeRange property asynchronously
+                let range = try await track.load(.timeRange)
                 // Add the current audio track at the beginning of
                 // the asset for the duration of the source AVAsset
-                try compositionTrack?.insertTimeRange(track.timeRange,
+                try compositionTrack?.insertTimeRange(range,
                                                       of: track,
-                                                      at: track.timeRange.start)
+                                                      at: range.start)
             } catch {
                 throw error
             }
@@ -472,16 +475,6 @@ extension String {
 		return interval
 	}
 	
-	func extractYoutubeId() -> String? {
-		let pattern = #"(?<=v(=|/))([-a-zA-Z0-9_]+)|(?<=youtu.be/)([-a-zA-Z0-9_]+)"#
-		if let matchRange = self.range(of: pattern, options: .regularExpression) {
-			return String(self[matchRange])
-		} else {
-			return .none
-		}
-	}
-
-
 }
 
 // MARK: NSArray

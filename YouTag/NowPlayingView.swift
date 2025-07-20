@@ -289,15 +289,32 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         artistLabel.text = song.artists.joined(separator: ", ")
         lyricsTextView.text = song.lyrics
         
-        thumbnailImageView.image = LibraryManager.shared.fetchThumbnail(for: song) ?? UIImage(named: "placeholder")
+        // Restart marquee and set direction based on text
+        titleLabel.restartLabel()
+        if titleLabel.text!.isRTL {
+            titleLabel.type = .continuousReverse
+        } else {
+            titleLabel.type = .continuous
+        }
 
+        artistLabel.restartLabel()
+        if artistLabel.text!.isRTL {
+            artistLabel.type = .continuousReverse
+        } else {
+            artistLabel.type = .continuous
+        }
+
+        // Update thumbnail
+        thumbnailImageView.image = LibraryManager.shared.fetchThumbnail(for: song)
+            ?? UIImage(named: "placeholder")
+        
+        // Skip the first periodic update after loading a new song
         skipNextPeriodicUpdate = true
-        if audioPlayer.play(song: song) {
-            audioPlayer.pause()
-                
-            audioPlayer.setPlaybackRate(to: 1.0)
-            playbackRateButton.setTitle("x1", for: .normal)
 
+        // Prepare the player without auto-playing
+        if audioPlayer.setupPlayer(withSong: song) {
+            
+            // Reset UI
             progressBar.value = 0.0
             currentTimeLabel.text = "00:00"
             timeLeftLabel.text = song.duration
@@ -307,6 +324,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     func clearNowPlaying() {
         currentSong = nil
         audioPlayer.clearPlayback()
+        audioPlayer.setPlaybackRate(to: 1.0)
         playbackRateButton.setTitle("x1", for: .normal)
         titleLabel.text = ""
         artistLabel.text = ""

@@ -58,7 +58,7 @@ class YYTAudioPlayer: NSObject {
         avPlayer = nil
 
         guard let url = LibraryManager.shared.urlForSong(song) else {
-            print("Invalid song data: Could not resolve bookmark.")
+            print("Invalid song data: Could not resolve file URL for song \(song.id)")
             return false
         }
         guard FileManager.default.fileExists(atPath: url.path) else {
@@ -89,19 +89,14 @@ class YYTAudioPlayer: NSObject {
     // MARK: - Playback Controls
     func play(song: Song) -> Bool {
         guard setupPlayer(withSong: song) else { return false }
-        avPlayer?.play()
-        avPlayer?.rate = desiredRate
-        delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+        startPlayback()
         return true
     }
 
     func play() {
-        if isSuspended {  return  }
-        avPlayer?.play()
-        avPlayer?.rate = desiredRate
-        delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+        startPlayback()
     }
-
+    
     func pause() {
         if isSuspended {  return  }
         avPlayer?.pause()
@@ -111,6 +106,14 @@ class YYTAudioPlayer: NSObject {
     func next() {  play()  }
     func prev() {  play()  }
     
+    /// Starts or resumes playback at the desired rate and notifies the delegate.
+    private func startPlayback() {
+        guard !isSuspended else { return }
+        avPlayer?.play()
+        avPlayer?.rate = desiredRate
+        delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+    }
+
     func clearPlayback() {
         // 1. Pause any ongoing playback
         avPlayer?.pause()
@@ -147,7 +150,7 @@ class YYTAudioPlayer: NSObject {
             avp.rate = rate
         }
     }
-
+    
     func duration() -> Float {
         guard let secs = avPlayer?.currentItem?.duration.seconds, secs.isFinite else { return 0 }
         return Float(secs)
