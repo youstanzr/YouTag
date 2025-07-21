@@ -17,6 +17,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = GraphicColors.orange
         config.title = "+"
+        config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
         config.baseForegroundColor = .white
         config.titleAlignment = .center
         config.titlePadding = -10.0 // Adjust padding
@@ -30,6 +31,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = GraphicColors.orange
         config.title = "✔︎"
+        config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
         config.baseForegroundColor = .white
         config.titleAlignment = .center
         config.background.cornerRadius = 0
@@ -57,33 +59,36 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
         // Library Table View
         libraryTableView.backgroundColor = .clear
         self.view.addSubview(libraryTableView)
+        
+        // Add Button
+        addButton.addTarget(self, action: #selector(addButtonAction), for: .touchUpInside)
+        self.view.addSubview(addButton)
+
+        // Dismiss Button
+        dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
+        self.view.addSubview(dismissButton)
+
         libraryTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             libraryTableView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             libraryTableView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -5),
             libraryTableView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 35),
-            libraryTableView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.85)
+            libraryTableView.bottomAnchor.constraint(equalTo: addButton.topAnchor)
         ])
         
-        // Add Button
-        addButton.addTarget(self, action: #selector(addButtonAction), for: .touchUpInside)
-        self.view.addSubview(addButton)
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             addButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             addButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            addButton.topAnchor.constraint(equalTo: libraryTableView.bottomAnchor, constant: 5),
+            addButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.09),
             addButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
         
-        // Dismiss Button
-        dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
-        self.view.addSubview(dismissButton)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             dismissButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             dismissButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            dismissButton.topAnchor.constraint(equalTo: libraryTableView.bottomAnchor, constant: 5),
+            dismissButton.topAnchor.constraint(equalTo: addButton.topAnchor),
             dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
     }

@@ -17,13 +17,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     let dismissButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.title = "✔︎"
         config.baseBackgroundColor = GraphicColors.orange
+        config.title = "✔︎"
+        config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
         config.baseForegroundColor = .white
         config.titleAlignment = .center
         config.contentInsets = NSDirectionalEdgeInsets(top: 2.5, leading: 0.0, bottom: 0.0, trailing: 0.0)
         btn.configuration = config
-        btn.titleLabel?.font = .boldSystemFont(ofSize: 32)
         return btn
     }()
     let thumbnailImageView: UIImageView = {
@@ -101,7 +101,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         let lbl = UILabel()
         lbl.textColor = GraphicColors.gray
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
-        lbl.textAlignment = .left
+        lbl.textAlignment = .right
         return lbl
     }()
 
@@ -188,17 +188,17 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 
         // Song Size Label
         if let fileURL = LibraryManager.shared.urlForSong(song) {
-            songSizeLabel.text = "Song size: \(LocalFilesManager.getLocalFileSize(fileURL: fileURL))"
+            songSizeLabel.text = "\(LocalFilesManager.getLocalFileSize(fileURL: fileURL))"
         } else {
-            songSizeLabel.text = "Song size: Unknown"
+            songSizeLabel.text = "?? MB"
         }
         view.addSubview(songSizeLabel)
 
         // Filename Label
         if let fileURL = LibraryManager.shared.urlForSong(song) {
-            filenameLabel.text = "Filename: \(fileURL.lastPathComponent)"
+            filenameLabel.text = "\(fileURL.lastPathComponent)"
         } else {
-            filenameLabel.text = "Filename: Unknown"
+            filenameLabel.text = "Unknown"
         }
         view.addSubview(filenameLabel)
 
@@ -282,7 +282,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: 10),
             lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            lyricsTextView.heightAnchor.constraint(equalToConstant: 55)
+            lyricsTextView.heightAnchor.constraint(equalToConstant: 80)
         ])
 
         // Tags View
@@ -297,19 +297,17 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Song Size Label
         songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -30),
-            songSizeLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
-            songSizeLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            songSizeLabel.heightAnchor.constraint(equalToConstant: 15)
+            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -5),
+            songSizeLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            songSizeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 55),
         ])
 
         // Filename Label
         filenameLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            filenameLabel.topAnchor.constraint(equalTo: songSizeLabel.bottomAnchor, constant: 5),
-            filenameLabel.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
-            filenameLabel.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            filenameLabel.heightAnchor.constraint(equalToConstant: 15)
+            filenameLabel.topAnchor.constraint(equalTo: songSizeLabel.topAnchor),
+            filenameLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            filenameLabel.trailingAnchor.constraint(equalTo: songSizeLabel.leadingAnchor),
         ])
 
         // Dismiss Button
@@ -318,7 +316,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             dismissButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             dismissButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            dismissButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.15, constant: -35)
+            dismissButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.09)
         ])
     }
     @objc func dismissView() {

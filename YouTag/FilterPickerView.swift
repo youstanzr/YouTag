@@ -56,7 +56,7 @@ class FilterPickerView: UIView {
         config.baseForegroundColor = .white
         config.title = "+"
         config.titleAlignment = .center
-        config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 38)]))
+        config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
         
         button.configuration = config
         button.configurationUpdateHandler = { button in
@@ -165,7 +165,7 @@ class FilterPickerView: UIView {
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.36)
+            contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.4)
         ])
 
         filterSegment.translatesAutoresizingMaskIntoConstraints = false
@@ -181,7 +181,7 @@ class FilterPickerView: UIView {
             addButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            addButton.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.225)
+            addButton.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.09)
         ])
 
         pickerView.translatesAutoresizingMaskIntoConstraints = false
