@@ -37,21 +37,23 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
     
     // Called a few rows ahead of display
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-      let reversed = Array(LibraryManager.shared.libraryArray.reversed())
-      for ip in indexPaths {
-        let song = reversed[ip.row]
-        if let filename = song.thumbnailPath,
-           LibraryCell.thumbnailCache.object(forKey: filename as NSString) == nil {
-          // Trigger a background load into the cache
-          let fileURL = LocalFilesManager.getImageFileURL(for: filename)
-          DispatchQueue.global(qos: .background).async {
-            if let data = try? Data(contentsOf: fileURL),
-               let img = UIImage(data: data) {
-              LibraryCell.thumbnailCache.setObject(img, forKey: filename as NSString)
+        let reversed = Array(LibraryManager.shared.libraryArray.reversed())
+        for ip in indexPaths {
+            let song = reversed[ip.row]
+            // Prefetch by song.id as cache key
+            let key = song.id
+            if LibraryCell.thumbnailCache.object(forKey: key as NSString) == nil,
+               let filename = song.thumbnailPath {
+                // Trigger a background load into the cache
+                let fileURL = LocalFilesManager.getImageFileURL(for: filename)
+                DispatchQueue.global(qos: .background).async {
+                    if let data = try? Data(contentsOf: fileURL),
+                    let img = UIImage(data: data) {
+                        LibraryCell.thumbnailCache.setObject(img, forKey: key as NSString)
+                    }
+                }
             }
-          }
         }
-      }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -62,7 +64,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         let reversedSongs = Array(LibraryManager.shared.libraryArray.reversed())
         let song = reversedSongs[indexPath.row]
         
-        cell.refreshCell(with: song)
+        cell.refreshCell(with: song, showTags: true)
         // Mark broken links in light red
         if let url = LibraryManager.shared.urlForSong(song),
            (try? url.checkResourceIsReachable()) == true {

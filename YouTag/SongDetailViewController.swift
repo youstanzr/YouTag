@@ -134,13 +134,20 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         view.addSubview(titleTextField)
 
         // Artists Tags View
-        artistsTagsView = YYTTagView(
-            frame: .zero,
-            tagsList: [], // Empty list initially
+        let artistsStyle = TagViewStyle(
             isAddEnabled: true,
             isMultiSelection: false,
             isDeleteEnabled: true,
-            suggestionDataSource: LibraryManager.shared.getAllDistinctValues(for: "artists")
+            showsBorder: true,
+            cellFont: UIFont(name: "DINCondensed-Bold", size: 16)!,
+            overflow: .scrollable,
+            verticalPadding: 5
+        )
+        artistsTagsView = YYTTagView(
+            frame: .zero,
+            tagsList: [],
+            suggestionDataSource: LibraryManager.shared.getAllDistinctValues(for: "artists"),
+            style: artistsStyle
         )
         view.addSubview(artistsTagsView)
         
@@ -157,13 +164,20 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         view.addSubview(lyricsTextView)
 
         // Tags View
-        tagsView = YYTTagView(
-            frame: .zero,
-            tagsList: song.tags,
+        let tagsStyle = TagViewStyle(
             isAddEnabled: true,
             isMultiSelection: false,
             isDeleteEnabled: true,
-            suggestionDataSource: LibraryManager.shared.getAllDistinctValues(for: "tags")
+            showsBorder: true,
+            cellFont: UIFont(name: "DINCondensed-Bold", size: 16)!,
+            overflow: .scrollable,
+            verticalPadding: 5
+        )
+        tagsView = YYTTagView(
+            frame: .zero,
+            tagsList: song.tags,
+            suggestionDataSource: LibraryManager.shared.getAllDistinctValues(for: "tags"),
+            style: tagsStyle
         )
         tagsView.addTagPlaceHolder = "Tag"
         view.addSubview(tagsView)
@@ -201,11 +215,11 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 
         // Populate artists tags
         artistsTagsView.tagsList = song.artists
-        artistsTagsView.reloadData()
+        artistsTagsView.collectionView.reloadData()
 
         // Populate other tags
         tagsView.tagsList = song.tags
-        tagsView.reloadData()
+        tagsView.collectionView.reloadData()
 
         thumbnailImageView.image = LibraryManager.shared.fetchThumbnail(for: song)
             ?? UIImage(named: "placeholder")

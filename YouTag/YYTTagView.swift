@@ -8,84 +8,238 @@
 
 import UIKit
 
+/// Configuration style for YYTTagView
+struct TagViewStyle {
+    enum OverflowBehavior {
+        case truncateTail   // single-line, truncates excess tags
+        case scrollable     // horizontal scrolling
+    }
+    var isAddEnabled: Bool = false
+    var isMultiSelection: Bool = false
+    var isDeleteEnabled: Bool = false
+    var showsBorder: Bool = true
+    var cellFont: UIFont = UIFont.systemFont(ofSize: 16)
+    var overflow: OverflowBehavior = .truncateTail
+    var horizontalPadding: CGFloat = 5
+    var verticalPadding: CGFloat = 5
+    /// Total horizontal padding (added to text width) per cell
+    var cellHorizontalPadding: CGFloat = 32.0/1.5
+    /// Total vertical height per cell
+    var cellHeight: CGFloat = 32.0
+    /// Width of the border around each tag cell
+    var cellBorderWidth: CGFloat = 1.25
+}
+
 protocol YYTTagViewDelegate: AnyObject {
     func tagsListChanged(newTagsList: [[String]])
 }
 
-class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
+class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate {
+    
+    let style: TagViewStyle
+    let collectionView: UICollectionView
 
     weak var yytdelegate: YYTTagViewDelegate?
     var addTagPlaceHolder: String!
-    var isAddEnabled: Bool!
-    var isDeleteEnabled: Bool!
     var tagsList: [String] = [] {
         didSet {
             selectedTagList = []
             suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
+            collectionView.reloadData()
+            setNeedsLayout()
         }
     }
     var suggestionsList: [String]? {
         didSet {
             suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
+            collectionView.reloadData()
+            setNeedsLayout()
         }
     }
     var selectedTagList: [String] = []
     var isEditingEnabled: Bool = false
-    
-    
-    init(frame: CGRect, tagsList: [String], isAddEnabled: Bool, isMultiSelection: Bool, isDeleteEnabled: Bool, suggestionDataSource: [String]?) {
+
+    private let fadeCountLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = UIFont.systemFont(ofSize: 12, weight: .bold)
+        lbl.textColor = GraphicColors.orange
+        lbl.textAlignment = .center
+        lbl.backgroundColor = GraphicColors.placeholderGray.withAlphaComponent(0.3)
+        lbl.isHidden = true
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        return lbl
+    }()
+
+
+    init(frame: CGRect, tagsList: [String], suggestionDataSource: [String]? = nil, style: TagViewStyle) {
         let layout = LeftAlignedCollectionViewFlowLayout()
+        // Set scroll direction per overflow mode
+        if style.overflow == .scrollable {
+            layout.scrollDirection = .vertical
+        } else {
+            layout.scrollDirection = .horizontal
+        }
         layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 7.5
-        layout.sectionInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        super.init(frame: frame, collectionViewLayout: layout)
-        self.register(YYTTagCell.self, forCellWithReuseIdentifier: "TagCell")
-        self.delegate = self
-        self.dataSource = self
+        layout.sectionInset = UIEdgeInsets(
+            top: style.verticalPadding,
+            left: style.horizontalPadding,
+            bottom: style.verticalPadding,
+            right: style.horizontalPadding
+        )
+        self.style = style
+        self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        super.init(frame: frame)
+        // Set scrolling and clipping based on overflow mode
+        self.collectionView.isScrollEnabled = (style.overflow == .scrollable)
+        self.clipsToBounds = true
+        self.collectionView.register(YYTTagCell.self, forCellWithReuseIdentifier: "TagCell")
+        self.collectionView.delegate = self
+        self.collectionView.dataSource = self
         self.layer.cornerRadius = 5
-        self.layer.borderWidth = 1.0
+        self.layer.borderWidth = style.showsBorder ? 1.0 : 0.0
         self.layer.borderColor = UIColor.lightGray.cgColor
         self.backgroundColor = UIColor.clear
-        self.allowsMultipleSelection = isMultiSelection
-        self.isAddEnabled = isAddEnabled
-        self.isDeleteEnabled = isDeleteEnabled
+        self.collectionView.backgroundColor = UIColor.clear
+        self.collectionView.allowsMultipleSelection = style.isMultiSelection
         self.tagsList = tagsList
         self.suggestionsList = suggestionDataSource
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIView.endEditing(_:)))
         tap.cancelsTouchesInView = false
         self.addGestureRecognizer(tap)
-        if isDeleteEnabled {
+        if self.style.isDeleteEnabled {
             let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
             lpgr.minimumPressDuration = 0.5
             lpgr.delegate = self
             self.addGestureRecognizer(lpgr)
         }
+        addSubview(collectionView)
+        addSubview(fadeCountLabel)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            collectionView.topAnchor.constraint(equalTo: topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        applyFadeMaskIfNeeded()
+        // Position and style hidden-count label
+        let labelWidth: CGFloat = 30
+        var labelHeight: CGFloat = bounds.height - style.verticalPadding * 2
+        let xPos = bounds.width - style.horizontalPadding - labelWidth
+        var yPos = style.verticalPadding
+
+        let heightRatio = 0.8
+        yPos = yPos + labelHeight * (1 - heightRatio)/2
+        labelHeight = labelHeight * heightRatio
+
+        fadeCountLabel.frame = CGRect(x: xPos, y: yPos, width: labelWidth, height: labelHeight)
+        fadeCountLabel.layer.cornerRadius = labelHeight / 2
+        fadeCountLabel.clipsToBounds = true
+    }
+  
+    /// Applies a horizontal fade mask at the right edge when in truncateTail mode, using the collectionView's layer mask property.
+    private func applyFadeMaskIfNeeded() {
+        guard style.overflow == .truncateTail,
+              let flowLayout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
+            // No truncate: clear mask
+            collectionView.layer.mask = nil
+            fadeCountLabel.isHidden = true
+            return
+        }
+
+        let insets = flowLayout.sectionInset
+        let spacing = flowLayout.minimumInteritemSpacing
+        // total width of all items + insets
+        let totalWidth = tagsList.enumerated().reduce(insets.left + insets.right) { acc, pair in
+            let (i, tag) = pair
+            let w = tag.estimateSizeWidth(font: style.cellFont, padding: style.cellHorizontalPadding)
+            return acc + w + (i > 0 ? spacing : 0)
+        }
+        // no mask if everything fits
+        guard totalWidth > bounds.width else {
+            collectionView.layer.mask = nil
+            fadeCountLabel.isHidden = true
+            return
+        }
+
+        // build the gradient mask
+        let fadeWidth = 0.125
+        let mask = CAGradientLayer()
+        // Make sure layout is up-to-date
+        collectionView.layoutIfNeeded()
+        mask.frame = collectionView.bounds
+        mask.startPoint = CGPoint(x: 0, y: 0.5)
+        mask.endPoint   = CGPoint(x: 1, y: 0.5)
+        let bg = GraphicColors.backgroundWhite.cgColor
+        mask.colors = [
+            bg,
+            bg,
+            bg.copy(alpha: 0.0)!,
+            bg.copy(alpha: 0.0)!,
+        ]
+        mask.locations = [
+            NSNumber(value: 0.0),
+            NSNumber(value: 1.0 - 2.0 * fadeWidth),
+            NSNumber(value: 1.0 - fadeWidth),
+            NSNumber(value: 1.0)
+        ]
+        // Use as mask: mask fades the rightmost content, revealing background/highlight
+        mask.frame = collectionView.bounds
+        collectionView.layer.mask = mask
+
+        // Count tags with ≤50% visibility
+        let insetRight = flowLayout.sectionInset.right
+        let maxX = bounds.width * (1 - 1.5 * fadeWidth) - insetRight
+        var accX = flowLayout.sectionInset.left
+        var hiddenCount = 0
+        for tag in tagsList {
+            let w = tag.estimateSizeWidth(font: style.cellFont, padding: style.cellHorizontalPadding)
+            let tagMinX = accX
+            let visibleWidth = max(0, min(w, maxX - tagMinX))
+            let shouldHide = (visibleWidth / w) <= 0.5
+            if shouldHide { hiddenCount += 1 }
+            accX += w + flowLayout.minimumInteritemSpacing
+        }
+
+        if hiddenCount > 0 {
+            fadeCountLabel.text = "+\(hiddenCount)"
+            fadeCountLabel.isHidden = false
+        } else {
+            fadeCountLabel.isHidden = true
+        }
+        // Ensure the count label renders above the masked content
+        bringSubviewToFront(fadeCountLabel)
+    }
+    
     func removeTag(at index: Int) {
-        let actualIndex = isAddEnabled ? index - 1 : index
+        let actualIndex = style.isAddEnabled ? index - 1 : index
         selectedTagList.removeAll { $0 == tagsList[actualIndex] }
         tagsList.remove(at: actualIndex)
-        reloadData()
+        self.collectionView.reloadData()
     }
 
     func removeAllTags() {
         tagsList.removeAll()
         selectedTagList.removeAll()
-        reloadData()
+        self.collectionView.reloadData()
     }
 
     func deselectAllTags() {
-        guard let selectedItems = indexPathsForSelectedItems else { return }
+        guard let selectedItems = self.collectionView.indexPathsForSelectedItems else { return }
         for indexPath in selectedItems {
-            collectionView(self, didDeselectItemAt: indexPath)
+            collectionView(self.collectionView, didDeselectItemAt: indexPath)
         }
-        reloadData()
+        self.collectionView.reloadData()
     }
 
     // MARK: Long Press Gesture Recognizer
@@ -93,13 +247,13 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
         // If there are no tags to delete, do nothing
         if tagsList.isEmpty { return }
         if gestureReconizer.state != .began { return }
-        let p = gestureReconizer.location(in: self)
-        let indexPath = self.indexPathForItem(at: p)
+        let p = gestureReconizer.location(in: self.collectionView)
+        let indexPath = self.collectionView.indexPathForItem(at: p)
         
         //check if the long press was into the collection view or the cells
         if let index = indexPath {
-            if !isAddEnabled || index.row != 0 {
-                let tagCell = self.cellForItem(at: index) as! YYTTagCell
+            if !style.isAddEnabled || index.row != 0 {
+                let tagCell = self.collectionView.cellForItem(at: index) as! YYTTagCell
                 let tagTitle = tagCell.titleLabel.text ?? ""
                 let actionSheet = UIAlertController(title: "Are you sure to delete '\(tagTitle)'?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
                 actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
@@ -122,31 +276,34 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
 
     // MARK: Collection View
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return isAddEnabled ? tagsList.count + 1:tagsList.count
+        return style.isAddEnabled ? tagsList.count + 1:tagsList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YYTTagCell
         tagCell.textField.delegate = self
-        if isAddEnabled && indexPath.row == 0 {
+        // Apply consistent cell border width
+        tagCell.layer.borderWidth = style.cellBorderWidth
+
+        if style.isAddEnabled && indexPath.row == 0 {
             tagCell.backgroundColor = GraphicColors.green
             tagCell.layer.borderColor = GraphicColors.darkGreen.cgColor
             tagCell.titleLabel.textColor = .white
             tagCell.titleLabel.text = "+"
-            tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
+            tagCell.titleLabel.font = style.cellFont
             tagCell.textField.textColor = .white
             tagCell.textField.placeholder = addTagPlaceHolder
         } else {
             tagCell.backgroundColor = tagCell.isSelected ? GraphicColors.orange : UIColor.clear
             tagCell.titleLabel.textColor = .darkGray
-            tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
+            tagCell.titleLabel.font = style.cellFont
             tagCell.textField.textColor = .darkGray
             tagCell.layer.borderColor = GraphicColors.orange.cgColor
-            let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
+            let index = style.isAddEnabled ? indexPath.row - 1 : indexPath.row
             tagCell.titleLabel.text = tagsList[index]
         }
-        tagCell.textField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
-        tagCell.textField.theme.font = UIFont(name: "DINCondensed-Bold", size: 14)!
+        tagCell.textField.font = style.cellFont
+        tagCell.textField.theme.font = style.cellFont
         tagCell.textField.highlightAttributes = [NSAttributedString.Key.backgroundColor: UIColor.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:tagCell.textField.theme.font]
         return tagCell
     }
@@ -154,33 +311,34 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if isAddEnabled && indexPath.row == 0 {
+        if style.isAddEnabled && indexPath.row == 0 {
             let cellSize = isEditingEnabled ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
             isEditingEnabled = false
             return cellSize
         }
-        let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
-        var titleWidth = tagsList[index].estimateSizeWidth(font: UIFont.init(name: "DINCondensed-Bold", size: 16)!, padding: 32.0 / 1.5)
-        titleWidth = titleWidth > collectionView.frame.width * 0.475 ? collectionView.frame.width * 0.475:titleWidth
-        return CGSize(width: titleWidth, height: 32)
+        let index = style.isAddEnabled ? indexPath.row - 1 : indexPath.row
+        // Horizontal: text width + horizontal padding
+        let textWidth = tagsList[index].estimateSizeWidth(font: style.cellFont, padding: style.cellHorizontalPadding)
+        let clampedWidth = min(textWidth, collectionView.frame.width * 0.475)
+        return CGSize(width: clampedWidth, height: style.cellHeight)
     }
         
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! YYTTagCell
-        if isAddEnabled && indexPath.row == 0 {
+        if style.isAddEnabled && indexPath.row == 0 {
             print("Add Tag Button tapped")
             isEditingEnabled = true
             cell.switchMode(enableEditing: true)
             cell.textField.filterStrings(self.suggestionsList ?? [])
             collectionView.performBatchUpdates(nil, completion: nil)
-        } else if self.allowsMultipleSelection {
+        } else if self.collectionView.allowsMultipleSelection {
             cell.backgroundColor = GraphicColors.orange
             selectedTagList.append(cell.titleLabel.text!)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        if self.allowsMultipleSelection {
+        if self.collectionView.allowsMultipleSelection {
             let cell = collectionView.cellForItem(at: indexPath) as? YYTTagCell
             cell?.backgroundColor = .clear
             if let text = cell?.titleLabel.text, let index = selectedTagList.firstIndex(of: text) {
@@ -209,10 +367,10 @@ class YYTTagView: UICollectionView, UICollectionViewDataSource, UICollectionView
                 return
             }
             tagsList.append(text)
-            reloadData()
+            self.collectionView.reloadData()
         }
         (textField.superview?.superview as! YYTTagCell).switchMode(enableEditing: false)
-        self.performBatchUpdates(nil, completion: nil)
+        self.collectionView.performBatchUpdates(nil, completion: nil)
     }
 }
 

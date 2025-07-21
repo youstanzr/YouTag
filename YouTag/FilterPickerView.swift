@@ -127,13 +127,20 @@ class FilterPickerView: UIView {
         pickerView.addSubview(rangeSliderView)
 
         // Tag View
-        tagView = YYTTagView(
-            frame: .zero,
-            tagsList: [],
+        let style = TagViewStyle(
             isAddEnabled: false,
             isMultiSelection: true,
             isDeleteEnabled: false,
-            suggestionDataSource: nil
+            showsBorder: true,
+            cellFont: UIFont(name: "DINCondensed-Bold", size: 16)!,
+            overflow: .scrollable,
+            verticalPadding: 5
+        )
+        tagView = YYTTagView(
+            frame: .zero,
+            tagsList: [],
+            suggestionDataSource: nil,
+            style: style
         )
         pickerView.addSubview(tagView)
 
@@ -322,9 +329,9 @@ class FilterPickerView: UIView {
         default:
             break
         }
-        tagView.reloadData()
+        tagView.collectionView.reloadData()
         self.layoutIfNeeded()
-        tagView.setContentOffset(.zero, animated: false) // Scroll to top
+        tagView.collectionView.setContentOffset(.zero, animated: false) // Scroll to top
     }
     
     @objc func releaseYrValueChanged(_ sender: UISegmentedControl) {
@@ -346,7 +353,7 @@ class FilterPickerView: UIView {
             tagViewDefaultTopAnchor?.isActive = false
             tagViewWithSegmentTopAnchor?.isActive = true
         }
-        tagView.reloadData()
+        tagView.collectionView.reloadData()
         self.layoutIfNeeded()
     }
 

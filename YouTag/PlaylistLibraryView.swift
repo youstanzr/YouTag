@@ -51,7 +51,7 @@ class PlaylistLibraryView: LibraryTableView {
         let adjustedIndex = (PlaylistManager.shared.currentPlaylist.count - 2 - indexPath.row) % PlaylistManager.shared.currentPlaylist.count
         let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
         
-        cell.refreshCell(with: song)
+        cell.refreshCell(with: song, showTags: true)
         return cell
     }
 

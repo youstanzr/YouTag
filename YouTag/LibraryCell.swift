@@ -24,31 +24,53 @@ class LibraryCell : UITableViewCell {
     }()
 
     private let titleLabel: MarqueeLabel = {
-        let label = MarqueeLabel()
-        label.font = UIFont.boldSystemFont(ofSize: 16)
-        label.textColor = .label
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+        let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
+        lbl.trailingBuffer = 40.0
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 16)
+        lbl.textAlignment = .left
+        return lbl
     }()
 
-    private let artistLabel: MarqueeLabel = {
-        let label = MarqueeLabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    /// Combined artist • album • releaseYear
+    private let subLabel: MarqueeLabel = {
+        let lbl = MarqueeLabel(frame: .zero, rate: 45.0, fadeLength: 10.0)
+        lbl.trailingBuffer = 40.0
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
+        lbl.textColor = .secondaryLabel
+        lbl.textAlignment = .left
+        return lbl
     }()
 
     private let durationLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 1
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+        let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
+        lbl.trailingBuffer = 40.0
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 14)
+        lbl.textAlignment = .right
+        return lbl
+    }()
+
+    private let tagView: YYTTagView = {
+        let style = TagViewStyle(
+            isAddEnabled: false,
+            isMultiSelection: false,
+            isDeleteEnabled: false,
+            showsBorder: false,
+            cellFont: UIFont(name: "Damascus", size: 14)!,
+            overflow: .truncateTail,
+            horizontalPadding: 0,
+            verticalPadding: 0,
+            cellHorizontalPadding: 15,
+            cellHeight: 20,
+            cellBorderWidth: 1.25
+        )
+        let view = YYTTagView(
+            frame: .zero,
+            tagsList: [],
+            suggestionDataSource: nil,
+            style: style
+        )
+        view.isUserInteractionEnabled = false
+        return view
     }()
 
     // MARK: - Init
@@ -62,27 +84,33 @@ class LibraryCell : UITableViewCell {
     }
 
     // MARK: - Cell Configuration
-    func refreshCell(with song: Song) {
+    func refreshCell(with song: Song, showTags: Bool) {
         titleLabel.text = song.title.isEmpty ? "Unknown Title" : song.title
-        let artistsText = song.artists.joined(separator: ", ")
-        artistLabel.text = artistsText.isEmpty ? "" : artistsText
+        // Build subLabel as "Artist • Album • Year"
+        let parts = [
+            song.album ?? "",
+            song.releaseYear ?? "",
+            song.artists.joined(separator: ", "),
+        ].filter { !$0.isEmpty }
+        subLabel.text = parts.joined(separator: "  •  ")
+
         durationLabel.text = song.duration
 
         // Restart marquee and set direction based on text
-        titleLabel.labelize = true
         titleLabel.restartLabel()
-        if titleLabel.text != nil && titleLabel.text!.isRTL {
-            titleLabel.type = .continuousReverse
-        } else {
-            titleLabel.type = .continuous
-        }
+        titleLabel.type = titleLabel.text!.isRTL ? .continuousReverse : .continuous
 
-        artistLabel.labelize = true
-        artistLabel.restartLabel()
-        if artistLabel.text != nil && artistLabel.text!.isRTL {
-            artistLabel.type = .continuousReverse
+        // Restart marquee on subLabel
+        subLabel.restartLabel()
+        subLabel.type = subLabel.text!.isRTL ? .continuousReverse : .continuous
+
+        // Update tag view
+        if showTags && !song.tags.isEmpty {
+            tagView.isHidden = false
+            tagView.tagsList = song.tags
+            tagView.collectionView.reloadData()
         } else {
-            artistLabel.type = .continuous
+            tagView.isHidden = true
         }
 
         loadThumbnail(from: song.thumbnailPath)
@@ -124,26 +152,49 @@ class LibraryCell : UITableViewCell {
     private func setupUI() {
         contentView.addSubview(thumbnailImageView)
         contentView.addSubview(titleLabel)
-        contentView.addSubview(artistLabel)
+        contentView.addSubview(subLabel)
         contentView.addSubview(durationLabel)
+        contentView.addSubview(tagView)
+        
+        thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subLabel.translatesAutoresizingMaskIntoConstraints = false
+        durationLabel.translatesAutoresizingMaskIntoConstraints = false
+        tagView.translatesAutoresizingMaskIntoConstraints = false
+        
+//        titleLabel.backgroundColor = .yellow
+//        subLabel.backgroundColor = .green
+//        durationLabel.backgroundColor = .red
+//        tagView.backgroundColor = .cyan
 
         NSLayoutConstraint.activate([
             thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             thumbnailImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            thumbnailImageView.widthAnchor.constraint(equalToConstant: 60),
-            thumbnailImageView.heightAnchor.constraint(equalToConstant: 60),
+            thumbnailImageView.widthAnchor.constraint(equalToConstant: 70),
+            thumbnailImageView.heightAnchor.constraint(equalToConstant: 70),
 
+            // Title row
             titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: durationLabel.leadingAnchor, constant: -10),
+            titleLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
+            titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: durationLabel.topAnchor, constant: -5),
 
-            artistLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
-            artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            artistLabel.trailingAnchor.constraint(lessThanOrEqualTo: durationLabel.leadingAnchor, constant: -10),
+            // SubLabel row
+            subLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            subLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
+            subLabel.topAnchor.constraint(equalTo: durationLabel.topAnchor),
+            subLabel.bottomAnchor.constraint(equalTo: durationLabel.bottomAnchor),
 
+            // Duration stays on right, centered vertically across cell
             durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             durationLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            durationLabel.widthAnchor.constraint(equalToConstant: 60)
+            durationLabel.widthAnchor.constraint(equalToConstant: 35),
+
+            // TagView row
+            tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            tagView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            tagView.heightAnchor.constraint(equalToConstant: 20),
+            tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor),
         ])
     }
 

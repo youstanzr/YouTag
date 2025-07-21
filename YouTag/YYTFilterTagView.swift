@@ -15,7 +15,17 @@ class YYTFilterTagView: YYTTagView {
     init(frame: CGRect, tupleTags: [(PlaylistFilters.FilterType, String)], isDeleteEnabled: Bool) {
         self.tupleTags = tupleTags
         let titles = tupleTags.map { $0.1 }
-        super.init(frame: frame, tagsList: titles, isAddEnabled: false, isMultiSelection: false, isDeleteEnabled: isDeleteEnabled, suggestionDataSource: nil)
+        let style = TagViewStyle(
+            isAddEnabled: false,
+            isMultiSelection: false,
+            isDeleteEnabled: isDeleteEnabled,
+            showsBorder: true,
+            cellFont: UIFont(name: "DINCondensed-Bold", size: 16)!,
+            overflow: .scrollable,
+            verticalPadding: 5
+        )
+
+        super.init(frame: frame, tagsList: titles, suggestionDataSource: nil, style: style)
     }
 
     required init?(coder: NSCoder) {
@@ -25,18 +35,18 @@ class YYTFilterTagView: YYTTagView {
     func updateTags(with newTags: [(PlaylistFilters.FilterType, String)]) {
         self.tupleTags = newTags
         self.tagsList = newTags.map { $0.1 }
-        self.reloadData() // Refresh UI
+        self.collectionView.reloadData() // Refresh UI
     }
     
     override func removeTag(at index: Int) {
-        let actualIndex = isAddEnabled ? index - 1 : index
+        let actualIndex = style.isAddEnabled ? index - 1 : index
         selectedTagList.removeAll { $0 == tagsList[actualIndex] }
         tagsList.remove(at: actualIndex)
         tupleTags.remove(at: actualIndex)
         // Convert tupleTags back into [[String]] for the delegate
         let stringArray = tupleTags.map { [$0.0.rawValue, $0.1] }
         yytdelegate?.tagsListChanged(newTagsList: stringArray)
-        reloadData()
+        self.collectionView.reloadData()
     }
 
     override func removeAllTags() {
@@ -45,7 +55,7 @@ class YYTFilterTagView: YYTTagView {
         selectedTagList.removeAll()
         // Notify delegate with an empty array of string tuples
         yytdelegate?.tagsListChanged(newTagsList: [])
-        reloadData()
+        self.collectionView.reloadData()
     }
 
     private func getImageForType(_ filter: PlaylistFilters.FilterType) -> UIImage {
@@ -68,7 +78,7 @@ class YYTFilterTagView: YYTTagView {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! YYTTagCell
         tagCell.textField.delegate = self
-        if isAddEnabled && indexPath.row == 0 {
+        if style.isAddEnabled && indexPath.row == 0 {
             tagCell.backgroundColor = GraphicColors.green
             tagCell.layer.borderColor = GraphicColors.darkGreen.cgColor
             tagCell.textField.textColor = .white
@@ -84,7 +94,7 @@ class YYTFilterTagView: YYTTagView {
             tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
             tagCell.layer.borderColor = GraphicColors.orange.cgColor
 
-            let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
+            let index = style.isAddEnabled ? indexPath.row - 1 : indexPath.row
             let (filter, title) = tupleTags[index]
             tagCell.titleLabel.text = title
             tagCell.desc = filter.rawValue
@@ -96,12 +106,12 @@ class YYTFilterTagView: YYTTagView {
     override func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if isAddEnabled && indexPath.row == 0 {
+        if style.isAddEnabled && indexPath.row == 0 {
             let cellSize = isEditingEnabled ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
             isEditingEnabled = false
             return cellSize
         }
-        let index = isAddEnabled ? indexPath.row - 1 : indexPath.row
+        let index = style.isAddEnabled ? indexPath.row - 1 : indexPath.row
         let title = tagsList[index]
         var titleWidth = title.estimateSizeWidth(font: UIFont(name: "DINCondensed-Bold", size: 16)!, padding: 5.0)
         titleWidth = min(titleWidth, collectionView.frame.width * 0.475)
