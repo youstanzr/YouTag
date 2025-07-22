@@ -86,54 +86,81 @@ class PlaylistLibraryView: LibraryTableView {
 
     // MARK: - Long Press Gesture for Rearranging Cells
     @objc private func longPressGestureRecognized(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        let locationInView = gestureRecognizer.location(in: self)
-        guard let indexPath = self.indexPathForRow(at: locationInView) else { return }
+        let rowHeight: CGFloat = 80.0
+        let totalRows = tableView(self, numberOfRowsInSection: 0)
         
+        let locationInView = gestureRecognizer.location(in: self)
+        let rawY = locationInView.y + contentOffset.y
+        let row = min(max(Int(rawY / rowHeight), 0), totalRows - 1)
+        let indexPath = IndexPath(row: row, section: 0)
+        let clampedLocation = CGPoint(x: locationInView.x, y: min(max(locationInView.y, 0), contentSize.height))
         switch gestureRecognizer.state {
-        case .began:
-            guard let cell = self.cellForRow(at: indexPath) as? LibraryCell else { return }
-            longPressValues.indexPath = indexPath
-            longPressValues.cellSnapShot = cell.snapshotOfView()
-            longPressValues.cellSnapShot?.center = cell.center
-            longPressValues.cellSnapShot?.alpha = 0.0
-            self.addSubview(longPressValues.cellSnapShot!)
-            
-            UIView.animate(withDuration: 0.25) {
-                self.longPressValues.cellSnapShot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
-                self.longPressValues.cellSnapShot?.alpha = 0.98
-                cell.alpha = 0.0
-            } completion: { finished in
-                if finished {
-                    cell.isHidden = true
-                }
-            }
-            
-        case .changed:
-            guard let cellSnapShot = longPressValues.cellSnapShot else { return }
-            cellSnapShot.center.y = locationInView.y
-            
-            if indexPath != longPressValues.indexPath {
-                PlaylistManager.shared.currentPlaylist.swapAt(indexPath.row, longPressValues.indexPath!.row)
-                self.moveRow(at: longPressValues.indexPath!, to: indexPath)
+            case .began:
+                print("Begin")
+                guard let cell = self.cellForRow(at: indexPath) as? LibraryCell else { return }
                 longPressValues.indexPath = indexPath
-            }
-            
-        default:
-            guard let originalIndexPath = longPressValues.indexPath,
-                  let cell = self.cellForRow(at: originalIndexPath) as? LibraryCell else { return }
-            
-            UIView.animate(withDuration: 0.25) {
-                self.longPressValues.cellSnapShot?.center = cell.center
-                self.longPressValues.cellSnapShot?.transform = .identity
-                self.longPressValues.cellSnapShot?.alpha = 0.0
-                cell.alpha = 1.0
-            } completion: { finished in
-                if finished {
-                    self.longPressValues.cellSnapShot?.removeFromSuperview()
-                    self.longPressValues = (nil, nil)
-                    cell.isHidden = false
+                longPressValues.cellSnapShot = cell.snapshotOfView()
+                longPressValues.cellSnapShot?.center = cell.center
+                longPressValues.cellSnapShot?.alpha = 0.0
+                self.addSubview(longPressValues.cellSnapShot!)
+                
+                UIView.animate(withDuration: 0.25) {
+                    self.longPressValues.cellSnapShot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
+                    self.longPressValues.cellSnapShot?.alpha = 0.98
+                    cell.alpha = 0.0
+                } completion: { finished in
+                    if finished {
+                        cell.isHidden = true
+                    }
                 }
-            }
+                
+            case .changed:
+                print("Changed \(clampedLocation.y)")
+                // Auto-scroll when dragging beyond top/bottom
+                let scrollSpeed: CGFloat = 10
+                var newY: CGFloat = 0
+                if locationInView.y < contentOffset.y + bounds.height * 0.3 {
+                    newY = max(contentOffset.y - scrollSpeed, 0)       // Scroll up
+                    setContentOffset(CGPoint(x: contentOffset.x, y: newY), animated: false)
+                } else if locationInView.y > contentOffset.y + bounds.height * 0.7 {
+                    let maxOffset = max(contentSize.height - bounds.height, 0)
+                    newY = min(contentOffset.y + scrollSpeed, maxOffset)  // Scroll down
+                    setContentOffset(CGPoint(x: contentOffset.x, y: newY), animated: false)
+                }
+                
+                guard let cellSnapShot = longPressValues.cellSnapShot else { return }
+                cellSnapShot.center.y = clampedLocation.y
+                
+                let targetRawY = cellSnapShot.center.y + contentOffset.y
+                let targetRow = min(max(Int(targetRawY / rowHeight), 0), totalRows - 1)
+                let targetIndexPath = IndexPath(row: targetRow, section: 0)
+                
+                if targetIndexPath != longPressValues.indexPath {
+                    print("Swapping \(targetIndexPath.row) and \(longPressValues.indexPath!.row)")
+                    let i1 = (PlaylistManager.shared.currentPlaylist.count - 2 - targetIndexPath.row) % PlaylistManager.shared.currentPlaylist.count
+                    let i2 = (PlaylistManager.shared.currentPlaylist.count - 2 - longPressValues.indexPath!.row) % PlaylistManager.shared.currentPlaylist.count
+                    PlaylistManager.shared.currentPlaylist.swapAt(i1, i2)
+                    self.moveRow(at: longPressValues.indexPath!, to: targetIndexPath)
+                    longPressValues.indexPath = targetIndexPath
+                }
+                
+            default:
+                print("default")
+                guard let originalIndexPath = longPressValues.indexPath,
+                      let cell = self.cellForRow(at: originalIndexPath) as? LibraryCell else { return }
+                
+                UIView.animate(withDuration: 0.25) {
+                    self.longPressValues.cellSnapShot?.center = cell.center
+                    self.longPressValues.cellSnapShot?.transform = .identity
+                    self.longPressValues.cellSnapShot?.alpha = 0.0
+                    cell.alpha = 1.0
+                } completion: { finished in
+                    if finished {
+                        self.longPressValues.cellSnapShot?.removeFromSuperview()
+                        self.longPressValues = (nil, nil)
+                        cell.isHidden = false
+                    }
+                }
         }
     }
 }
