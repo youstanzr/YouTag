@@ -98,7 +98,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         self.collectionView.dataSource = self
         self.layer.cornerRadius = 5
         self.layer.borderWidth = style.showsBorder ? 1.0 : 0.0
-        self.layer.borderColor = UIColor.lightGray.cgColor
+        self.layer.borderColor = GraphicColors.lightGray.cgColor
         self.backgroundColor = UIColor.clear
         self.collectionView.backgroundColor = UIColor.clear
         self.collectionView.allowsMultipleSelection = style.isMultiSelection
@@ -304,7 +304,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         }
         tagCell.textField.font = style.cellFont
         tagCell.textField.theme.font = style.cellFont
-        tagCell.textField.highlightAttributes = [NSAttributedString.Key.backgroundColor: UIColor.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:tagCell.textField.theme.font]
+        tagCell.textField.highlightAttributes = [NSAttributedString.Key.backgroundColor: GraphicColors.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:tagCell.textField.theme.font]
         return tagCell
     }
     

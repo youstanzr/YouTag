@@ -25,7 +25,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let imgView = UIImageView()
         imgView.layer.cornerRadius = 5.0
         imgView.layer.borderWidth = 1.0
-        imgView.layer.borderColor = UIColor.lightGray.cgColor
+        imgView.layer.borderColor = GraphicColors.lightGray.cgColor
         imgView.layer.masksToBounds = true
         return imgView
     }()
@@ -240,7 +240,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
         thumbnailImageView.layer.cornerRadius = 5.0
         thumbnailImageView.layer.borderWidth = 1.0
-        thumbnailImageView.layer.borderColor = UIColor.lightGray.cgColor
+        thumbnailImageView.layer.borderColor = GraphicColors.lightGray.cgColor
         
         nextButton.addTarget(self, action: #selector(nextButtonAction), for: .touchUpInside)
         self.addSubview(nextButton)

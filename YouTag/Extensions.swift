@@ -51,7 +51,7 @@ extension UIViewController {
  
 	func showSpinner(onView : UIView, withTitle title: String?) {
         let spinnerView = UIView.init(frame: onView.bounds)
-        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        spinnerView.backgroundColor = GraphicColors.alpha50Gray
 
         let ai = UIActivityIndicatorView(style: .large)
         ai.startAnimating()
@@ -84,7 +84,7 @@ extension UIViewController {
 	
 	func showProgressView(onView : UIView, withTitle title: String?) {
 		let progressView = UIView.init(frame: onView.bounds)
-		progressView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        progressView.backgroundColor = GraphicColors.alpha50Gray
 		
 		let boxView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width*0.65, height: 80))
 		boxView.backgroundColor = GraphicColors.backgroundWhite

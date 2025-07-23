@@ -17,4 +17,11 @@ struct GraphicColors {
 	static let orange = UIColor(red: 0.984, green: 0.588, blue: 0.188, alpha: 1.0)
 	static let green = UIColor(red:0.000, green:0.802, blue:0.041, alpha:1.00)
 	static let darkGreen = UIColor(red:0.000, green:0.602, blue:0.041, alpha:1.00)
+    static let lightGray = UIColor.lightGray
+    static let black = UIColor.black
+    static let red = UIColor.red
+    static let yellow = UIColor.yellow
+    static let lightText = UIColor.lightText
+    static let alpha50Gray = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+
 }

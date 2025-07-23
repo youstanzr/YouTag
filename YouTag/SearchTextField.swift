@@ -222,8 +222,8 @@ open class SearchTextField: UITextField {
             tableView.semanticContentAttribute = .forceRightToLeft
         }
         
-        shadowView.backgroundColor = UIColor.lightText
-        shadowView.layer.shadowColor = UIColor.black.cgColor
+        shadowView.backgroundColor = GraphicColors.lightText
+        shadowView.layer.shadowColor = GraphicColors.black.cgColor
         shadowView.layer.shadowOffset = CGSize.zero
         shadowView.layer.shadowOpacity = 1
         
@@ -627,11 +627,11 @@ public struct SearchTextFieldTheme {
     }
     
     public static func lightTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 1, green: 1, blue: 1, alpha: 0.6), borderColor: UIColor (red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: UIColor.black)
+        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 1, green: 1, blue: 1, alpha: 0.6), borderColor: UIColor (red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.black)
     }
     
     public static func darkTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 0.8, green: 0.8, blue: 0.8, alpha: 0.6), borderColor: UIColor (red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: UIColor.white)
+        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 0.8, green: 0.8, blue: 0.8, alpha: 0.6), borderColor: UIColor (red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.backgroundWhite)
     }
 }
 

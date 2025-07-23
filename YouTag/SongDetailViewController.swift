@@ -30,7 +30,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         let imgView = UIImageView()
         imgView.layer.cornerRadius = 5.0
         imgView.layer.borderWidth = 1.0
-        imgView.layer.borderColor = UIColor.lightGray.cgColor
+        imgView.layer.borderColor = GraphicColors.lightGray.cgColor
         imgView.layer.masksToBounds = true
         imgView.isUserInteractionEnabled = true
         return imgView
@@ -46,7 +46,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = UIColor.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
         return txtField
     }()
     var artistsTagsView: YYTTagView!
@@ -65,7 +65,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = UIColor.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
         return txtField
     }()
     let releaseYrTextField: UITextField = {
@@ -80,7 +80,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = UIColor.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
         return txtField
     }()
     let lyricsTextView: UITextView = {
@@ -93,7 +93,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtView.textColor = GraphicColors.placeholderGray
         txtView.layer.cornerRadius = 5
         txtView.layer.borderWidth = 1.0
-        txtView.layer.borderColor = UIColor.lightGray.cgColor
+        txtView.layer.borderColor = GraphicColors.lightGray.cgColor
         return txtView
     }()
     let imagePicker = UIImagePickerController()
@@ -384,7 +384,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == GraphicColors.placeholderGray {
             textView.text = nil
-            textView.textColor = UIColor.black
+            textView.textColor = GraphicColors.black
         }
     }
 

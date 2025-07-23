@@ -67,7 +67,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
            (try? url.checkResourceIsReachable()) == true {
             cell.backgroundColor = .white
         } else {
-            cell.backgroundColor = UIColor.systemRed.withAlphaComponent(0.2)
+            cell.backgroundColor = GraphicColors.red.withAlphaComponent(0.2)
         }
         return cell
     }
