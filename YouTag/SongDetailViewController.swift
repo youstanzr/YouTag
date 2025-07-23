@@ -149,6 +149,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             suggestionDataSource: LibraryManager.shared.getAllDistinctValues(for: "artists"),
             style: artistsStyle
         )
+        artistsTagsView.addTagPlaceHolder = "Artist"
         view.addSubview(artistsTagsView)
         
         // Album
