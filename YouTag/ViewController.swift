@@ -8,10 +8,6 @@
 
 import UIKit
 
-// TODO: tags added in Library table view cell
-// TODO: make db, images, and songs in the app folder
-// TODO: Fix warnings
-
 class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
     
     // MARK: - Properties
@@ -134,7 +130,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         // Logo View
         logoView.translatesAutoresizingMaskIntoConstraints = false
         logoView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        logoView.topAnchor.constraint(equalTo: view.topAnchor, constant: 60).isActive = true
+        logoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         logoView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.29).isActive = true
         logoView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.09).isActive = true
 

@@ -234,7 +234,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Thumbnail
         thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            thumbnailImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 70),
+            thumbnailImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             thumbnailImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             thumbnailImageView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
             thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 4.0 / 3.0)
@@ -282,7 +282,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: 10),
             lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            lyricsTextView.heightAnchor.constraint(equalToConstant: 80)
+            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100)
         ])
 
         // Tags View
@@ -291,7 +291,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 10),
             tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            tagsView.bottomAnchor.constraint(equalTo: songSizeLabel.topAnchor, constant: -10)
+            tagsView.bottomAnchor.constraint(equalTo: songSizeLabel.topAnchor, constant: -10),
+            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 90)
         ])
 
         // Song Size Label
