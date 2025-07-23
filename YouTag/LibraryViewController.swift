@@ -10,7 +10,10 @@ import UIKit
 import UniformTypeIdentifiers
 import AVFoundation
 
-class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
+class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearchBarDelegate {
+
+    private var allSongs: [Song] = []
+    private let searchBar = UISearchBar()
 
     let addButton: UIButton = {
         let btn = UIButton()
@@ -46,16 +49,32 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
         self.view.backgroundColor = GraphicColors.backgroundWhite
         
         setupUI()
+        
+        // Capture full list and configure search bar
+        allSongs = LibraryManager.shared.libraryArray
+        // Configure plain UISearchBar
+        searchBar.placeholder = "Search..."
+        searchBar.delegate = self
+        searchBar.enablesReturnKeyAutomatically = false
+        searchBar.returnKeyType = .search
+        searchBar.sizeToFit()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        LibraryManager.shared.refreshLibraryArray()
         self.libraryTableView.refreshTableView()
     }
 
     // MARK: - Setup UI
     func setupUI() {
+        // Add Search Bar
+        self.view.addSubview(searchBar)
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
         // Library Table View
         libraryTableView.backgroundColor = .clear
         self.view.addSubview(libraryTableView)
@@ -70,9 +89,9 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
 
         libraryTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            libraryTableView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            libraryTableView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -5),
-            libraryTableView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 35),
+            libraryTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            libraryTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -5),
+            libraryTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             libraryTableView.bottomAnchor.constraint(equalTo: addButton.topAnchor)
         ])
         
@@ -157,6 +176,39 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate {
     @objc func dismiss(sender: UIButton) {
         print("Dismiss button tapped")
         dismiss(animated: true, completion: nil)
+    }
+    
+    // MARK: - UISearchBarDelegate
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+        // Restore full song list
+        LibraryManager.shared.libraryArray = allSongs
+        libraryTableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let text = searchText.lowercased()
+        if text.isEmpty {
+            LibraryManager.shared.libraryArray = allSongs
+        } else {
+            LibraryManager.shared.libraryArray = allSongs.filter { song in
+                song.title.lowercased().contains(text)
+                || song.artists.contains(where: { $0.lowercased().contains(text) })
+                || (song.album?.lowercased().contains(text) ?? false)
+                || song.tags.contains(where: { $0.lowercased().contains(text) })
+            }
+        }
+        libraryTableView.reloadData()
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
     
 }
