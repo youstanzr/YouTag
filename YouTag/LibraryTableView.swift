@@ -40,16 +40,13 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         let reversed = Array(LibraryManager.shared.libraryArray.reversed())
         for ip in indexPaths {
             let song = reversed[ip.row]
-            // Prefetch by song.id as cache key
-            let key = song.id
-            if LibraryCell.thumbnailCache.object(forKey: key as NSString) == nil,
-               let filename = song.thumbnailPath {
+            guard let filename = song.thumbnailPath else { continue }
+            if LibraryCell.thumbnailCache.object(forKey: filename as NSString) == nil {
                 // Trigger a background load into the cache
                 let fileURL = LocalFilesManager.getImageFileURL(for: filename)
                 DispatchQueue.global(qos: .background).async {
-                    if let data = try? Data(contentsOf: fileURL),
-                    let img = UIImage(data: data) {
-                        LibraryCell.thumbnailCache.setObject(img, forKey: key as NSString)
+                    if let data = try? Data(contentsOf: fileURL), let img = UIImage(data: data) {
+                        LibraryCell.thumbnailCache.setObject(img, forKey: filename as NSString)
                     }
                 }
             }
