@@ -70,11 +70,11 @@ class YYTAudioPlayer: NSObject {
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         if let avp = avPlayer {
             avp.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 2), queue: .main) { [weak self] time in
-                guard let self = self, let duration = avp.currentItem?.duration.seconds, duration.isFinite else { return }
-                self.delegate?.audioPlayerPeriodicUpdate(
-                    currentTime: Float(time.seconds),
-                    duration: self.duration()
-                )
+                guard let self = self, let item = avp.currentItem, item.duration.seconds.isFinite else { return }
+                let currentTime = Float(time.seconds)
+                self.delegate?.audioPlayerPeriodicUpdate(currentTime: currentTime, duration: self.duration())
+                // Update Control Center progress
+                self.updateNowPlaying(isPaused: !(avp.rate != 0 && avp.timeControlStatus == .playing))
             }
             NotificationCenter.default.addObserver(
                 self,
@@ -101,10 +101,18 @@ class YYTAudioPlayer: NSObject {
         if isSuspended {  return  }
         avPlayer?.pause()
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
+        updateNowPlaying(isPaused: true)
     }
 
-    func next() {  play()  }
-    func prev() {  play()  }
+    func next() {
+        PlaylistManager.shared.movePlaylistForward()
+        play()
+    }
+
+    func prev() {
+        PlaylistManager.shared.movePlaylistBackward()
+        play()
+    }
     
     /// Starts or resumes playback at the desired rate and notifies the delegate.
     private func startPlayback() {
@@ -112,6 +120,7 @@ class YYTAudioPlayer: NSObject {
         avPlayer?.play()
         avPlayer?.rate = desiredRate
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
+        updateNowPlaying(isPaused: false)
     }
 
     func clearPlayback() {
@@ -184,53 +193,45 @@ class YYTAudioPlayer: NSObject {
 
     // MARK: - Now Playing Info
 
+    /// Returns the appropriate artwork for a song.
+    private func getArtwork(for song: Song) -> MPMediaItemArtwork {
+        // Fetch custom thumbnail or fallback to placeholder
+        let image = LibraryManager.shared.fetchThumbnail(for: song)
+            ?? UIImage(named: "placeholder", in: Bundle.main, compatibleWith: nil)
+            ?? UIImage()
+        // Rasterize image for compatibility
+        let renderer = UIGraphicsImageRenderer(size: image.size)
+        let rasterImage = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: image.size))
+        }
+        return MPMediaItemArtwork(boundsSize: rasterImage.size) { _ in rasterImage }
+    }
+
+    /// Adds elapsed time and playback rate to nowPlaying info.
+    private func applyPlaybackInfo(isPaused: Bool, to info: inout [String: Any]) {
+        let elapsed = avPlayer?.currentItem?.currentTime().seconds ?? 0
+        let duration = avPlayer?.currentItem?.duration.seconds.isFinite == true
+            ? avPlayer!.currentItem!.duration.seconds
+            : 0
+        let rate: Float = isPaused ? 0.0 : Float(avPlayer?.rate ?? 0)
+        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
+        info[MPMediaItemPropertyPlaybackDuration] = duration
+        info[MPNowPlayingInfoPropertyPlaybackRate] = rate
+    }
+
     func setupNowPlaying(song: Song) {
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = song.title
-
-        if let _ = Int(song.id) {
-            if let imageData = try? Data(contentsOf: URL(fileURLWithPath: song.thumbnailPath ?? "")),
-               let image = UIImage(data: imageData) {
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-            } else {
-                let placeholder = UIImage(named: "placeholder") ?? UIImage()
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: placeholder.size) { _ in placeholder }
-            }
-        }
-
-        let elapsed: TimeInterval
-        let totalDuration: TimeInterval
-        let playbackRate: Float
-        if let avp = avPlayer, let item = avp.currentItem {
-            elapsed = item.currentTime().seconds
-            totalDuration = item.duration.seconds.isFinite ? item.duration.seconds : 0
-            playbackRate = Float(avp.rate)
-        } else {
-            elapsed = 0
-            totalDuration = 0
-            playbackRate = 0
-        }
-
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = totalDuration
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = playbackRate
-
+        nowPlayingInfo[MPMediaItemPropertyArtwork] = getArtwork(for: song)
+        // Add elapsed time, rate, and duration
+        let isPaused = !(avPlayer?.rate != 0 && avPlayer?.timeControlStatus == .playing)
+        applyPlaybackInfo(isPaused: isPaused, to: &nowPlayingInfo)
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
     func updateNowPlaying(isPaused: Bool) {
         var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        let elapsed: TimeInterval
-        let rate: Float
-        if let avp = avPlayer {
-            elapsed = avp.currentItem?.currentTime().seconds ?? 0
-            rate = isPaused ? 0.0 : Float(avp.rate)
-        } else {
-            elapsed = 0
-            rate = 0
-        }
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
+        applyPlaybackInfo(isPaused: isPaused, to: &nowPlayingInfo)
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
@@ -282,10 +283,12 @@ class YYTAudioPlayer: NSObject {
         }
         
         commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
-            let e = event as? MPChangePlaybackPositionCommandEvent
-            if let avp = self.avPlayer {
-                let time = CMTime(seconds: e!.positionTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-                avp.seek(to: time)
+            guard let changeEvent = event as? MPChangePlaybackPositionCommandEvent else {
+                return .commandFailed
+            }
+            let seekTime = CMTime(seconds: changeEvent.positionTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+            self.avPlayer?.seek(to: seekTime) { _ in
+                self.updateNowPlaying(isPaused: !(self.avPlayer?.timeControlStatus == .playing))
             }
             return .success
         }

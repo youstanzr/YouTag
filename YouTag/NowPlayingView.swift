@@ -355,13 +355,11 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     }
 
     @objc func nextButtonAction() {
-        PlaylistManager.shared.movePlaylistForward()
-        audioPlayer.play()
+        audioPlayer.next()
     }
     
     @objc func previousButtonAction() {
-        PlaylistManager.shared.movePlaylistBackward()
-        audioPlayer.play()
+        audioPlayer.prev()
     }
     
     @objc func shuffleButtonAction() { NPDelegate?.shufflePlaylist() }
@@ -421,6 +419,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
             skipNextPeriodicUpdate = false
             return
         }
+        // Refresh Control Center elapsed time
+        audioPlayer.updateNowPlaying(isPaused: !audioPlayer.isPlaying())
         if !isProgressBarSliding {
             if duration == 0 {
                 currentTimeLabel.text = "00:00"
