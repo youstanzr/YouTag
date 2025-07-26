@@ -62,9 +62,10 @@ class YYTTagCell: UICollectionViewCell {
 
 		self.contentView.addSubview(titleLabel)
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
-		titleLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -2.5).isActive = true
-		titleLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 6).isActive = true  // Because the font is shifted upward
-		titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -2.5).isActive = true
+        titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: 3.25).isActive = true
+        titleLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
+        titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -2.5).isActive = true
+        titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5).isActive = true
 		titleLabelDefaultLeadingAnchor = titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5)
 		titleLabelWithImageLeadingAnchor = titleLabel.leadingAnchor.constraint(equalTo: self.imageView.trailingAnchor)
 		titleLabelDefaultLeadingAnchor?.isActive = true
