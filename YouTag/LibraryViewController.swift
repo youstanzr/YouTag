@@ -141,39 +141,55 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     // MARK: - Document Picker Delegate
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
+            guard url.startAccessingSecurityScopedResource() else {
+                print("Failed to access security-scoped resource for \(url)")
+                continue
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            // Trigger iCloud download if needed
+            do {
+                try FileManager.default.startDownloadingUbiquitousItem(at: url)
+            } catch {
+                print("Failed to start iCloud download for \(url): \(error)")
+            }
+
             // Initialize a Song model with defaults
             var song = Song.from(url: url)
 
-            // Compute destination name and copy into sandbox
-            let ext = url.pathExtension
-            let destName = "\(song.id).\(ext)"
-            
-            Task {
-                // 1) Copy the file into Documents/Songs
-                guard let localURL = LocalFilesManager.copySongFile(from: url, named: destName) else {
-                    // If copy fails, alert and skip
-                    DispatchQueue.main.async {
-                        let alert = UIAlertController(
-                            title: "Import Error",
-                            message: "Could not copy \(url.lastPathComponent) into the app folder.",
-                            preferredStyle: .alert
-                        )
-                        alert.addAction(UIAlertAction(title: "OK", style: .default))
-                        UIApplication.getCurrentViewController()?.present(alert, animated: true)
-                    }
-                    return
+            // Compute destination name
+            let destName = "\(song.id).\(url.pathExtension)"
+
+            // Coordinate reading and copy the file synchronously
+            let coordinator = NSFileCoordinator(filePresenter: nil)
+            var coordinationError: NSError?
+            var copiedURL: URL?
+            coordinator.coordinate(readingItemAt: url, options: [], error: &coordinationError) { readURL in
+                copiedURL = LocalFilesManager.copySongFile(from: readURL, named: destName)
+            }
+            if let err = coordinationError {
+                print("File coordination error: \(err)")
+                continue
+            }
+            guard let localURL = copiedURL else {
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(
+                        title: "Import Error",
+                        message: "Could not copy \(url.lastPathComponent) into the app folder.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    UIApplication.getCurrentViewController()?.present(alert, animated: true)
                 }
-                // Store the relative path
-                song.filePath = localURL.lastPathComponent
+                continue
+            }
 
-                // 2) Extract duration from the copied file
+            // Save path and perform metadata extraction asynchronously
+            song.filePath = localURL.lastPathComponent
+            Task {
                 song.duration = await LocalFilesManager.extractDurationForSong(fileURL: localURL)
-
-                // 3) Extract metadata from the copied file
                 let metadata = await LocalFilesManager.extractSongMetadata(from: localURL)
                 song = LibraryManager.shared.enrichSong(fromMetadata: metadata, for: song)
-
-                // 4) Insert into DB and refresh UI
                 LibraryManager.shared.addSongToLibrary(song: song)
                 DispatchQueue.main.async {
                     self.libraryTableView.refreshTableView()

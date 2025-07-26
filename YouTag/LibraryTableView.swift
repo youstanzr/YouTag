@@ -131,26 +131,51 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
     // MARK: - UIDocumentPickerDelegate
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        // Ensure we have an indexPath and a single selected file
+        // Ensure single selection and a pending relink index
         guard let indexPath = pendingRelinkIndexPath,
               let fileURL = urls.first else { return }
-        
-        // Determine the destination filename and copy into Documents/Songs
+
+        // Start security-scoped access
+        guard fileURL.startAccessingSecurityScopedResource() else {
+            print("Failed to access security-scoped resource for \(fileURL)")
+            return
+        }
+        defer { fileURL.stopAccessingSecurityScopedResource() }
+
+        // Trigger iCloud download if needed
+        do {
+            try FileManager.default.startDownloadingUbiquitousItem(at: fileURL)
+        } catch {
+            print("Failed to start iCloud download for \(fileURL): \(error)")
+        }
+
+        // Prepare song and destination
         let songList = Array(LibraryManager.shared.libraryArray.reversed())
         var song = songList[indexPath.row]
         let ext = fileURL.pathExtension
         let destName = "\(song.id).\(ext)"
-        if let localURL = LocalFilesManager.copySongFile(from: fileURL, named: destName) {
-            // Update the song's filePath to the sandbox copy
+
+        // Coordinate reading and copy the file
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordError: NSError?
+        var copiedURL: URL?
+        coordinator.coordinate(readingItemAt: fileURL, options: [], error: &coordError) { readURL in
+            copiedURL = LocalFilesManager.copySongFile(from: readURL, named: destName)
+        }
+        if let error = coordError {
+            print("File coordination error for relink: \(error)")
+        }
+
+        // Update song record if copy succeeded
+        if let localURL = copiedURL {
             song.filePath = localURL.lastPathComponent
-            // Persist the change to the database
             LibraryManager.shared.updateSongDetails(song: song)
         } else {
             print("❌ Failed to copy selected file for relink")
         }
-        
-        // Refresh the library display and clear the pending index
-        self.refreshTableView()
+
+        // Refresh UI and clear pending index
+        refreshTableView()
         pendingRelinkIndexPath = nil
     }
     
