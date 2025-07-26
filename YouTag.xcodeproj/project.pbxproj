@@ -558,7 +558,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
+				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.Batta;
 				PRODUCT_NAME = YouTag;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -585,7 +585,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.YouTag;
+				PRODUCT_BUNDLE_IDENTIFIER = Youstanzr.Batta;
 				PRODUCT_NAME = YouTag;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
