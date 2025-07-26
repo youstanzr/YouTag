@@ -126,6 +126,9 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     // MARK: - Add Button Action
     @objc func addButtonAction(sender: UIButton!) {
         print("Add Button tapped")
+        if let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            print("Documents folder path: \(docDir.path)")
+        }
 
         let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio, .movie], asCopy: false)
         documentPicker.delegate = self
