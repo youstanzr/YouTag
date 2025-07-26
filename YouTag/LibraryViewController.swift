@@ -18,7 +18,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     let addButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.charcoalBlack
+        config.baseBackgroundColor = GraphicColors.obsidianBlack
         config.title = "+"
         config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
         config.baseForegroundColor = GraphicColors.orange
@@ -33,7 +33,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     let dismissButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.charcoalBlack
+        config.baseBackgroundColor = GraphicColors.obsidianBlack
         config.title = "✔︎"
         config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
         config.baseForegroundColor = GraphicColors.orange
@@ -66,12 +66,12 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
 
     // MARK: - Setup UI
     func setupUI() {
-        self.view.backgroundColor = GraphicColors.charcoalBlack
+        self.view.backgroundColor = GraphicColors.obsidianBlack
 
         // Add Search Bar
-        searchBar.barTintColor = GraphicColors.charcoalBlack      // Background behind the bar
+        searchBar.barTintColor = GraphicColors.obsidianBlack      // Background behind the bar
         searchBar.backgroundColor = GraphicColors.cloudWhite    // Background color
-        searchBar.searchTextField.backgroundColor = GraphicColors.charcoalBlack   // Text field bg
+        searchBar.searchTextField.backgroundColor = GraphicColors.obsidianBlack   // Text field bg
         searchBar.searchTextField.textColor = GraphicColors.cloudWhite      // Text color
         searchBar.searchTextField.tintColor = GraphicColors.orange             // Cursor color
         searchBar.searchTextField.attributedPlaceholder = NSAttributedString(

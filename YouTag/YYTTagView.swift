@@ -181,7 +181,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         mask.frame = collectionView.bounds
         mask.startPoint = CGPoint(x: 0, y: 0.5)
         mask.endPoint   = CGPoint(x: 1, y: 0.5)
-        let bg = GraphicColors.charcoalBlack.cgColor
+        let bg = GraphicColors.obsidianBlack.cgColor
         mask.colors = [
             bg,
             bg,

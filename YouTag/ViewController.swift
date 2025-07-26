@@ -6,6 +6,8 @@
 //  Copyright © 2019 Youstanzr. All rights reserved.
 //
 
+// Cache issue not well and not invalidated after update pic
+
 import UIKit
 
 class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
@@ -98,7 +100,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 
     // MARK: - Setup UI
     private func setupUI() {
-        view.backgroundColor = GraphicColors.charcoalBlack
+        view.backgroundColor = GraphicColors.obsidianBlack
         
         // Logo View
         view.addSubview(logoView)

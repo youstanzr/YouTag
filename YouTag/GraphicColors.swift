@@ -10,7 +10,7 @@ import UIKit
 
 struct GraphicColors {
 	
-    static let charcoalBlack = UIColor(red: 0.09, green: 0.09, blue: 0.07, alpha: 1.0)
+    static let obsidianBlack = UIColor(red: 0.09, green: 0.11, blue: 0.13, alpha: 1.0)
     static let cloudWhite = UIColor(red: 0.99, green: 0.99, blue: 0.98, alpha: 1)
     static let darkGray = UIColor(red: 0.42, green: 0.44, blue: 0.46, alpha: 1.0)
     static let medGray = UIColor(red: 0.66, green: 0.68, blue: 0.72, alpha: 1.0)

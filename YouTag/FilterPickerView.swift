@@ -29,7 +29,7 @@ class FilterPickerView: UIView {
         let s = UISegmentedControl(items: ["Tag", "Artist", "Album", "Year", "Length"])
         s.selectedSegmentIndex = 0
         s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!, .foregroundColor: UIColor.white], for: .normal)
-        s.backgroundColor = GraphicColors.charcoalBlack
+        s.backgroundColor = GraphicColors.obsidianBlack
         s.selectedSegmentTintColor = GraphicColors.orange
         s.layer.maskedCorners = .init()
         return s
@@ -38,21 +38,21 @@ class FilterPickerView: UIView {
         let s = UISegmentedControl(items: ["Year range", "Exact year"])
         s.selectedSegmentIndex = 0
         s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!, .foregroundColor: UIColor.white], for: .normal)
-        s.backgroundColor = GraphicColors.charcoalBlack
+        s.backgroundColor = GraphicColors.obsidianBlack
         s.selectedSegmentTintColor = GraphicColors.orange
         s.layer.maskedCorners = .init()
         return s
     }()
     private let pickerView: UIView = {
         let v = UIView()
-        v.backgroundColor = GraphicColors.charcoalBlack
+        v.backgroundColor = GraphicColors.obsidianBlack
         return v
     }()
     private let closeButton = UIButton()
     private let addButton: UIButton = {
         let button = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.charcoalBlack
+        config.baseBackgroundColor = GraphicColors.obsidianBlack
         config.baseForegroundColor = GraphicColors.orange
         config.title = "+"
         config.titleAlignment = .center
@@ -112,7 +112,7 @@ class FilterPickerView: UIView {
     // MARK: - Setup
     private func setupView() {
         self.isHidden = true
-        self.backgroundColor = GraphicColors.charcoalBlack.withAlphaComponent(0.85)
+        self.backgroundColor = GraphicColors.obsidianBlack.withAlphaComponent(0.85)
 
         // Close Button
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)

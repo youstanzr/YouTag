@@ -612,7 +612,7 @@ public struct SearchTextFieldTheme {
     }
     
     public static func lightTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor:GraphicColors.alpha50Gray, borderColor: GraphicColors.medGray, separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.charcoalBlack)
+        return SearchTextFieldTheme(cellHeight: 30, bgColor:GraphicColors.alpha50Gray, borderColor: GraphicColors.medGray, separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.obsidianBlack)
     }
 }
 

@@ -17,7 +17,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     let dismissButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.charcoalBlack
+        config.baseBackgroundColor = GraphicColors.obsidianBlack
         config.title = "✔︎"
         config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
         config.baseForegroundColor = GraphicColors.orange
@@ -138,7 +138,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     }
 
     private func setupUI() {
-        view.backgroundColor = GraphicColors.charcoalBlack
+        view.backgroundColor = GraphicColors.obsidianBlack
         setupObservers()
 
         // Thumbnail
