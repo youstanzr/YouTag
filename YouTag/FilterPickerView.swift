@@ -28,8 +28,8 @@ class FilterPickerView: UIView {
     private let filterSegment: UISegmentedControl = {
         let s = UISegmentedControl(items: ["Tag", "Artist", "Album", "Year", "Length"])
         s.selectedSegmentIndex = 0
-        s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!], for: .normal)
-        s.backgroundColor = GraphicColors.backgroundWhite
+        s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!, .foregroundColor: UIColor.white], for: .normal)
+        s.backgroundColor = GraphicColors.charcoalBlack
         s.selectedSegmentTintColor = GraphicColors.orange
         s.layer.maskedCorners = .init()
         return s
@@ -37,28 +37,28 @@ class FilterPickerView: UIView {
     private let releaseYrSegment: UISegmentedControl = {
         let s = UISegmentedControl(items: ["Year range", "Exact year"])
         s.selectedSegmentIndex = 0
-        s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!], for: .normal)
-        s.backgroundColor = GraphicColors.backgroundWhite
+        s.setTitleTextAttributes([.font: UIFont(name: "DINCondensed-Bold", size: 20)!, .foregroundColor: UIColor.white], for: .normal)
+        s.backgroundColor = GraphicColors.charcoalBlack
         s.selectedSegmentTintColor = GraphicColors.orange
         s.layer.maskedCorners = .init()
         return s
     }()
     private let pickerView: UIView = {
         let v = UIView()
-        v.backgroundColor = GraphicColors.backgroundWhite
+        v.backgroundColor = GraphicColors.charcoalBlack
         return v
     }()
     private let closeButton = UIButton()
     private let addButton: UIButton = {
         let button = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.green
-        config.baseForegroundColor = .white
+        config.baseBackgroundColor = GraphicColors.charcoalBlack
+        config.baseForegroundColor = GraphicColors.orange
         config.title = "+"
         config.titleAlignment = .center
         config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
-        
         button.configuration = config
+        button.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
         button.configurationUpdateHandler = { button in
             button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: -5.0, leading: 0.0, bottom: 0.0, trailing: 0.0)
         }
@@ -71,14 +71,15 @@ class FilterPickerView: UIView {
     }()
     private let rangeSlider: YYTRangeSlider = {
         let rSlider = YYTRangeSlider(frame: .zero)
-        rSlider.trackTintColor = GraphicColors.trackGray
+        rSlider.trackTintColor = GraphicColors.darkGray
         rSlider.trackHighlightTintColor = GraphicColors.orange
-        rSlider.thumbColor = .lightGray
+        rSlider.thumbColor = GraphicColors.lightGray
         return rSlider
     }()
     let rangeSliderLowerLabel: UILabel = {
         let lbl = UILabel()
         lbl.text = "00:00"
+        lbl.textColor = GraphicColors.cloudWhite
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 22)
         lbl.textAlignment = .left
         return lbl
@@ -86,6 +87,7 @@ class FilterPickerView: UIView {
     let rangeSliderUpperLabel: UILabel = {
         let lbl = UILabel()
         lbl.text = "10:00"
+        lbl.textColor = GraphicColors.cloudWhite
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 22)
         lbl.textAlignment = .right
         return lbl
@@ -131,7 +133,7 @@ class FilterPickerView: UIView {
             isAddEnabled: false,
             isMultiSelection: true,
             isDeleteEnabled: false,
-            showsBorder: true,
+            showsBorder: false,
             cellFont: UIFont(name: "DINCondensed-Bold", size: 16)!,
             overflow: .scrollable,
             verticalPadding: 5
@@ -170,7 +172,7 @@ class FilterPickerView: UIView {
 
         filterSegment.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            filterSegment.topAnchor.constraint(equalTo: contentView.topAnchor),
+            filterSegment.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             filterSegment.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             filterSegment.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             filterSegment.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.15)
@@ -178,8 +180,8 @@ class FilterPickerView: UIView {
 
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            addButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            addButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: -2.5),
+            addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 2.5),
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             addButton.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.09)
         ])

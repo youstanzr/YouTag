@@ -19,6 +19,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         self.register(LibraryCell.self, forCellReuseIdentifier: "LibraryCell")
+        self.separatorStyle = .none
         self.delegate = self
         self.dataSource = self
         self.prefetchDataSource = self
@@ -65,7 +66,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         // Mark broken links in light red
         if let url = LibraryManager.shared.urlForSong(song),
            (try? url.checkResourceIsReachable()) == true {
-            cell.backgroundColor = .white
+            cell.backgroundColor = .clear
         } else {
             cell.backgroundColor = GraphicColors.red.withAlphaComponent(0.2)
         }

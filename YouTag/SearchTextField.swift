@@ -137,7 +137,6 @@ open class SearchTextField: UITextField {
     // Private implementation
     
     fileprivate var tableView: UITableView?
-    fileprivate var shadowView: UIView?
     fileprivate var direction: Direction = .down
     fileprivate var fontConversionRate: CGFloat = 0.7
     fileprivate var keyboardFrame: CGRect?
@@ -205,9 +204,8 @@ open class SearchTextField: UITextField {
     
     // Create the filter table and shadow view
     fileprivate func buildSearchTableView() {
-        guard let tableView = tableView, let shadowView = shadowView else {
+        guard let tableView = tableView else {
             self.tableView = UITableView(frame: CGRect.zero)
-            self.shadowView = UIView(frame: CGRect.zero)
             buildSearchTableView()
             return
         }
@@ -221,12 +219,7 @@ open class SearchTextField: UITextField {
         if forceRightToLeft {
             tableView.semanticContentAttribute = .forceRightToLeft
         }
-        
-        shadowView.backgroundColor = GraphicColors.lightText
-        shadowView.layer.shadowColor = GraphicColors.black.cgColor
-        shadowView.layer.shadowOffset = CGSize.zero
-        shadowView.layer.shadowOpacity = 1
-        
+                
         self.window?.addSubview(tableView)
         
         redrawSearchTableView()
@@ -306,21 +299,14 @@ open class SearchTextField: UITextField {
                     self?.tableView?.frame = tableViewFrame
                 })
                 
-                var shadowFrame = CGRect(x: 0, y: 0, width: frame.size.width - 6, height: 1)
-                shadowFrame.origin = self.convert(shadowFrame.origin, to: nil)
-                shadowFrame.origin.x += 3
-                shadowFrame.origin.y = tableView.frame.origin.y
-                shadowView!.frame = shadowFrame
             } else {
                 let tableHeight = min((tableView.contentSize.height), (UIScreen.main.bounds.size.height - frame.origin.y - theme.cellHeight))
                 UIView.animate(withDuration: 0.2, animations: { [weak self] in
                     self?.tableView?.frame = CGRect(x: frame.origin.x + 2, y: (frame.origin.y - tableHeight), width: frame.size.width - 4, height: tableHeight)
-                    self?.shadowView?.frame = CGRect(x: frame.origin.x + 3, y: (frame.origin.y + 3), width: frame.size.width - 6, height: 1)
                 })
             }
             
             superview?.bringSubviewToFront(tableView)
-            superview?.bringSubviewToFront(shadowView!)
             
             if self.isFirstResponder {
                 superview?.bringSubviewToFront(self)
@@ -550,7 +536,6 @@ open class SearchTextField: UITextField {
 extension SearchTextField: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tableView.isHidden = !interactedWith || (filteredResults.count == 0)
-        shadowView?.isHidden = !interactedWith || (filteredResults.count == 0)
         
         if maxNumberOfResults > 0 {
             return min(filteredResults.count, maxNumberOfResults)
@@ -627,11 +612,7 @@ public struct SearchTextFieldTheme {
     }
     
     public static func lightTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 1, green: 1, blue: 1, alpha: 0.6), borderColor: UIColor (red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.black)
-    }
-    
-    public static func darkTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 0.8, green: 0.8, blue: 0.8, alpha: 0.6), borderColor: UIColor (red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0), separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.backgroundWhite)
+        return SearchTextFieldTheme(cellHeight: 30, bgColor:GraphicColors.alpha50Gray, borderColor: GraphicColors.medGray, separatorColor: UIColor.clear, font: UIFont.systemFont(ofSize: 10), fontColor: GraphicColors.charcoalBlack)
     }
 }
 

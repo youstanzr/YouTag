@@ -19,7 +19,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     var menuButton: UIButton = {
         let btn = UIButton()
         btn.imageView!.contentMode = .scaleAspectFit
-        btn.setImage(UIImage(named: "list"), for: .normal)
+        btn.setImage(UIImage(named: "list")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         return btn
     }()
     var filterButton: UIButton = {
@@ -29,17 +30,26 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }()
     let titleLabel: UILabel = {
         let lbl = UILabel()
-        lbl.text = "YouTag"
+        lbl.text = "BATTA"
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 28)
         lbl.textAlignment = .left
+        lbl.textColor = GraphicColors.cloudWhite
         return lbl
     }()
     let versionLabel: UILabel = {
         let lbl = UILabel()
+        lbl.text = "v" + UIApplication.shared.version!
+        lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
+        lbl.textAlignment = .right
+        lbl.textColor = GraphicColors.darkGray
+        return lbl
+    }()
+    let buildLabel: UILabel = {
+        let lbl = UILabel()
         lbl.text = "v" + UIApplication.shared.buildNumber!
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
         lbl.textAlignment = .right
-        lbl.textColor = .lightGray
+        lbl.textColor = GraphicColors.darkGray
         return lbl
     }()
     let logoImageView: UIImageView = {
@@ -88,7 +98,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
 
     // MARK: - Setup UI
     private func setupUI() {
-        view.backgroundColor = GraphicColors.backgroundWhite
+        view.backgroundColor = GraphicColors.charcoalBlack
         
         // Logo View
         view.addSubview(logoView)
@@ -109,11 +119,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         
         // Version Label
         view.addSubview(versionLabel)
-        
+
+        // Build Label
+        view.addSubview(buildLabel)
+
         // Playlist Manager Views
         playlistManager.nowPlayingView.backgroundColor = .clear
-        playlistManager.nowPlayingView.addBorder(side: .top, color: .lightGray, width: 1.0)
-        playlistManager.nowPlayingView.addBorder(side: .bottom, color: .lightGray, width: 1.0)
+        playlistManager.nowPlayingView.addBorder(side: .top, color: GraphicColors.darkGray, width: 0.5)
+        playlistManager.nowPlayingView.addBorder(side: .bottom, color: GraphicColors.darkGray, width: 0.5)
         view.addSubview(playlistManager.nowPlayingView)
         
         playlistManager.playlistLibraryView.backgroundColor = .clear
@@ -131,19 +144,20 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         logoView.translatesAutoresizingMaskIntoConstraints = false
         logoView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         logoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        logoView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.29).isActive = true
-        logoView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.09).isActive = true
+        logoView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
+        logoView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1).isActive = true
 
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         logoImageView.leadingAnchor.constraint(equalTo: logoView.leadingAnchor).isActive = true
         logoImageView.centerYAnchor.constraint(equalTo: logoView.centerYAnchor).isActive = true
-        logoImageView.widthAnchor.constraint(equalTo: logoView.widthAnchor, multiplier: 0.4).isActive = true
         logoImageView.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
+        // Maintain aspect ratio for the image
+        logoImageView.widthAnchor.constraint(equalTo: logoImageView.heightAnchor, multiplier: 1.0).isActive = true
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 10).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: logoView.trailingAnchor).isActive = true
         titleLabel.centerYAnchor.constraint(equalTo: logoView.centerYAnchor, constant: 3).isActive = true
-        titleLabel.widthAnchor.constraint(equalTo: logoView.widthAnchor, multiplier: 0.58).isActive = true
         titleLabel.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
 
         // Menu Button
@@ -167,9 +181,16 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
         tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 
+        // Build Label
+        buildLabel.translatesAutoresizingMaskIntoConstraints = false
+        buildLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
+        buildLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
+        buildLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -1).isActive = true
+        buildLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
         // Version Label
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
-        versionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
+        versionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -35).isActive = true
         versionLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
         versionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -1).isActive = true
         versionLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true

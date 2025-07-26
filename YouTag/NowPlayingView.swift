@@ -23,15 +23,18 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     let thumbnailImageView: UIImageView = {
         let imgView = UIImageView()
+        imgView.contentMode = .scaleAspectFill
         imgView.layer.cornerRadius = 5.0
-        imgView.layer.borderWidth = 1.0
-        imgView.layer.borderColor = GraphicColors.lightGray.cgColor
+        imgView.layer.borderWidth = 0.5
+        imgView.layer.borderColor = GraphicColors.darkGray.cgColor
         imgView.layer.masksToBounds = true
+        imgView.translatesAutoresizingMaskIntoConstraints = false
         return imgView
     }()
     
     let titleLabel: MarqueeLabel = {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
+        lbl.textColor = GraphicColors.cloudWhite
         lbl.trailingBuffer = 40.0
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
         lbl.textAlignment = .left
@@ -40,7 +43,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     let artistLabel: MarqueeLabel = {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
-        lbl.textColor = GraphicColors.gray
+        lbl.textColor = GraphicColors.medGray
         lbl.trailingBuffer = 40.0
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
         lbl.textAlignment = .left
@@ -48,17 +51,20 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     }()
     let previousButton: UIButton = {
         let btn = UIButton()
-        btn.setImage(UIImage(named: "previous"), for: .normal)
+        btn.setImage(UIImage(named: "previous")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         return btn
     }()
     let pausePlayButton: UIButton = {
         let btn = UIButton()
-        btn.setImage(UIImage(named: "play"), for: .normal)
+        btn.setImage(UIImage(named: "play")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         return btn
     }()
     let nextButton: UIButton = {
         let btn = UIButton()
-        btn.setImage(UIImage(named: "next"), for: .normal)
+        btn.setImage(UIImage(named: "next")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         return btn
     }()
     let songControlView = UIView()
@@ -81,6 +87,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     let currentTimeLabel: UILabel = {
         let lbl = UILabel()
+        lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
@@ -88,6 +95,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     }()
     let timeLeftLabel: UILabel = {
         let lbl = UILabel()
+        lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
@@ -106,11 +114,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     }()
     let lyricsTextView: UITextView = {
         let txtView = UITextView()
+        txtView.textColor = GraphicColors.cloudWhite
         txtView.backgroundColor = .clear
         txtView.textAlignment = .center
         txtView.font = UIFont.init(name: "Optima-BoldItalic", size: 15)
         txtView.isEditable = false
-        txtView.layer.borderWidth = 1.0
+        txtView.layer.borderWidth = 0.5
         txtView.layer.borderColor = GraphicColors.orange.withAlphaComponent(0.5).cgColor
         return txtView
     }()
@@ -119,7 +128,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let btn = UIButton()
         btn.backgroundColor = .clear
         btn.imageView!.contentMode = .scaleAspectFit
-        btn.setImage(UIImage(named: "loop"), for: .normal)
+        btn.setImage(UIImage(named: "loop")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         btn.alpha = 0.35
         return btn
     }()
@@ -127,7 +137,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let btn = UIButton()
         btn.backgroundColor = .clear
         btn.imageView!.contentMode = .scaleAspectFit
-        btn.setImage(UIImage(named: "shuffle"), for: .normal)
+        btn.setImage(UIImage(named: "shuffle")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        btn.tintColor = GraphicColors.cloudWhite
         return btn
     }()
 
@@ -145,7 +156,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     // MARK: - UI Setup
     private func setupUI() {
-        playlistControlView.addBorder(side: .top, color: .lightGray, width: 1.0)
+        playlistControlView.addBorder(side: .top, color: GraphicColors.darkGray, width: 0.5)
         self.addSubview(playlistControlView)
         playlistControlView.translatesAutoresizingMaskIntoConstraints = false
         playlistControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
@@ -187,7 +198,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         lyricsTextView.topAnchor.constraint(equalTo: lyricsButton.topAnchor).isActive = true
         lyricsTextView.bottomAnchor.constraint(equalTo: lyricsButton.bottomAnchor).isActive = true
 
-        songControlView.addBorder(side: .top, color: .lightGray, width: 1.0)
+        songControlView.addBorder(side: .top, color: GraphicColors.darkGray, width: 0.5)
         self.addSubview(songControlView)
         songControlView.translatesAutoresizingMaskIntoConstraints = false
         songControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
@@ -195,8 +206,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         songControlView.bottomAnchor.constraint(equalTo: playlistControlView.topAnchor).isActive = true
         songControlView.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        let thumbImage = makeCircleImage(radius: 15.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
-        let selectedThumbImage = makeCircleImage(radius: 20.0, color: .lightGray, borderColor: .clear, borderWidth: 0.0)
+        let thumbImage = makeCircleImage(radius: 15.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
+        let selectedThumbImage = makeCircleImage(radius: 20.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
         progressBar.setThumbImage(thumbImage, for: .normal)
         progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
         progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
@@ -239,7 +250,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
 
         thumbnailImageView.layer.cornerRadius = 5.0
-        thumbnailImageView.layer.borderWidth = 1.0
+        thumbnailImageView.layer.borderWidth = 0.5
         thumbnailImageView.layer.borderColor = GraphicColors.lightGray.cgColor
         
         nextButton.addTarget(self, action: #selector(nextButtonAction), for: .touchUpInside)
@@ -425,7 +436,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     func audioPlayerPlayingStatusChanged(isPlaying: Bool) {
         let imageName = isPlaying ? "pause" : "play"
-        pausePlayButton.setImage(UIImage(named: imageName), for: .normal)
+        pausePlayButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysTemplate), for: .normal)
     }
 
     func audioPlayerDidFinishTrack() {

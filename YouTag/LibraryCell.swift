@@ -15,12 +15,15 @@ class LibraryCell : UITableViewCell {
     
     // MARK: - UI Elements
     private let thumbnailImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 5
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+        let imgView = UIImageView()
+        imgView.contentMode = .scaleAspectFill
+        imgView.clipsToBounds = true
+        imgView.layer.borderWidth = 0.5
+        imgView.layer.borderColor = GraphicColors.darkGray.cgColor
+        imgView.layer.cornerRadius = 5
+        imgView.layer.masksToBounds = true
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        return imgView
     }()
 
     private let titleLabel: MarqueeLabel = {
@@ -28,6 +31,7 @@ class LibraryCell : UITableViewCell {
         lbl.trailingBuffer = 40.0
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 16)
         lbl.textAlignment = .left
+        lbl.textColor = GraphicColors.cloudWhite
         return lbl
     }()
 
@@ -36,7 +40,7 @@ class LibraryCell : UITableViewCell {
         let lbl = MarqueeLabel(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.trailingBuffer = 40.0
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
-        lbl.textColor = .secondaryLabel
+        lbl.textColor = GraphicColors.medGray
         lbl.textAlignment = .left
         return lbl
     }()
@@ -45,6 +49,7 @@ class LibraryCell : UITableViewCell {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.trailingBuffer = 40.0
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 14)
+          lbl.textColor = GraphicColors.medGray
         lbl.textAlignment = .right
         return lbl
     }()
@@ -61,7 +66,8 @@ class LibraryCell : UITableViewCell {
             verticalPadding: 0,
             cellHorizontalPadding: 15,
             cellHeight: 20,
-            cellBorderWidth: 1.25
+            cellBorderWidth: 1,
+            cellTextColor: GraphicColors.medGray
         )
         let view = YYTTagView(
             frame: .zero,
@@ -114,6 +120,12 @@ class LibraryCell : UITableViewCell {
         }
 
         loadThumbnail(from: song.thumbnailPath)
+        
+        // Add custom separator
+        let separator = UIView(frame: CGRect(x: 0, y: self.contentView.frame.height - 0.5, width: self.contentView.frame.width, height: 0.5))
+        separator.backgroundColor = GraphicColors.darkGray
+        separator.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        self.contentView.addSubview(separator)
     }
 
     // MARK: - Thumbnail Loading
@@ -150,6 +162,13 @@ class LibraryCell : UITableViewCell {
 
     // MARK: - Setup UI
     private func setupUI() {
+        self.backgroundColor = .clear
+
+        // Highlight color when pressed
+        let highlightView = UIView()
+        highlightView.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.2)
+        self.selectedBackgroundView = highlightView
+        
         contentView.addSubview(thumbnailImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(subLabel)

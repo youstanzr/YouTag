@@ -17,13 +17,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     let dismissButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.orange
+        config.baseBackgroundColor = GraphicColors.charcoalBlack
         config.title = "✔︎"
         config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = GraphicColors.orange
         config.titleAlignment = .center
         config.contentInsets = NSDirectionalEdgeInsets(top: 2.5, leading: 0.0, bottom: 0.0, trailing: 0.0)
         btn.configuration = config
+        btn.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
         return btn
     }()
     let thumbnailImageView: UIImageView = {
@@ -38,6 +39,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     let titleTextField: UITextField = {
         let txtField = UITextField()
         txtField.backgroundColor = .clear
+        txtField.textColor = GraphicColors.cloudWhite
         txtField.textAlignment = .left
         txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
         txtField.autocorrectionType = .no
@@ -46,12 +48,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.darkGray.cgColor
         return txtField
     }()
     var artistsTagsView: YYTTagView!
     let albumTextField: SearchTextField = {
         let txtField = SearchTextField()
+        txtField.textColor = GraphicColors.cloudWhite
         txtField.theme.bgColor = .white
         txtField.theme.separatorColor = .darkGray
         txtField.theme.borderColor = GraphicColors.orange
@@ -60,46 +63,57 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.textAlignment = .left
         txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
         txtField.autocorrectionType = .no
-        txtField.placeholder = "Album"
+        txtField.attributedPlaceholder = NSAttributedString(
+            string: "Album",
+            attributes: [
+                .foregroundColor: GraphicColors.medGray,
+                .font: UIFont.init(name: "DINCondensed-Bold", size: 16)!
+            ])
         txtField.addPadding(padding: .equalSpacing(5))
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.darkGray.cgColor
         return txtField
     }()
     let releaseYrTextField: UITextField = {
         let txtField = UITextField()
+        txtField.textColor = GraphicColors.cloudWhite
         txtField.backgroundColor = .clear
         txtField.textAlignment = .left
         txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
         txtField.autocorrectionType = .no
-        txtField.placeholder = "Release Year"
+        txtField.attributedPlaceholder = NSAttributedString(
+            string: "Release Year",
+            attributes: [
+                .foregroundColor: GraphicColors.medGray,
+                .font: UIFont.init(name: "DINCondensed-Bold", size: 16)!
+            ])
         txtField.addPadding(padding: .equalSpacing(5))
         txtField.keyboardType = .numberPad
         txtField.returnKeyType = .done
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = GraphicColors.lightGray.cgColor
+        txtField.layer.borderColor = GraphicColors.darkGray.cgColor
         return txtField
     }()
     let lyricsTextView: UITextView = {
         let txtView = UITextView()
+        txtView.textColor = GraphicColors.medGray
         txtView.backgroundColor = .clear
         txtView.textAlignment = .left
         txtView.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
         txtView.autocorrectionType = .no
         txtView.text = "Lyrics"
-        txtView.textColor = GraphicColors.placeholderGray
         txtView.layer.cornerRadius = 5
         txtView.layer.borderWidth = 1.0
-        txtView.layer.borderColor = GraphicColors.lightGray.cgColor
+        txtView.layer.borderColor = GraphicColors.darkGray.cgColor
         return txtView
     }()
     let imagePicker = UIImagePickerController()
     let songSizeLabel: UILabel = {
         let lbl = UILabel()
-        lbl.textColor = GraphicColors.gray
+        lbl.textColor = GraphicColors.darkGray
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
         lbl.textAlignment = .right
         return lbl
@@ -107,7 +121,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
 
     let filenameLabel: UILabel = {
         let lbl = UILabel()
-        lbl.textColor = GraphicColors.gray
+        lbl.textColor = GraphicColors.darkGray
         lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
         lbl.textAlignment = .left
         return lbl
@@ -117,11 +131,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
         populateFields()
     }
 
     private func setupUI() {
-        view.backgroundColor = GraphicColors.backgroundWhite
+        view.backgroundColor = GraphicColors.charcoalBlack
         setupObservers()
 
         // Thumbnail
@@ -212,7 +229,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         releaseYrTextField.text = song.releaseYear
         let lyrics = song.lyrics ?? ""
         lyricsTextView.text = lyrics.isEmpty ? "Lyrics" : lyrics
-        lyricsTextView.textColor = lyrics.isEmpty ? GraphicColors.placeholderGray : .black
+        lyricsTextView.textColor = lyrics.isEmpty ? GraphicColors.medGray : GraphicColors.cloudWhite
 
         // Populate artists tags
         artistsTagsView.tagsList = song.artists
@@ -338,7 +355,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         song.artists = artistsTagsView.tagsList
         song.album = albumTextField.text
         song.releaseYear = releaseYrTextField.text
-        song.lyrics = lyricsTextView.textColor == GraphicColors.placeholderGray ? "" : lyricsTextView.text
+        song.lyrics = lyricsTextView.textColor == GraphicColors.medGray ? "" : lyricsTextView.text
         song.tags = tagsView.tagsList
         if let image = thumbnailImageView.image, image != UIImage(named: "placeholder") {
             if let fileURL = LocalFilesManager.saveImage(image, withName: song.id) {
@@ -382,9 +399,9 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == GraphicColors.placeholderGray {
+        if textView.textColor == GraphicColors.medGray {
             textView.text = nil
-            textView.textColor = GraphicColors.black
+            textView.textColor = GraphicColors.cloudWhite
         }
     }
 
@@ -393,7 +410,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         textView.contentOffset = .zero
         if textView.text == "" || textView.text.replacingOccurrences(of: "\n", with: "") == "" {
             textView.text = "Lyrics"
-            textView.textColor = GraphicColors.placeholderGray
+            textView.textColor = GraphicColors.medGray
         }
     }
         
@@ -442,4 +459,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         return y
     }
     
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
 }

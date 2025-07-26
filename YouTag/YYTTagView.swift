@@ -28,6 +28,7 @@ struct TagViewStyle {
     var cellHeight: CGFloat = 32.0
     /// Width of the border around each tag cell
     var cellBorderWidth: CGFloat = 1.25
+    var cellTextColor: UIColor = GraphicColors.cloudWhite
 }
 
 protocol YYTTagViewDelegate: AnyObject {
@@ -64,7 +65,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         lbl.font = UIFont.systemFont(ofSize: 12, weight: .bold)
         lbl.textColor = GraphicColors.orange
         lbl.textAlignment = .center
-        lbl.backgroundColor = GraphicColors.placeholderGray.withAlphaComponent(0.3)
+        lbl.backgroundColor = GraphicColors.medGray.withAlphaComponent(0.3)
         lbl.isHidden = true
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
@@ -98,7 +99,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         self.collectionView.dataSource = self
         self.layer.cornerRadius = 5
         self.layer.borderWidth = style.showsBorder ? 1.0 : 0.0
-        self.layer.borderColor = GraphicColors.lightGray.cgColor
+        self.layer.borderColor = GraphicColors.darkGray.cgColor
         self.backgroundColor = UIColor.clear
         self.collectionView.backgroundColor = UIColor.clear
         self.collectionView.allowsMultipleSelection = style.isMultiSelection
@@ -180,7 +181,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         mask.frame = collectionView.bounds
         mask.startPoint = CGPoint(x: 0, y: 0.5)
         mask.endPoint   = CGPoint(x: 1, y: 0.5)
-        let bg = GraphicColors.backgroundWhite.cgColor
+        let bg = GraphicColors.charcoalBlack.cgColor
         mask.colors = [
             bg,
             bg,
@@ -288,16 +289,16 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         if style.isAddEnabled && indexPath.row == 0 {
             tagCell.backgroundColor = GraphicColors.green
             tagCell.layer.borderColor = GraphicColors.darkGreen.cgColor
-            tagCell.titleLabel.textColor = .white
+            tagCell.titleLabel.textColor = GraphicColors.cloudWhite
             tagCell.titleLabel.text = "+"
             tagCell.titleLabel.font = style.cellFont
-            tagCell.textField.textColor = .white
+            tagCell.textField.textColor = GraphicColors.cloudWhite
             tagCell.textField.placeholder = addTagPlaceHolder
         } else {
             tagCell.backgroundColor = tagCell.isSelected ? GraphicColors.orange : UIColor.clear
-            tagCell.titleLabel.textColor = .darkGray
+            tagCell.titleLabel.textColor = style.cellTextColor
             tagCell.titleLabel.font = style.cellFont
-            tagCell.textField.textColor = .darkGray
+            tagCell.textField.textColor = style.cellTextColor
             tagCell.layer.borderColor = GraphicColors.orange.cgColor
             let index = style.isAddEnabled ? indexPath.row - 1 : indexPath.row
             tagCell.titleLabel.text = tagsList[index]

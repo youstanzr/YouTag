@@ -18,46 +18,45 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     let addButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.orange
+        config.baseBackgroundColor = GraphicColors.charcoalBlack
         config.title = "+"
         config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = GraphicColors.orange
         config.titleAlignment = .center
         config.titlePadding = -10.0 // Adjust padding
         config.background.cornerRadius = 0
         btn.configuration = config
-        btn.addBorder(side: .left, color: .darkGray, width: 1.0)
+        btn.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
+        btn.addBorder(side: .left, color: GraphicColors.darkGray, width: 0.5)
         return btn
     }()
     let dismissButton: UIButton = {
         let btn = UIButton()
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = GraphicColors.orange
+        config.baseBackgroundColor = GraphicColors.charcoalBlack
         config.title = "✔︎"
         config.attributedTitle = AttributedString("✔︎", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 30)]))
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = GraphicColors.orange
         config.titleAlignment = .center
         config.background.cornerRadius = 0
         btn.configuration = config
-        btn.addBorder(side: .right, color: .darkGray, width: 1.0)
+        btn.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
+        btn.addBorder(side: .right, color: GraphicColors.darkGray, width: 0.5)
         return btn
     }()
     let libraryTableView = LibraryTableView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = GraphicColors.backgroundWhite
-        
         setupUI()
+        
         
         // Capture full list and configure search bar
         allSongs = LibraryManager.shared.libraryArray
         // Configure plain UISearchBar
-        searchBar.placeholder = "Search..."
         searchBar.delegate = self
         searchBar.enablesReturnKeyAutomatically = false
         searchBar.returnKeyType = .search
-        searchBar.sizeToFit()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -67,13 +66,25 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
 
     // MARK: - Setup UI
     func setupUI() {
+        self.view.backgroundColor = GraphicColors.charcoalBlack
+
         // Add Search Bar
+        searchBar.barTintColor = GraphicColors.charcoalBlack      // Background behind the bar
+        searchBar.backgroundColor = GraphicColors.cloudWhite    // Background color
+        searchBar.searchTextField.backgroundColor = GraphicColors.charcoalBlack   // Text field bg
+        searchBar.searchTextField.textColor = GraphicColors.cloudWhite      // Text color
+        searchBar.searchTextField.tintColor = GraphicColors.orange             // Cursor color
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(
+            string: "Search...",
+            attributes: [.foregroundColor: GraphicColors.medGray]
+        )
+        
         self.view.addSubview(searchBar)
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            searchBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            searchBar.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -5),
         ])
         // Library Table View
         libraryTableView.backgroundColor = .clear

@@ -59,7 +59,7 @@ extension UIViewController {
         
 		let titleLbl = UILabel(frame: CGRect(x: 0, y: 0, width: self.view.frame.width*0.65, height: 40))
 		titleLbl.text = title ?? ""
-		titleLbl.textColor = GraphicColors.backgroundWhite
+		titleLbl.textColor = GraphicColors.charcoalBlack
 		titleLbl.font = UIFont.init(name: "DINCondensed-Bold", size: 34)
 		titleLbl.textAlignment = .center
 		titleLbl.center = ai.center
@@ -87,7 +87,7 @@ extension UIViewController {
         progressView.backgroundColor = GraphicColors.alpha50Gray
 		
 		let boxView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width*0.65, height: 80))
-		boxView.backgroundColor = GraphicColors.backgroundWhite
+		boxView.backgroundColor = GraphicColors.charcoalBlack
 		boxView.layer.cornerRadius = 10.0
 		boxView.layer.borderWidth = 2.0
 		boxView.layer.borderColor = GraphicColors.orange.cgColor
