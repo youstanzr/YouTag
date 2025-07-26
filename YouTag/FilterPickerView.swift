@@ -112,7 +112,7 @@ class FilterPickerView: UIView {
     // MARK: - Setup
     private func setupView() {
         self.isHidden = true
-        self.backgroundColor = GraphicColors.lightGray.withAlphaComponent(0.5)
+        self.backgroundColor = GraphicColors.charcoalBlack.withAlphaComponent(0.85)
 
         // Close Button
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
