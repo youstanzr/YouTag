@@ -223,9 +223,31 @@ class YYTAudioPlayer: NSObject {
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = song.title
         nowPlayingInfo[MPMediaItemPropertyArtwork] = getArtwork(for: song)
+        if !song.artists.isEmpty {
+            nowPlayingInfo[MPMediaItemPropertyArtist] = song.artists.joined(separator: ", ")
+        }
+        if let album = song.album {
+            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = album
+        }
+        if !song.tags.isEmpty {
+            nowPlayingInfo[MPMediaItemPropertyGenre] = song.tags.joined(separator: ", ")
+        }
+        
+        // Add looped playlist count and index
+        let playlist = PlaylistManager.shared.currentPlaylist
+        let count = playlist.count
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackQueueCount] = count
+        if let idx = playlist.firstIndex(where: { $0.id == song.id }) {
+            // Map index to cell row logic: row = (count - 2 - idx) mod count
+            let row = ((count - 2 - idx) % count + count) % count
+            let trackNumber = row + 1
+            nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackQueueIndex] = trackNumber
+        }
+        
         // Add elapsed time, rate, and duration
         let isPaused = !(avPlayer?.rate != 0 && avPlayer?.timeControlStatus == .playing)
         applyPlaybackInfo(isPaused: isPaused, to: &nowPlayingInfo)
+
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
@@ -234,8 +256,6 @@ class YYTAudioPlayer: NSObject {
         applyPlaybackInfo(isPaused: isPaused, to: &nowPlayingInfo)
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
-
-    
             
     // MARK: Control from Control Center
     /*
