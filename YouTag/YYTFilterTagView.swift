@@ -72,7 +72,9 @@ class YYTFilterTagView: YYTTagView {
         case .duration:
             imageName = "duration"
         }
-        return UIImage(named: imageName) ?? UIImage()
+
+        let baseImage = UIImage(named: imageName) ?? UIImage()
+        return baseImage.withTintColor(GraphicColors.orange, renderingMode: .alwaysOriginal)
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -81,16 +83,15 @@ class YYTFilterTagView: YYTTagView {
         if style.isAddEnabled && indexPath.row == 0 {
             tagCell.backgroundColor = GraphicColors.green
             tagCell.layer.borderColor = GraphicColors.darkGreen.cgColor
-            tagCell.textField.textColor = .white
+            tagCell.textField.textColor = GraphicColors.cloudWhite
             tagCell.textField.placeholder = addTagPlaceHolder
-            tagCell.titleLabel.textColor = .white
+            tagCell.titleLabel.textColor = GraphicColors.cloudWhite
             tagCell.titleLabel.text = "+"
             tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 24)
         } else {
-            tagCell.image = UIImage(named: "list")
             tagCell.backgroundColor = .clear
-            tagCell.titleLabel.textColor = .darkGray
-            tagCell.textField.textColor = .darkGray
+            tagCell.titleLabel.textColor = GraphicColors.cloudWhite
+            tagCell.textField.textColor = GraphicColors.cloudWhite
             tagCell.titleLabel.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
             tagCell.layer.borderColor = GraphicColors.orange.cgColor
 
