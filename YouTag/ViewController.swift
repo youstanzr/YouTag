@@ -32,7 +32,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }()
     let titleLabel: UILabel = {
         let lbl = UILabel()
-        lbl.text = "BATTA"
+        lbl.text = "BATTA PLAYER"
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 28)
         lbl.textAlignment = .left
         lbl.textColor = GraphicColors.cloudWhite
@@ -144,9 +144,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     private func setupConstraints() {
         // Logo View
         logoView.translatesAutoresizingMaskIntoConstraints = false
-        logoView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        logoView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15).isActive = true
+        logoView.trailingAnchor.constraint(equalTo: menuButton.leadingAnchor, constant: -20).isActive = true
         logoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        logoView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
         logoView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1).isActive = true
 
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
