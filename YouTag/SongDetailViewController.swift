@@ -74,6 +74,11 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
         txtField.layer.borderColor = GraphicColors.darkGray.cgColor
+        
+        txtField.font = UIFont(name: "DINCondensed-Bold", size: 16)
+        txtField.theme.font = UIFont(name: "DINCondensed-Bold", size: 16)!
+        txtField.highlightAttributes = [NSAttributedString.Key.backgroundColor: GraphicColors.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:txtField.theme.font]
+
         return txtField
     }()
     let releaseYrTextField: UITextField = {
