@@ -313,7 +313,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         if style.isAddEnabled && indexPath.row == 0 {
-            let cellSize = isEditingEnabled ? CGSize(width: 90, height: 32):CGSize(width: 30, height: 32)
+            let cellSize = isEditingEnabled ? CGSize(width: collectionView.frame.width * 0.475, height: 32):CGSize(width: 30, height: 32)
             isEditingEnabled = false
             return cellSize
         }
