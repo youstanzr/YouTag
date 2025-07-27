@@ -18,7 +18,7 @@ struct TagViewStyle {
     var isMultiSelection: Bool = false
     var isDeleteEnabled: Bool = false
     var showsBorder: Bool = true
-    var cellFont: UIFont = UIFont.systemFont(ofSize: 16)
+    var cellFont: UIFont = UIFont(name: "DINCondensed-Bold", size: 16)!
     var overflow: OverflowBehavior = .truncateTail
     var horizontalPadding: CGFloat = 5
     var verticalPadding: CGFloat = 5
