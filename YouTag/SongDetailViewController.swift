@@ -171,6 +171,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         
         // Album
         albumTextField.delegate = self
+        albumTextField.filterStrings(LibraryManager.shared.getAllDistinctValues(for: "album"))
         view.addSubview(albumTextField)
 
         // Release Year
