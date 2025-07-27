@@ -357,8 +357,8 @@ class YYTAudioPlayer: NSObject {
                 for output in session.currentRoute.outputs where
                     (output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
                     print("headphones connected")
-                    DispatchQueue.main.sync {
-                        play()
+                    DispatchQueue.main.async { [weak self] in
+                        self?.play()
                     }
                     break
                 }
@@ -368,8 +368,8 @@ class YYTAudioPlayer: NSObject {
                     for output in previousRoute.outputs where
                         (output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
                         print("headphones disconnected")
-                        DispatchQueue.main.sync {
-                            pause()
+                        DispatchQueue.main.async { [weak self] in
+                            self?.pause()
                         }
                         break
                     }
