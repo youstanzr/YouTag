@@ -1,20 +1,18 @@
 [![License](https://img.shields.io/github/license/youstanzr/YouTag)](LICENSE) [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org) 
 ## About
-**YouTag** is an iOS music player app that organizes your local music library with smart tags, lyrics, and mood-based playlists. You can enrich songs with artist, album, and custom tags, and the app automatically creates dynamic playlists based on your filters such as tags, artist, album, release year, or duration.
+**Batta Player** (formerly *YouTag*) is a smart iOS music player that organizes your music library with custom tags, lyrics, and dynamic, mood-based playlists. Import songs from your device or iCloud, auto-extract metadata, and create instant playlists based on tags, artist, album, release year, or song duration.
 
 ![](/Images/screenshot_banner.png)
 
 ## Features
-- Supports mp4, mp3 and wav file types
+- Import MP3, MP4, and WAV files from device or iCloud
 - Organizes and tags your local music library
-- Enrich songs with lyrics, artist, album, and custom tags
-- Smart playlists based on filters and mood
-
-- Auto extraction of song metadata information for mp3 and wav
-- Customize playlist based on filters
+- Auto-extract and edit song metadata
+- Organize your music library with custom tags and lyrics
+- Create smart playlists using tags, artist, album, year, or duration
+- Dynamic mood-based playlists generated on the fly
 - Plays music in the background
-- Change song playback rate to x0.75 or x1.25
-
+- Background playback with adjustable speed (0.75x / 1.25x)
 
 ## Requirements
 - Tested on Xcode 16.4 and later
@@ -73,7 +71,7 @@ If you are still having trouble, consider this [reference](https://help.apple.co
 - Tag image: [@author](https://www.flaticon.com/authors/those-icons)
 
 ## License
-YouTag is licensed under the GNU General Public License v3.0 with an additional trademark clause.  
+**Batta Player** (formerly *YouTag*) is licensed under the GNU General Public License v3.0 with an additional trademark clause.  
 You are free to use, modify, and contribute to the code, but you may not distribute or release a derivative app under a different name or branding without explicit permission.  
 
 See the [LICENSE](LICENSE) file for full terms.
