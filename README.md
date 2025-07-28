@@ -1,6 +1,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org)
-[![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)]
+![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)
 ![Stars](https://img.shields.io/github/stars/youstanzr/YouTag?style=social)
 
 ## About
