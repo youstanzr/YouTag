@@ -1,4 +1,8 @@
-[![License](https://img.shields.io/github/license/youstanzr/YouTag)](LICENSE) [![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org) 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Language](https://img.shields.io/badge/Swift-5-orange?logo=Swift&logoColor=white)](https://swift.org)
+[![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)]
+![Stars](https://img.shields.io/github/stars/youstanzr/YouTag?style=social)
+
 ## About
 **Batta Player** (formerly *YouTag*) is a smart iOS music player that organizes your music library with custom tags, lyrics, and dynamic, mood-based playlists. Import songs from your device or iCloud, auto-extract metadata, and create instant playlists based on tags, artist, album, release year, or song duration.
 
