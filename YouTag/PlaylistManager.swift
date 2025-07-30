@@ -75,8 +75,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     
     func shufflePlaylist() {
         guard currentPlaylist.count > 1 else { return }
+        let lastSong = currentPlaylist.removeLast()
         currentPlaylist.shuffle()
-        refreshPlaylistLibraryView()
+        currentPlaylist.append(lastSong)
+        playlistLibraryView.refreshTableView()
     }
     
     // MARK: - Now Playing View Management
