@@ -298,7 +298,11 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         currentSong = song
         titleLabel.text = song.title
         artistLabel.text = song.artists.joined(separator: ", ")
+        // Configure lyrics view visibility
         lyricsTextView.text = song.lyrics
+        let hasLyrics = !(song.lyrics?.isEmpty ?? true)
+        lyricsTextView.isHidden = !hasLyrics
+        lyricsButton.isHidden = hasLyrics
         
         // Restart marquee and set direction based on text
         titleLabel.restartLabel()
