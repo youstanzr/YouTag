@@ -61,6 +61,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        searchBar.text = ""
         self.libraryTableView.refreshTableView()
     }
 
