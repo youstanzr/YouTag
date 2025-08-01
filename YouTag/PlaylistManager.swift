@@ -79,6 +79,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         currentPlaylist.shuffle()
         currentPlaylist.append(lastSong)
         playlistLibraryView.refreshTableView()
+        playlistLibraryView.scrollToTop()
     }
     
     // MARK: - Now Playing View Management
