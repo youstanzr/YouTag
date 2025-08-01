@@ -86,8 +86,6 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     // Automatically present LibraryViewController if library is empty
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Refresh library data
-        LibraryManager.shared.refreshLibraryArray()
         // If no songs in the library, prompt user to add
         if LibraryManager.shared.libraryArray.isEmpty {
             let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
@@ -228,7 +226,6 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         LVC.modalTransitionStyle = .coverVertical
         self.present(LVC, animated: true, completion: {
             self.tagsView.removeAllTags()
-            self.playlistManager.audioPlayer.pause()
         })
     }
     
