@@ -36,7 +36,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.textColor = GraphicColors.cloudWhite
         lbl.trailingBuffer = 40.0
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 23)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 22)
         lbl.textAlignment = .left
         return lbl
     }()
@@ -45,7 +45,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.textColor = GraphicColors.medGray
         lbl.trailingBuffer = 40.0
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 17)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 16)
         lbl.textAlignment = .left
         return lbl
     }()
@@ -310,22 +310,22 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: previousButton.leadingAnchor, constant: -5).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor).isActive = true
-        titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.45, constant: -5).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor, constant: 2.5).isActive = true
+        titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.38, constant: -5).isActive = true
 
         self.addSubview(subLabel)
         subLabel.translatesAutoresizingMaskIntoConstraints = false
         subLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
         subLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
         subLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2.5).isActive = true
-        subLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.32).isActive = true
+        subLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.27).isActive = true
 
         // Add tag view
         self.addSubview(tagView)
         tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
-        tagView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
-        tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 2.5).isActive = true
-        tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor).isActive = true
+        tagView.trailingAnchor.constraint(equalTo: nextButton.trailingAnchor, constant: -5).isActive = true
+        tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 5).isActive = true
+        tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -2.5).isActive = true
     }
 
     
