@@ -61,6 +61,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        searchBar.text = ""
         self.libraryTableView.refreshTableView()
     }
 
@@ -205,6 +206,16 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     // MARK: - Dismiss Action
     @objc func dismiss(sender: UIButton) {
         print("Dismiss button tapped")
+        if LibraryManager.shared.libraryArray.isEmpty {
+            let alert = UIAlertController(
+                title: "No songs found",
+                message: "Please add some songs to your library first.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
         dismiss(animated: true, completion: nil)
     }
     

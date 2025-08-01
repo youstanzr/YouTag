@@ -29,7 +29,7 @@ class LibraryCell : UITableViewCell {
     private let titleLabel: MarqueeLabel = {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.trailingBuffer = 40.0
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 16)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 17)
         lbl.textAlignment = .left
         lbl.textColor = GraphicColors.cloudWhite
         return lbl
@@ -39,7 +39,7 @@ class LibraryCell : UITableViewCell {
     private let subLabel: MarqueeLabel = {
         let lbl = MarqueeLabel(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.trailingBuffer = 40.0
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 13)
         lbl.textColor = GraphicColors.medGray
         lbl.textAlignment = .left
         return lbl
@@ -65,7 +65,6 @@ class LibraryCell : UITableViewCell {
             horizontalPadding: 0,
             verticalPadding: 0,
             cellHorizontalPadding: 15,
-            cellHeight: 20,
             cellBorderWidth: 1,
             cellTextColor: GraphicColors.medGray
         )
@@ -181,7 +180,7 @@ class LibraryCell : UITableViewCell {
         durationLabel.translatesAutoresizingMaskIntoConstraints = false
         tagView.translatesAutoresizingMaskIntoConstraints = false
         
-//        titleLabel.backgroundColor = .yellow
+//        titleLabel.backgroundColor = .blue
 //        subLabel.backgroundColor = .green
 //        durationLabel.backgroundColor = .red
 //        tagView.backgroundColor = .cyan
@@ -195,14 +194,14 @@ class LibraryCell : UITableViewCell {
             // Title row
             titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
-            titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: durationLabel.topAnchor, constant: -5),
+            titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor, constant: 1.5),
+            titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.38, constant: -3),
 
             // SubLabel row
             subLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
-            subLabel.topAnchor.constraint(equalTo: durationLabel.topAnchor),
-            subLabel.bottomAnchor.constraint(equalTo: durationLabel.bottomAnchor),
+            subLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 1.5),
+            subLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.27),
 
             // Duration stays on right, centered vertically across cell
             durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
@@ -212,8 +211,8 @@ class LibraryCell : UITableViewCell {
             // TagView row
             tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             tagView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            tagView.heightAnchor.constraint(equalToConstant: 20),
-            tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor),
+            tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 3),
+            tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -1.5),
         ])
     }
 

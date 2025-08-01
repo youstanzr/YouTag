@@ -41,13 +41,38 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         return lbl
     }()
     
-    let artistLabel: MarqueeLabel = {
+    let subLabel: MarqueeLabel = {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.textColor = GraphicColors.medGray
         lbl.trailingBuffer = 40.0
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.65)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 16)
         lbl.textAlignment = .left
         return lbl
+    }()
+    let tagView: YYTTagView = {
+        let style = TagViewStyle(
+            isAddEnabled: false,
+            isMultiSelection: false,
+            isDeleteEnabled: false,
+            showsBorder: false,
+            cellFont: UIFont(name: "Damascus", size: 14)!,
+            overflow: .truncateTail,
+            horizontalPadding: 0,
+            verticalPadding: 0,
+            cellHorizontalPadding: 15,
+            cellBorderWidth: 1,
+            cellTextColor: GraphicColors.medGray
+        )
+        let view = YYTTagView(
+            frame: .zero,
+            tagsList: [],
+            suggestionDataSource: nil,
+            style: style
+        )
+        view.isUserInteractionEnabled = false
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
     }()
     let previousButton: UIButton = {
         let btn = UIButton()
@@ -80,7 +105,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let btn = UIButton()
         btn.backgroundColor = GraphicColors.orange
         btn.setTitleColor(.white, for: .normal)
-        btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
+        btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 12)
         btn.setTitle("x1", for: .normal)
         return btn
     }()
@@ -90,7 +115,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
         return lbl
     }()
     let timeLeftLabel: UILabel = {
@@ -98,7 +123,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 22 * 0.55)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
         return lbl
     }()
     
@@ -277,19 +302,30 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         previousButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
         previousButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
 
+//        titleLabel.backgroundColor = .blue
+//        subLabel.backgroundColor = .red
+//        tagView.backgroundColor = .yellow
+        
         self.addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: previousButton.leadingAnchor, constant: -5).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor, constant: 5).isActive = true
-        titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.5, constant: -5).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor, constant: 2.5).isActive = true
+        titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.38, constant: -5).isActive = true
 
-        self.addSubview(artistLabel)
-        artistLabel.translatesAutoresizingMaskIntoConstraints = false
-        artistLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
-        artistLabel.trailingAnchor.constraint(equalTo: previousButton.leadingAnchor, constant: -5).isActive = true
-        artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-        artistLabel.heightAnchor.constraint(equalTo: titleLabel.heightAnchor).isActive = true
+        self.addSubview(subLabel)
+        subLabel.translatesAutoresizingMaskIntoConstraints = false
+        subLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
+        subLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
+        subLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2.5).isActive = true
+        subLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.27).isActive = true
+
+        // Add tag view
+        self.addSubview(tagView)
+        tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
+        tagView.trailingAnchor.constraint(equalTo: nextButton.trailingAnchor, constant: -5).isActive = true
+        tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 5).isActive = true
+        tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -2.5).isActive = true
     }
 
     
@@ -297,8 +333,19 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     func loadSong(song: Song) {
         currentSong = song
         titleLabel.text = song.title
-        artistLabel.text = song.artists.joined(separator: ", ")
+        // Build subLabel as "Artist • Album • Year"
+        let parts = [
+            song.album ?? "",
+            song.releaseYear ?? "",
+            song.artists.joined(separator: ", "),
+        ].filter { !$0.isEmpty }
+        subLabel.text = parts.joined(separator: "  •  ")
+
+        // Configure lyrics view visibility
         lyricsTextView.text = song.lyrics
+        let hasLyrics = !(song.lyrics?.isEmpty ?? true)
+        lyricsTextView.isHidden = !hasLyrics
+        lyricsButton.isHidden = hasLyrics
         
         // Restart marquee and set direction based on text
         titleLabel.restartLabel()
@@ -308,11 +355,20 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
             titleLabel.type = .continuous
         }
 
-        artistLabel.restartLabel()
-        if artistLabel.text!.isRTL {
-            artistLabel.type = .continuousReverse
+        subLabel.restartLabel()
+        if subLabel.text!.isRTL {
+            subLabel.type = .continuousReverse
         } else {
-            artistLabel.type = .continuous
+            subLabel.type = .continuous
+        }
+
+        // Update tag view visibility and data
+        if !song.tags.isEmpty {
+            tagView.isHidden = false
+            tagView.tagsList = song.tags
+            tagView.collectionView.reloadData()
+        } else {
+            tagView.isHidden = true
         }
 
         // Update thumbnail
@@ -338,7 +394,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         audioPlayer.setPlaybackRate(to: 1.0)
         playbackRateButton.setTitle("x1", for: .normal)
         titleLabel.text = ""
-        artistLabel.text = ""
+        subLabel.text = ""
         thumbnailImageView.image = nil
         progressBar.value = 0.0
         currentTimeLabel.text = "00:00"

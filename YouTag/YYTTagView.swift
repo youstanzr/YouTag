@@ -24,8 +24,6 @@ struct TagViewStyle {
     var verticalPadding: CGFloat = 5
     /// Total horizontal padding (added to text width) per cell
     var cellHorizontalPadding: CGFloat = 32.0/1.5
-    /// Total vertical height per cell
-    var cellHeight: CGFloat = 32.0
     /// Width of the border around each tag cell
     var cellBorderWidth: CGFloat = 1.25
     var cellTextColor: UIColor = GraphicColors.cloudWhite
@@ -321,7 +319,11 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         // Horizontal: text width + horizontal padding
         let textWidth = tagsList[index].estimateSizeWidth(font: style.cellFont, padding: style.cellHorizontalPadding)
         let clampedWidth = min(textWidth, collectionView.frame.width * 0.475)
-        return CGSize(width: clampedWidth, height: style.cellHeight)
+        if style.overflow == .scrollable {
+            return CGSize(width: clampedWidth, height: 32)
+        } else {
+            return CGSize(width: clampedWidth, height: self.frame.height)
+        }
     }
         
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
