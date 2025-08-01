@@ -65,7 +65,6 @@ class LibraryCell : UITableViewCell {
             horizontalPadding: 0,
             verticalPadding: 0,
             cellHorizontalPadding: 15,
-            cellHeight: 20,
             cellBorderWidth: 1,
             cellTextColor: GraphicColors.medGray
         )
@@ -196,13 +195,13 @@ class LibraryCell : UITableViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
             titleLabel.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: durationLabel.topAnchor, constant: -5),
+            titleLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.39, constant: -3),
 
             // SubLabel row
             subLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subLabel.trailingAnchor.constraint(equalTo: durationLabel.leadingAnchor, constant: -8),
-            subLabel.topAnchor.constraint(equalTo: durationLabel.topAnchor),
-            subLabel.bottomAnchor.constraint(equalTo: durationLabel.bottomAnchor),
+            subLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 1.5),
+            subLabel.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.31),
 
             // Duration stays on right, centered vertically across cell
             durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
@@ -212,7 +211,7 @@ class LibraryCell : UITableViewCell {
             // TagView row
             tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             tagView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            tagView.heightAnchor.constraint(equalToConstant: 20),
+            tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 1.5),
             tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor),
         ])
     }
