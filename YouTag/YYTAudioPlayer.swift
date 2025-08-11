@@ -51,6 +51,7 @@ class YYTAudioPlayer: NSObject {
     }
 
     func setupPlayer(withSong song: Song) -> Bool {
+        print("🎵 Setting up player with song: \(song.title)")
         unsuspend()
         
         // Stop any previous playback
@@ -66,6 +67,8 @@ class YYTAudioPlayer: NSObject {
             return false
         }
         avPlayer = AVPlayer(url: url)
+        // Log AVPlayer rate changes
+        avPlayer?.addObserver(self, forKeyPath: "rate", options: [.new, .old], context: nil)
         setupNowPlaying(song: song)
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         if let avp = avPlayer {
@@ -94,14 +97,24 @@ class YYTAudioPlayer: NSObject {
     }
 
     func play() {
+        print("▶️ PLAY called. Suspended: \(isSuspended), rate: \(avPlayer?.rate ?? -1)")
         startPlayback()
     }
     
     func pause() {
+        print("⏸️ PAUSE called. Suspended: \(isSuspended), rate before pause: \(avPlayer?.rate ?? -1)")
         if isSuspended {  return  }
+        // Keep session alive even when paused
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+            print("🔄 Audio session kept active during pause")
+        } catch {
+            print("Failed to keep session active during pause: \(error.localizedDescription)")
+        }
         avPlayer?.pause()
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         updateNowPlaying(isPaused: true)
+        print("⏸️ AVPlayer paused. rate after pause: \(avPlayer?.rate ?? -1)")
     }
 
     func next() {
@@ -116,9 +129,19 @@ class YYTAudioPlayer: NSObject {
     
     /// Starts or resumes playback at the desired rate and notifies the delegate.
     private func startPlayback() {
-        guard !isSuspended else { return }
+        guard !isSuspended else {
+            print("⚠️ startPlayback blocked because isSuspended == true")
+            return
+        }
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+            print("🔄 Ensured audio session is active before playback")
+        } catch {
+            print("Failed to reactivate session before playback: \(error.localizedDescription)")
+        }
         avPlayer?.play()
         avPlayer?.rate = desiredRate
+        print("▶️ AVPlayer play() called. New rate: \(avPlayer?.rate ?? -1)")
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
         updateNowPlaying(isPaused: false)
     }
@@ -182,11 +205,13 @@ class YYTAudioPlayer: NSObject {
     }
 
     func suspend() {
+        print("🛑 SUSPEND called")
         pause()
         isSuspended = true
     }
 
     func unsuspend() {
+        print("✅ UNSUSPEND called")
         isSuspended = false
     }
 
@@ -271,7 +296,8 @@ class YYTAudioPlayer: NSObject {
         commandCenter.changePlaybackPositionCommand.removeTarget(nil)
 
         // Add handler for Play Command
-        commandCenter.playCommand.addTarget { [unowned self] event in
+        commandCenter.playCommand.addTarget { [weak self] event in
+            guard let self = self else { return .commandFailed }
             print("Play command - is playing: \(!self.isPlaying())")
             if !self.isPlaying() {
                 self.play()
@@ -279,9 +305,10 @@ class YYTAudioPlayer: NSObject {
             }
             return .commandFailed
         }
-        
+
         // Add handler for Pause Command
-        commandCenter.pauseCommand.addTarget { [unowned self] event in
+        commandCenter.pauseCommand.addTarget { [weak self] event in
+            guard let self = self else { return .commandFailed }
             print("Pause command - is playing: \(!self.isPlaying())")
             if self.isPlaying() {
                 self.pause()
@@ -289,20 +316,23 @@ class YYTAudioPlayer: NSObject {
             }
             return .commandFailed
         }
-        
-        commandCenter.nextTrackCommand.addTarget { [unowned self] event in
+
+        commandCenter.nextTrackCommand.addTarget { [weak self] event in
+            guard let self = self else { return .commandFailed }
             print("Next track command pressed")
             self.next()
             return .success
         }
-        
-        commandCenter.previousTrackCommand.addTarget { [unowned self] event in
+
+        commandCenter.previousTrackCommand.addTarget { [weak self] event in
+            guard let self = self else { return .commandFailed }
             print("Previous track command pressed")
             self.prev()
             return .success
         }
-        
-        commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
+
+        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let self = self else { return .commandFailed }
             guard let changeEvent = event as? MPChangePlaybackPositionCommandEvent else {
                 return .commandFailed
             }
@@ -350,6 +380,7 @@ class YYTAudioPlayer: NSObject {
                 }
             }
         }
+        print("🔔 handleInterruption: type=\(type), options=\(userInfo[AVAudioSessionInterruptionOptionKey] ?? "none")")
     }
     
     // MARK: Handle Route Changes
@@ -364,7 +395,7 @@ class YYTAudioPlayer: NSObject {
     }
     
     @objc func handleRouteChange(notification: Notification) {
-        print("handleRouteChange")
+        print("🔌 Route change detected: \(String(describing: notification.userInfo))")
         guard let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
@@ -396,10 +427,27 @@ class YYTAudioPlayer: NSObject {
                 }
             default: ()
         }
+        print("🔌 handleRouteChange: reason=\(reason.rawValue)")
     }
     
     @objc private func playerDidFinishTrack(_ notification: Notification) {
         delegate?.audioPlayerDidFinishTrack()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        let commandCenter = MPRemoteCommandCenter.shared()
+        commandCenter.playCommand.removeTarget(nil)
+        commandCenter.pauseCommand.removeTarget(nil)
+        commandCenter.nextTrackCommand.removeTarget(nil)
+        commandCenter.previousTrackCommand.removeTarget(nil)
+        commandCenter.changePlaybackPositionCommand.removeTarget(nil)
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "rate" {
+            print("🎚️ AVPlayer rate changed: \(change?[.oldKey] ?? "?") → \(change?[.newKey] ?? "?")")
+        }
+    }
 }
