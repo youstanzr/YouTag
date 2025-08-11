@@ -118,13 +118,21 @@ class YYTAudioPlayer: NSObject {
     }
 
     func next() {
+        print("Playing next song")
         PlaylistManager.shared.movePlaylistForward()
         play()
     }
 
     func prev() {
-        PlaylistManager.shared.movePlaylistBackward()
-        play()
+        let currentTime = avPlayer?.currentTime().seconds ?? 0
+        if currentTime > 5 {
+            print("Rewind to start of current song")
+            setCurrentTime(to: 0)
+        } else {
+            print("Playing previous song")
+            PlaylistManager.shared.movePlaylistBackward()
+            play()
+        }
     }
     
     /// Starts or resumes playback at the desired rate and notifies the delegate.
