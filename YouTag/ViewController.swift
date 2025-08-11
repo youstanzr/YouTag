@@ -235,7 +235,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }
     
     // MARK: YYTTagViewDelegate
-    //For tag list that shows the chosen tags
+    // When filter tags are changed by delete
     func tagsListChanged(newTagsList: [[String]]) {
         print("New tags list: \(newTagsList)")
         let existingFilters = playlistManager.playlistFilters.getFilters()
@@ -249,7 +249,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }
 
     // MARK: FilterPickerViewDelegate
-    //For the tag list the are added
+    // When filter tags are changed by addition
     func processNewFilter(type: PlaylistFilters.FilterType, filters: [Any]) {
         switch type {
             case .tag, .artist, .album:
