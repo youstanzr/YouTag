@@ -56,6 +56,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     func didSelectSong(song: Song) {
+        print("🎶 didSelectSong: \(song.title)")
         nowPlayingView.loadSong(song: song)
         refreshNowPlayingView()
         audioPlayer.play()
