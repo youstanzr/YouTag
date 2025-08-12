@@ -17,6 +17,23 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     let playlistManager = PlaylistManager.shared
     var filterPickerView: FilterPickerView!
     
+    // AND/OR UI
+    private var isAndMode: Bool = false // false = OR (default), true = AND
+    private lazy var filterLogicButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("OR", for: .normal)
+        btn.setTitleColor(GraphicColors.cloudWhite, for: .normal)
+        btn.backgroundColor = .clear
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        btn.layer.cornerRadius = 5
+        btn.layer.borderColor = GraphicColors.orange.cgColor
+        btn.layer.borderWidth = 1.0
+        btn.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        btn.clipsToBounds = true
+        btn.addTarget(self, action: #selector(toggleFilterLogic), for: .touchUpInside)
+        return btn
+    }()
+    
     // MARK: - UI Elements
     var menuButton: UIButton = {
         let btn = UIButton()
@@ -74,7 +91,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
         playlistManager.playlistLibraryView.scrollToTop()
     }
     
@@ -116,6 +133,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView = YYTFilterTagView(frame: .zero, tupleTags: [], isDeleteEnabled: true)
         tagsView.yytdelegate = self
         view.addSubview(tagsView)
+        
+        // Style tags view corners: all rounded except top-right
+        tagsView.layer.cornerRadius = 5
+        tagsView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        tagsView.clipsToBounds = true
+
+        // AND/OR toggle button
+        view.addSubview(filterLogicButton)
         
         // Version Label
         view.addSubview(versionLabel)
@@ -181,6 +206,13 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
         tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 
+        // AND/OR Toggle Button
+        filterLogicButton.translatesAutoresizingMaskIntoConstraints = false
+        filterLogicButton.trailingAnchor.constraint(equalTo: tagsView.trailingAnchor).isActive = true
+        filterLogicButton.bottomAnchor.constraint(equalTo: tagsView.topAnchor, constant: 1).isActive = true
+        filterLogicButton.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        filterLogicButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+
         // Build Label
         buildLabel.translatesAutoresizingMaskIntoConstraints = false
         buildLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
@@ -234,6 +266,12 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         filterPickerView.show(animated: true)
     }
     
+    @objc private func toggleFilterLogic() {
+        isAndMode.toggle()
+        filterLogicButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
+    }
+    
     // MARK: YYTTagViewDelegate
     // When filter tags are changed by delete
     func tagsListChanged(newTagsList: [[String]]) {
@@ -245,7 +283,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
             playlistManager.playlistFilters.deleteFilter(type: PlaylistFilters.FilterType(rawValue: filter[0])!, value: filter[1])
         }
 
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
 
     // MARK: FilterPickerViewDelegate
@@ -266,7 +304,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                 let durationFilters: [[TimeInterval]] = [values]
                 playlistManager.playlistFilters.addUniqueFilter(type: type, values: durationFilters)
         }
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
+
         // Update tags view using helper conversion
         let rawFilters = playlistManager.playlistFilters.getFilters()
         let tupleFilters = convertFiltersToTuples(rawFilters)

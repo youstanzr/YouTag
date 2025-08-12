@@ -12,15 +12,19 @@ private extension String {
     var nilIfEmpty: String? { isEmpty ? nil : self }
 }
 
+
 class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate {
     
     static let shared = PlaylistManager()  // Singleton instance
+
+    enum FilterLogic { case and, or }
 
     var nowPlayingView: NowPlayingView!
     var playlistLibraryView: PlaylistLibraryView!
     var audioPlayer: YYTAudioPlayer!
     var playlistFilters = PlaylistFilters(tags: [], artists: [], albums: [], releaseYearRanges: [], releaseYears: [], durations: [])
     var currentPlaylist: [Song] = []
+    var filterLogic: FilterLogic = .or
 
     override init() {
         super.init()
@@ -32,8 +36,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     // MARK: - Playlist Management
-    func computePlaylist() {
-        let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters)
+    func computePlaylist(mode: FilterLogic) {
+        self.filterLogic = mode
+        let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
         // Filter out any songs whose file is missing
         let playableSongs = songs.filter { song in
             guard let url = LibraryManager.shared.urlForSong(song) else { return false }

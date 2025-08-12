@@ -170,64 +170,153 @@ class LibraryManager {
         return songs
     }
 
-    /// Returns filtered songs based on PlaylistFilters.
-    func getFilteredSongs(with filters: PlaylistFilters) -> [Song] {
+    /// Returns filtered songs based on PlaylistFilters, honoring AND/OR for tags, artists, release years & ranges, and durations.
+    func getFilteredSongs(with filters: PlaylistFilters, mode: PlaylistManager.FilterLogic) -> [Song] {
         var query = """
         SELECT id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath
         FROM Songs
         WHERE 1=1 
         """
 
+        // TAGS (AND/OR)
         if !filters.tags.isEmpty {
             let tagList = filters.tags.map { "'\($0)'" }.joined(separator: ", ")
-            query += """
-             AND id IN (
-                 SELECT song_id FROM SongTags
-                 WHERE tag_id IN (
-                     SELECT id FROM Tags WHERE tag_name IN (\(tagList))
+            if mode == .or {
+                query += """
+                 AND id IN (
+                     SELECT song_id FROM SongTags
+                     WHERE tag_id IN (
+                         SELECT id FROM Tags WHERE tag_name IN (\(tagList))
+                     )
                  )
-             )
-             """
+                 """
+            } else {
+                query += """
+                 AND id IN (
+                     SELECT st.song_id
+                     FROM SongTags st
+                     JOIN Tags t ON st.tag_id = t.id
+                     WHERE t.tag_name IN (\(tagList))
+                     GROUP BY st.song_id
+                     HAVING COUNT(DISTINCT t.id) = \(filters.tags.count)
+                 )
+                 """
+            }
         }
 
+        // ARTISTS (AND/OR)
         if !filters.artists.isEmpty {
             let artistList = filters.artists.map { "'\($0)'" }.joined(separator: ", ")
-            query += """
-             AND id IN (
-                 SELECT song_id FROM SongArtists
-                 WHERE artist_id IN (
-                     SELECT id FROM Artists WHERE artist_name IN (\(artistList))
+            if mode == .or {
+                query += """
+                 AND id IN (
+                     SELECT song_id FROM SongArtists
+                     WHERE artist_id IN (
+                         SELECT id FROM Artists WHERE artist_name IN (\(artistList))
+                     )
                  )
-             )
-             """
+                 """
+            } else {
+                query += """
+                 AND id IN (
+                     SELECT sa.song_id
+                     FROM SongArtists sa
+                     JOIN Artists a ON sa.artist_id = a.id
+                     WHERE a.artist_name IN (\(artistList))
+                     GROUP BY sa.song_id
+                     HAVING COUNT(DISTINCT a.id) = \(filters.artists.count)
+                 )
+                 """
+            }
         }
 
+        // ALBUMS (always OR)
         if !filters.albums.isEmpty {
             let albumList = filters.albums.map { "'\($0)'" }.joined(separator: ", ")
             query += " AND album IN (\(albumList))"
         }
 
-        if !filters.releaseYears.isEmpty {
-            let yearList = filters.releaseYears.map { "'\($0)'" }.joined(separator: ", ")
-            query += " AND releaseYear IN (\(yearList))"
-        }
+        // RELEASE YEARS + YEAR RANGES (AND/OR across both kinds)
+        let parsedYears: [Int] = filters.releaseYears.compactMap { Int($0) }
+        if mode == .or {
+            var yearConds: [String] = []
+            if !parsedYears.isEmpty {
+                let yearList = parsedYears.map { String($0) }.joined(separator: ", ")
+                yearConds.append("CAST(releaseYear AS INTEGER) IN (\(yearList))")
+            } else if !filters.releaseYears.isEmpty {
+                // fallback to string IN if non-numeric values exist
+                let yearListStr = filters.releaseYears.map { "'\($0)'" }.joined(separator: ", ")
+                yearConds.append("releaseYear IN (\(yearListStr))")
+            }
+            if !filters.releaseYearRanges.isEmpty {
+                for range in filters.releaseYearRanges {
+                    if range.count >= 2, let lower = range.first, let upper = range.last {
+                        yearConds.append("CAST(releaseYear AS INTEGER) BETWEEN \(lower) AND \(upper)")
+                    }
+                }
+            }
+            if !yearConds.isEmpty {
+                query += " AND (" + yearConds.joined(separator: " OR ") + ")"
+            }
+        } else { // AND mode => intersect constraints
+            var hasConstraint = false
+            var low = Int.min
+            var high = Int.max
 
-        for range in filters.releaseYearRanges {
-            if let lower = range.first, let upper = range.last {
-                query += " AND releaseYear BETWEEN \(lower) AND \(upper)"
+            let uniqueYears = Set(parsedYears)
+            if !uniqueYears.isEmpty {
+                if uniqueYears.count > 1 { return [] } // cannot be multiple distinct years simultaneously
+                if let y = uniqueYears.first {
+                    low = max(low, y)
+                    high = min(high, y)
+                    hasConstraint = true
+                }
+            }
+            for range in filters.releaseYearRanges {
+                if range.count >= 2, let rLow = range.first, let rHigh = range.last {
+                    low = max(low, rLow)
+                    high = min(high, rHigh)
+                    hasConstraint = true
+                }
+            }
+            if hasConstraint {
+                if low > high { return [] }
+                query += " AND CAST(releaseYear AS INTEGER) BETWEEN \(low) AND \(high)"
             }
         }
 
+        // Execute base query
         let rawSongs = fetchSongs(from: query)
 
-        if filters.durations.isEmpty { return rawSongs }
+        // DURATIONS (AND/OR) — performed client-side since duration is stored as TEXT
+        guard !filters.durations.isEmpty else { return rawSongs }
 
-        return rawSongs.filter { song in
-            let duration = song.duration.convertToTimeInterval()
-            guard !duration.isNaN else { return false }
-            return filters.durations.contains { range in
-                guard range.count == 2 else { return false }
-                return duration >= range[0] && duration <= range[1]
+        if mode == .or {
+            return rawSongs.filter { song in
+                let duration = song.duration.convertToTimeInterval()
+                guard !duration.isNaN else { return false }
+                return filters.durations.contains { range in
+                    guard range.count == 2 else { return false }
+                    return duration >= range[0] && duration <= range[1]
+                }
+            }
+        } else {
+            // AND mode: intersect all ranges
+            var low = -Double.infinity
+            var high = Double.infinity
+            var any = false
+            for r in filters.durations {
+                guard r.count == 2 else { continue }
+                low = max(low, r[0])
+                high = min(high, r[1])
+                any = true
+            }
+            if !any { return rawSongs }
+            if low > high { return [] }
+            return rawSongs.filter { song in
+                let duration = song.duration.convertToTimeInterval()
+                guard !duration.isNaN else { return false }
+                return duration >= low && duration <= high
             }
         }
     }
@@ -271,7 +360,8 @@ class LibraryManager {
         let query = """
         SELECT t.tag_name FROM Tags t
         JOIN SongTags st ON t.id = st.tag_id
-        WHERE st.song_id = ?;
+        WHERE st.song_id = ?
+        ORDER BY t.tag_name;
         """
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
@@ -292,7 +382,8 @@ class LibraryManager {
         let query = """
         SELECT a.artist_name FROM Artists a
         JOIN SongArtists sa ON a.id = sa.artist_id
-        WHERE sa.song_id = ?;
+        WHERE sa.song_id = ?
+        ORDER BY a.artist_name;
         """
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
