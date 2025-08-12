@@ -399,6 +399,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         progressBar.value = 0.0
         currentTimeLabel.text = "00:00"
         timeLeftLabel.text = "00:00"
+        tagView.tagsList.removeAll()
     }
 
     // MARK: - Button Actions
