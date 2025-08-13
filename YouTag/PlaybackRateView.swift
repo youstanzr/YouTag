@@ -104,12 +104,12 @@ final class PlaybackRateView: UIView {
         // Title
         titleLabel.text = "Playback speed"
         titleLabel.textColor = textColor
-        titleLabel.font = UIFont(name: "DINAlternate-Bold", size: 16)
+        titleLabel.font = UIFont(name: "DINAlternate-Bold", size: 18)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         // Value label
         valueLabel.textColor = GraphicColors.medGray
-        valueLabel.font = UIFont(name: "DINAlternate-Bold", size: 14)
+        valueLabel.font = UIFont(name: "DINAlternate-Bold", size: 18)
         valueLabel.textAlignment = .right
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -160,7 +160,6 @@ final class PlaybackRateView: UIView {
     }
 
     private func setRate(_ rate: Float, animated: Bool) {
-        // Clamp and snap to 0.05 steps within 0.25–4.0
         var r = max(0.5, min(2.0, rate))
         r = (r / 0.05).rounded() * 0.05
         selectedRate = r
@@ -186,13 +185,13 @@ final class PlaybackRateView: UIView {
     private func makePresetButton(title: String) -> UIButton {
         let b = UIButton(type: .system)
         b.setTitle(title, for: .normal)
-        b.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 14)
+        b.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 15)
         b.layer.cornerRadius = 8
         b.layer.borderWidth = 1
         b.layer.borderColor = accent.cgColor
         b.setTitleColor(textColor, for: .normal)
         b.backgroundColor = .clear
-        b.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        b.heightAnchor.constraint(equalToConstant: 32).isActive = true
         return b
     }
 
@@ -204,18 +203,6 @@ final class PlaybackRateView: UIView {
             b.backgroundColor = .clear
             b.setTitleColor(textColor, for: .normal)
         }
-    }
-
-    private func makeActionButton(title: String) -> UIButton {
-        let b = UIButton(type: .system)
-        b.setTitle(title, for: .normal)
-        b.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 15)
-        b.layer.cornerRadius = 9
-        b.layer.borderWidth = 1
-        b.layer.borderColor = accent.cgColor
-        b.setTitleColor(textColor, for: .normal)
-        b.backgroundColor = .clear
-        return b
     }
 
     private func rateText(_ r: Float) -> String { "x\(format(r))" }
