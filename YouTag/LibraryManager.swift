@@ -425,7 +425,7 @@ class LibraryManager {
             }
         }
         sqlite3_finalize(statement)
-        return Array(Set(resultList)) // Remove duplicates
+        return Array(resultList)
     }
     
     
