@@ -30,7 +30,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         btn.layer.borderWidth = 1.0
         btn.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         btn.clipsToBounds = true
-        btn.addTarget(self, action: #selector(toggleFilterLogic), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(toggleFilterMode), for: .touchUpInside)
         return btn
     }()
     
@@ -266,7 +266,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         filterPickerView.show(animated: true)
     }
     
-    @objc private func toggleFilterLogic() {
+    @objc private func toggleFilterMode() {
         print("Toggle filter logic")
         isAndMode.toggle()
         filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
