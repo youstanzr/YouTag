@@ -23,8 +23,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         let btn = UIButton(type: .system)
         btn.setTitle("OR", for: .normal)
         btn.setTitleColor(GraphicColors.cloudWhite, for: .normal)
-        btn.backgroundColor = .clear
-        btn.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        btn.backgroundColor = GraphicColors.orange
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         btn.layer.cornerRadius = 5
         btn.layer.borderColor = GraphicColors.orange.cgColor
         btn.layer.borderWidth = 1.0
@@ -232,7 +232,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-        playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2).isActive = true
+        playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.22).isActive = true
 
         // Playlist Library View
         playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
