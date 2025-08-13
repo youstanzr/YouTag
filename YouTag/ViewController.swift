@@ -19,7 +19,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     
     // AND/OR UI
     private var isAndMode: Bool = false // false = OR (default), true = AND
-    private lazy var filterLogicButton: UIButton = {
+    private lazy var filterModeButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("OR", for: .normal)
         btn.setTitleColor(GraphicColors.cloudWhite, for: .normal)
@@ -140,7 +140,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.clipsToBounds = true
 
         // AND/OR toggle button
-        view.addSubview(filterLogicButton)
+        view.addSubview(filterModeButton)
         
         // Version Label
         view.addSubview(versionLabel)
@@ -207,11 +207,11 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 
         // AND/OR Toggle Button
-        filterLogicButton.translatesAutoresizingMaskIntoConstraints = false
-        filterLogicButton.trailingAnchor.constraint(equalTo: tagsView.trailingAnchor).isActive = true
-        filterLogicButton.bottomAnchor.constraint(equalTo: tagsView.topAnchor, constant: 1).isActive = true
-        filterLogicButton.heightAnchor.constraint(equalToConstant: 22).isActive = true
-        filterLogicButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        filterModeButton.translatesAutoresizingMaskIntoConstraints = false
+        filterModeButton.trailingAnchor.constraint(equalTo: tagsView.trailingAnchor).isActive = true
+        filterModeButton.bottomAnchor.constraint(equalTo: tagsView.topAnchor, constant: 1).isActive = true
+        filterModeButton.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        filterModeButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
 
         // Build Label
         buildLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -269,7 +269,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     @objc private func toggleFilterLogic() {
         print("Toggle filter logic")
         isAndMode.toggle()
-        filterLogicButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
+        filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
     
