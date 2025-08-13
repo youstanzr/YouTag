@@ -147,13 +147,13 @@
 		2B7863812301AE56001DD6FD /* YouTag */ = {
 			isa = PBXGroup;
 			children = (
-				2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */,
 				2B7863822301AE56001DD6FD /* AppDelegate.swift */,
 				2B7863842301AE56001DD6FD /* ViewController.swift */,
 				2B81A6DE23030B2D00B584E8 /* LibraryViewController.swift */,
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
+				2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */,
 				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
 				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
 				2B810F42241DB156002FA583 /* FilterPickerView.swift */,
