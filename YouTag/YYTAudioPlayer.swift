@@ -232,12 +232,30 @@ class YYTAudioPlayer: NSObject {
         let image = LibraryManager.shared.fetchThumbnail(for: song)
             ?? UIImage(named: "placeholder", in: Bundle.main, compatibleWith: nil)
             ?? UIImage()
-        // Rasterize image for compatibility
-        let renderer = UIGraphicsImageRenderer(size: image.size)
-        let rasterImage = renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: image.size))
+
+        let maxSize: CGFloat = 512
+        let size = image.size
+        let scaleRatio = min(1.0, maxSize / max(size.width, size.height))
+        let targetSize = CGSize(width: size.width * scaleRatio, height: size.height * scaleRatio)
+
+        // Create initial blank artwork
+        let blankArtwork = MPMediaItemArtwork(boundsSize: targetSize) { _ in image }
+
+        // Defer heavy rendering to background
+        DispatchQueue.global(qos: .userInitiated).async {
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            let rasterImage = renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: targetSize))
+            }
+
+            let finalArtwork = MPMediaItemArtwork(boundsSize: rasterImage.size) { _ in rasterImage }
+            DispatchQueue.main.async {
+                var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
+                info[MPMediaItemPropertyArtwork] = finalArtwork
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+            }
         }
-        return MPMediaItemArtwork(boundsSize: rasterImage.size) { _ in rasterImage }
+        return blankArtwork
     }
 
     /// Adds elapsed time and playback rate to nowPlaying info.
