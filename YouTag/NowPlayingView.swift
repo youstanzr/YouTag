@@ -425,16 +425,18 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         repeatButton.alpha = audioPlayer.isSongRepeat ? 1 : 0.35
     }
     @objc func playbackRateButtonAction() {
-        if playbackRateButton.title(for: .normal) == "x1" {
-            playbackRateButton.setTitle("x1.25", for: .normal)
-            audioPlayer.setPlaybackRate(to: 1.25)
-        } else if playbackRateButton.title(for: .normal) == "x1.25" {
-            playbackRateButton.setTitle("x0.75", for: .normal)
-            audioPlayer.setPlaybackRate(to: 0.75)
-        } else {
-            playbackRateButton.setTitle("x1", for: .normal)
-            audioPlayer.setPlaybackRate(to: 1)
+        // Determine current rate from button title (fallback to 1.0)
+        let currentTitle = playbackRateButton.title(for: .normal) ?? "x1"
+        let currentRate = Float(currentTitle.replacingOccurrences(of: "x", with: "")) ?? 1.0
+
+        let hostView: UIView = self.window ?? self
+        let popup = PlaybackRateView(currentRate: currentRate)
+        popup.onApply = { [weak self] newRate in
+            guard let self = self else { return }
+            self.audioPlayer.setPlaybackRate(to: newRate)
+            self.playbackRateButton.setTitle("x\(self.formatRate(newRate))", for: .normal)
         }
+        popup.present(over: hostView)
     }
 
         
@@ -498,6 +500,13 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     func audioPlayerDidFinishTrack() {
         NPDelegate?.audioPlayerDidFinishTrack()
+    }
+
+    // Helper to format playback rate (e.g. 1, 1.25, 1.5)
+    private func formatRate(_ rate: Float) -> String {
+        // Format like 1, 1.25, 1.5 (trim trailing zeros)
+        let s = String(format: "%.2f", rate)
+        return s.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
     }
 
     // MARK: - Helper Function
