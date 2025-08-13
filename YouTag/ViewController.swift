@@ -267,6 +267,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }
     
     @objc private func toggleFilterLogic() {
+        print("Toggle filter logic")
         isAndMode.toggle()
         filterLogicButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
