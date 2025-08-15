@@ -6,8 +6,6 @@
 //  Copyright © 2019 Youstanzr. All rights reserved.
 //
 
-// Cache issue not well and not invalidated after update pic
-
 import UIKit
 
 class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
