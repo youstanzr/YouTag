@@ -38,26 +38,56 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     // MARK: - Playlist Management
     func computePlaylist(mode: FilterLogic) {
         self.filterLogic = mode
+        let oldPlaylist = currentPlaylist
+
         let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
         // Filter out any songs whose file is missing
         let playableSongs = songs.filter { song in
             guard let url = LibraryManager.shared.urlForSong(song) else { return false }
             return FileManager.default.fileExists(atPath: url.path)
         }
-        updatePlaylistLibrary(toPlaylist: playableSongs)
+        
+        if samePlaylist(oldPlaylist, playableSongs) {
+            // Same set of songs; keep old order to avoid jarring UI/audio changes
+            let reordered = reorderToMatchOldOrder(newPlaylist: playableSongs, oldPlaylist: oldPlaylist)
+            updatePlaylistLibrary(toPlaylist: reordered, uiOnly: true)
+        } else {
+            // Different contents; adopt the new playlist
+            updatePlaylistLibrary(toPlaylist: playableSongs)
+        }
+    }
+    
+    // Checks if two playlists are the same even if order is not the same
+    private func samePlaylist(_ a: [Song], _ b: [Song]) -> Bool {
+        guard a.count == b.count else { return false }
+        guard !a.isEmpty else { return true }
+        var counts: [String:Int] = [:]                // Song.id -> count
+        for s in a { counts[s.id, default: 0] += 1 }
+        for s in b {
+            guard let c = counts[s.id], c > 0 else { return false }
+            counts[s.id] = c - 1
+        }
+        return counts.values.allSatisfy { $0 == 0 }
+    }
+    
+    private func reorderToMatchOldOrder(newPlaylist: [Song], oldPlaylist: [Song]) -> [Song] {
+        guard newPlaylist.count == oldPlaylist.count else { return newPlaylist }
+        // Map new songs by ID for quick lookup
+        let mapNew: [String: Song] = Dictionary(uniqueKeysWithValues: newPlaylist.map { ($0.id, $0) })
+        // Preserve the exact order from the old playlist
+        return oldPlaylist.compactMap { mapNew[$0.id] }
     }
 
-    func updatePlaylistLibrary(toPlaylist newPlaylist: [Song]) {
+    func updatePlaylistLibrary(toPlaylist newPlaylist: [Song], uiOnly: Bool = false) {
         currentPlaylist = newPlaylist
-        playlistLibraryView.refreshTableView()
-        refreshNowPlayingView()
+        refreshPlaylistLibraryView(uiOnly: uiOnly)
     }
     
     // MARK: - Playlist Manipulation
     
-    func refreshPlaylistLibraryView() {
+    func refreshPlaylistLibraryView(uiOnly: Bool = false) {
         playlistLibraryView.refreshTableView()
-        refreshNowPlayingView()
+        refreshNowPlayingView(uiOnly: uiOnly)
     }
     
     func didSelectSong(song: Song) {
@@ -67,12 +97,14 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     func movePlaylistForward() {
+        guard !currentPlaylist.isEmpty else { return }
         let lastSong = currentPlaylist.removeLast()
         currentPlaylist.insert(lastSong, at: 0)
         refreshPlaylistLibraryView()
     }
     
     func movePlaylistBackward() {
+        guard !currentPlaylist.isEmpty else { return }
         let firstSong = currentPlaylist.removeFirst()
         currentPlaylist.append(firstSong)
         refreshPlaylistLibraryView()
@@ -88,9 +120,9 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     // MARK: - Now Playing View Management
-    func refreshNowPlayingView() {
+    func refreshNowPlayingView(uiOnly: Bool = false) {
         if let song = currentPlaylist.last {
-            nowPlayingView.loadSong(song: song)  // Will play the song after loading it
+            nowPlayingView.loadSong(song: song, preparePlayer: !uiOnly)  // prepare player only if we're not in UI-only mode
         } else {
             nowPlayingView.clearNowPlaying()
         }

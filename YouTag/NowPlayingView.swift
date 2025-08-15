@@ -330,7 +330,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     
     // MARK: - Load Song
-    func loadSong(song: Song) {
+    func loadSong(song: Song, preparePlayer: Bool = true) {
         currentSong = song
         titleLabel.text = song.title
         // Build subLabel as "Artist • Album • Year"
@@ -379,8 +379,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         skipNextPeriodicUpdate = true
 
         // Prepare the player without auto-playing
-        if audioPlayer.setupPlayer(withSong: song) {
-            
+        if preparePlayer, audioPlayer.setupPlayer(withSong: song) {
             // Reset UI
             progressBar.value = 0.0
             currentTimeLabel.text = "00:00"

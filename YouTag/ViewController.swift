@@ -94,12 +94,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
         playlistManager.playlistLibraryView.scrollToTop()
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        playlistManager.audioPlayer.pause()
-    }
-    
+        
     // Automatically present LibraryViewController if library is empty
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -256,9 +251,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
         LVC.modalPresentationStyle = .fullScreen
         LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: {
-            self.tagsView.removeAllTags()
-        })
+        self.present(LVC, animated: true, completion: nil)
     }
     
     @objc func filterButtonAction(sender: UIButton!) {
