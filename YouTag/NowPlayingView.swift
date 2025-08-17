@@ -105,7 +105,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let btn = UIButton()
         btn.backgroundColor = GraphicColors.orange
         btn.setTitleColor(.white, for: .normal)
-        btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 12)
+        btn.titleLabel?.font = UIFont(name: "DINAlternate-Bold", size: 14)
         btn.setTitle("x1", for: .normal)
         return btn
     }()
@@ -115,7 +115,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 14)
         return lbl
     }()
     let timeLeftLabel: UILabel = {
@@ -123,7 +123,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         lbl.textColor = GraphicColors.medGray
         lbl.text = "00:00"
         lbl.textAlignment = .center
-        lbl.font = UIFont(name: "DINAlternate-Bold", size: 12)
+        lbl.font = UIFont(name: "DINAlternate-Bold", size: 14)
         return lbl
     }()
     
@@ -187,7 +187,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         playlistControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         playlistControlView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         playlistControlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        playlistControlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.375).isActive = true
+        playlistControlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.4).isActive = true
 
         repeatButton.addTarget(self, action: #selector(repeatButtonAction), for: .touchUpInside)
         playlistControlView.addSubview(repeatButton)
@@ -229,17 +229,17 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         songControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         songControlView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         songControlView.bottomAnchor.constraint(equalTo: playlistControlView.topAnchor).isActive = true
-        songControlView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        songControlView.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        let thumbImage = makeCircleImage(radius: 15.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
-        let selectedThumbImage = makeCircleImage(radius: 20.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
+        let thumbImage = makeCircleImage(radius: 20.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
+        let selectedThumbImage = makeCircleImage(radius: 25.0, color: GraphicColors.darkGray, borderColor: .clear, borderWidth: 0.0)
         progressBar.setThumbImage(thumbImage, for: .normal)
         progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
         progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
         songControlView.addSubview(progressBar)
         progressBar.translatesAutoresizingMaskIntoConstraints = false
-        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 6.0).isActive = true
-        progressBar.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.7, constant: -2.5).isActive = true
+        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 10.0).isActive = true
+        progressBar.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.63, constant: -2.5).isActive = true
         progressBar.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         progressBar.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
         
@@ -247,14 +247,14 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         songControlView.addSubview(currentTimeLabel)
         currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
         currentTimeLabel.leadingAnchor.constraint(equalTo: progressBar.trailingAnchor, constant: 2.5).isActive = true
-        currentTimeLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.1, constant: -2.5).isActive = true
+        currentTimeLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.12, constant: -2.5).isActive = true
         currentTimeLabel.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         currentTimeLabel.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
 
         timeLeftLabel.addBorder(side: .left, color: GraphicColors.orange, width: 0.5)
         songControlView.addSubview(timeLeftLabel)
         timeLeftLabel.translatesAutoresizingMaskIntoConstraints = false
-        timeLeftLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.1, constant: -2.5).isActive = true
+        timeLeftLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.12, constant: -2.5).isActive = true
         timeLeftLabel.leadingAnchor.constraint(equalTo: currentTimeLabel.trailingAnchor).isActive = true
         timeLeftLabel.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         timeLeftLabel.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
@@ -330,7 +330,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     
     // MARK: - Load Song
-    func loadSong(song: Song) {
+    func loadSong(song: Song, preparePlayer: Bool = true) {
         currentSong = song
         titleLabel.text = song.title
         // Build subLabel as "Artist • Album • Year"
@@ -379,8 +379,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         skipNextPeriodicUpdate = true
 
         // Prepare the player without auto-playing
-        if audioPlayer.setupPlayer(withSong: song) {
-            
+        if preparePlayer, audioPlayer.setupPlayer(withSong: song) {
             // Reset UI
             progressBar.value = 0.0
             currentTimeLabel.text = "00:00"
@@ -399,6 +398,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         progressBar.value = 0.0
         currentTimeLabel.text = "00:00"
         timeLeftLabel.text = "00:00"
+        tagView.tagsList.removeAll()
     }
 
     // MARK: - Button Actions
@@ -424,16 +424,18 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         repeatButton.alpha = audioPlayer.isSongRepeat ? 1 : 0.35
     }
     @objc func playbackRateButtonAction() {
-        if playbackRateButton.title(for: .normal) == "x1" {
-            playbackRateButton.setTitle("x1.25", for: .normal)
-            audioPlayer.setPlaybackRate(to: 1.25)
-        } else if playbackRateButton.title(for: .normal) == "x1.25" {
-            playbackRateButton.setTitle("x0.75", for: .normal)
-            audioPlayer.setPlaybackRate(to: 0.75)
-        } else {
-            playbackRateButton.setTitle("x1", for: .normal)
-            audioPlayer.setPlaybackRate(to: 1)
+        // Determine current rate from button title (fallback to 1.0)
+        let currentTitle = playbackRateButton.title(for: .normal) ?? "x1"
+        let currentRate = Float(currentTitle.replacingOccurrences(of: "x", with: "")) ?? 1.0
+
+        let hostView: UIView = self.window ?? self
+        let popup = PlaybackRateView(currentRate: currentRate)
+        popup.onApply = { [weak self] newRate in
+            guard let self = self else { return }
+            self.audioPlayer.setPlaybackRate(to: newRate)
+            self.playbackRateButton.setTitle("x\(self.formatRate(newRate))", for: .normal)
         }
+        popup.present(over: hostView)
     }
 
         
@@ -497,6 +499,13 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     func audioPlayerDidFinishTrack() {
         NPDelegate?.audioPlayerDidFinishTrack()
+    }
+
+    // Helper to format playback rate (e.g. 1, 1.25, 1.5)
+    private func formatRate(_ rate: Float) -> String {
+        // Format like 1, 1.25, 1.5 (trim trailing zeros)
+        let s = String(format: "%.2f", rate)
+        return s.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
     }
 
     // MARK: - Helper Function

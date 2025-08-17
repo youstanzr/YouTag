@@ -6,8 +6,6 @@
 //  Copyright © 2019 Youstanzr. All rights reserved.
 //
 
-// Cache issue not well and not invalidated after update pic
-
 import UIKit
 
 class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
@@ -16,6 +14,23 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     var tagsView: YYTFilterTagView!
     let playlistManager = PlaylistManager.shared
     var filterPickerView: FilterPickerView!
+    
+    // AND/OR UI
+    private var isAndMode: Bool = false // false = OR (default), true = AND
+    private lazy var filterModeButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("OR", for: .normal)
+        btn.setTitleColor(GraphicColors.cloudWhite, for: .normal)
+        btn.backgroundColor = GraphicColors.orange
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        btn.layer.cornerRadius = 5
+        btn.layer.borderColor = GraphicColors.orange.cgColor
+        btn.layer.borderWidth = 1.0
+        btn.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        btn.clipsToBounds = true
+        btn.addTarget(self, action: #selector(toggleFilterMode), for: .touchUpInside)
+        return btn
+    }()
     
     // MARK: - UI Elements
     var menuButton: UIButton = {
@@ -74,15 +89,10 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
         playlistManager.playlistLibraryView.scrollToTop()
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        playlistManager.audioPlayer.pause()
-    }
-    
+        
     // Automatically present LibraryViewController if library is empty
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -116,6 +126,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView = YYTFilterTagView(frame: .zero, tupleTags: [], isDeleteEnabled: true)
         tagsView.yytdelegate = self
         view.addSubview(tagsView)
+        
+        // Style tags view corners: all rounded except top-right
+        tagsView.layer.cornerRadius = 5
+        tagsView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        tagsView.clipsToBounds = true
+
+        // AND/OR toggle button
+        view.addSubview(filterModeButton)
         
         // Version Label
         view.addSubview(versionLabel)
@@ -181,6 +199,13 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
         tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
 
+        // AND/OR Toggle Button
+        filterModeButton.translatesAutoresizingMaskIntoConstraints = false
+        filterModeButton.trailingAnchor.constraint(equalTo: tagsView.trailingAnchor).isActive = true
+        filterModeButton.bottomAnchor.constraint(equalTo: tagsView.topAnchor, constant: 1).isActive = true
+        filterModeButton.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        filterModeButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+
         // Build Label
         buildLabel.translatesAutoresizingMaskIntoConstraints = false
         buildLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
@@ -200,7 +225,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-        playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2).isActive = true
+        playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.22).isActive = true
 
         // Playlist Library View
         playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
@@ -224,9 +249,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
         LVC.modalPresentationStyle = .fullScreen
         LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: {
-            self.tagsView.removeAllTags()
-        })
+        self.present(LVC, animated: true, completion: nil)
     }
     
     @objc func filterButtonAction(sender: UIButton!) {
@@ -234,8 +257,15 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         filterPickerView.show(animated: true)
     }
     
+    @objc private func toggleFilterMode() {
+        print("Toggle filter logic")
+        isAndMode.toggle()
+        filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
+    }
+    
     // MARK: YYTTagViewDelegate
-    //For tag list that shows the chosen tags
+    // When filter tags are changed by delete
     func tagsListChanged(newTagsList: [[String]]) {
         print("New tags list: \(newTagsList)")
         let existingFilters = playlistManager.playlistFilters.getFilters()
@@ -245,11 +275,11 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
             playlistManager.playlistFilters.deleteFilter(type: PlaylistFilters.FilterType(rawValue: filter[0])!, value: filter[1])
         }
 
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
 
     // MARK: FilterPickerViewDelegate
-    //For the tag list the are added
+    // When filter tags are changed by addition
     func processNewFilter(type: PlaylistFilters.FilterType, filters: [Any]) {
         switch type {
             case .tag, .artist, .album:
@@ -266,7 +296,8 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                 let durationFilters: [[TimeInterval]] = [values]
                 playlistManager.playlistFilters.addUniqueFilter(type: type, values: durationFilters)
         }
-        playlistManager.computePlaylist()
+        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
+
         // Update tags view using helper conversion
         let rawFilters = playlistManager.playlistFilters.getFilters()
         let tupleFilters = convertFiltersToTuples(rawFilters)

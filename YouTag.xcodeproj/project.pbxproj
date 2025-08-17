@@ -36,6 +36,7 @@
 		2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */; };
 		2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */; };
 		2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */; };
+		2BCFF4EA2E4C4078007073B8 /* PlaybackRateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */; };
 		2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */; };
 		5BBD3CBD246E413A001E6FD0 /* SearchTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBD3CBC246E413A001E6FD0 /* SearchTextField.swift */; };
 /* End PBXBuildFile section */
@@ -91,6 +92,7 @@
 		2BA62469240C2CEA002D6670 /* LocalFilesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFilesManager.swift; sourceTree = "<group>"; };
 		2BA6246B240C3F1C002D6670 /* YYTAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTAudioPlayer.swift; sourceTree = "<group>"; };
 		2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
+		2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackRateView.swift; sourceTree = "<group>"; };
 		2BEA01E4242CE50F003505D9 /* YYTFilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTFilterTagView.swift; sourceTree = "<group>"; };
 		5BBD3CBC246E413A001E6FD0 /* SearchTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTextField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -151,6 +153,7 @@
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
+				2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */,
 				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
 				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
 				2B810F42241DB156002FA583 /* FilterPickerView.swift */,
@@ -351,6 +354,7 @@
 				2B61796424088E1C009149CB /* LibraryManager.swift in Sources */,
 				2BAC6CDE24235B0500A65583 /* PlaylistManager.swift in Sources */,
 				2B7863852301AE56001DD6FD /* ViewController.swift in Sources */,
+				2BCFF4EA2E4C4078007073B8 /* PlaybackRateView.swift in Sources */,
 				2B810F43241DB156002FA583 /* FilterPickerView.swift in Sources */,
 				2BEA01E5242CE50F003505D9 /* YYTFilterTagView.swift in Sources */,
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
@@ -550,7 +554,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250731;
+				CURRENT_PROJECT_VERSION = 20250815;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
@@ -577,7 +581,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250731;
+				CURRENT_PROJECT_VERSION = 20250815;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
