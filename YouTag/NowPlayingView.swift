@@ -144,6 +144,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         txtView.textAlignment = .center
         txtView.font = UIFont.init(name: "Optima-BoldItalic", size: 15)
         txtView.isEditable = false
+        txtView.isSelectable = false
         txtView.layer.borderWidth = 0.5
         txtView.layer.borderColor = GraphicColors.orange.withAlphaComponent(0.5).cgColor
         return txtView
