@@ -261,6 +261,17 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         print("Toggle filter logic")
         isAndMode.toggle()
         filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()  // Haptic tap
+        // Minimal pulse + shadow emphasis
+        UIView.animate(withDuration: 0.12, animations: {
+            self.filterModeButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            self.filterModeButton.layer.shadowOpacity = 0.18
+        }) { _ in
+            UIView.animate(withDuration: 0.12) {
+                self.filterModeButton.transform = .identity
+                self.filterModeButton.layer.shadowOpacity = 0.12
+            }
+        }
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
     

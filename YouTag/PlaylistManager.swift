@@ -117,6 +117,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         currentPlaylist.append(lastSong)
         playlistLibraryView.refreshTableView()
         playlistLibraryView.scrollToTop()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()  // Haptic tap
     }
     
     // MARK: - Now Playing View Management
