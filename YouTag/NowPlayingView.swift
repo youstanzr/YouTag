@@ -140,7 +140,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     let lyricsTextView: UITextView = {
         let txtView = UITextView()
         txtView.textColor = GraphicColors.cloudWhite
-        txtView.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.075)
+        txtView.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.08)
         txtView.textAlignment = .center
         txtView.font = UIFont.init(name: "Optima-BoldItalic", size: 15)
         txtView.isEditable = false
