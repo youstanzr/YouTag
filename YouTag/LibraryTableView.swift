@@ -12,6 +12,8 @@ import UniformTypeIdentifiers
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIDocumentPickerDelegate {
     private var pendingRelinkIndexPath: IndexPath?
     
+    public var allowsPlayContextMenu: Bool = false  // Play context when long press
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -63,6 +65,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         let song = reversedSongs[indexPath.row]
         
         cell.refreshCell(with: song, showTags: true)
+
         // Mark broken links in light red
         if let url = LibraryManager.shared.urlForSong(song),
            (try? url.checkResourceIsReachable()) == true {
@@ -127,7 +130,56 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
             UIApplication.getCurrentViewController()?.present(alert, animated: true, completion: nil)
         }
     }
+
+    // MARK: - UIContextMenu
+
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard allowsPlayContextMenu else { return nil }
+        let reversedSongs = Array(LibraryManager.shared.libraryArray.reversed())
+        let song = reversedSongs[indexPath.row]
+        guard let url = LibraryManager.shared.urlForSong(song),
+              (try? url.checkResourceIsReachable()) == true else { return nil }
+        
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { _ in
+            let play = UIAction(title: "Play", image: UIImage(systemName: "play.fill")) { _ in
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                // Rotate playlist so selected song plays last (mirror PlaylistLibraryView.didSelectRowAt)
+                if !PlaylistManager.shared.currentPlaylist.isEmpty {
+                    if let last = PlaylistManager.shared.currentPlaylist.last {
+                        PlaylistManager.shared.currentPlaylist.insert(last, at: 0)
+                        PlaylistManager.shared.currentPlaylist.removeLast()
+                    }
+                    PlaylistManager.shared.currentPlaylist.removeAll { $0.id == song.id }
+                }
+                PlaylistManager.shared.currentPlaylist.append(song)
+                // Refresh playlist UI and play
+                PlaylistManager.shared.playlistLibraryView.refreshTableView()
+                PlaylistManager.shared.didSelectSong(song: song)
+            }
+            return UIMenu(title: "", children: [play])
+        }
+    }
     
+    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard allowsPlayContextMenu,
+            let ip = configuration.identifier as? NSIndexPath,
+            let cell = tableView.cellForRow(at: ip as IndexPath)
+        else { return nil }
+        let params = UIPreviewParameters()
+        params.backgroundColor = UIColor.clear
+        return UITargetedPreview(view: cell.contentView, parameters: params)
+    }
+
+    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard allowsPlayContextMenu,
+            let ip = configuration.identifier as? NSIndexPath,
+            let cell = tableView.cellForRow(at: ip as IndexPath)
+        else { return nil }
+        let params = UIPreviewParameters()
+        params.backgroundColor = UIColor.clear
+        return UITargetedPreview(view: cell.contentView, parameters: params)
+    }
+        
     // MARK: - UIDocumentPickerDelegate
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {

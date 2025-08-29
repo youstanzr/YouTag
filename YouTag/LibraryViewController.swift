@@ -50,6 +50,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         super.viewDidLoad()
         setupUI()
         
+        libraryTableView.allowsPlayContextMenu = true
         
         // Capture full list and configure search bar
         allSongs = LibraryManager.shared.libraryArray
