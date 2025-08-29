@@ -7,12 +7,14 @@
 //
 
 import UIKit
+import QuickLook
 
 // This is the view that shows up whenever you add a new song from the web and want to edit its details before adding to your library
-class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, QLPreviewControllerDataSource {
 
     var song: Song!
     var tagsView: YYTTagView!
+    private var previewURL: URL?
     
     let dismissButton: UIButton = {
         let btn = UIButton()
@@ -224,6 +226,18 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         } else {
             filenameLabel.text = "Unknown"
         }
+        // Make filename label tappable to open the file (Quick Look)
+        filenameLabel.isUserInteractionEnabled = true
+        let filenameTap = UITapGestureRecognizer(target: self, action: #selector(previewFile))
+        filenameLabel.addGestureRecognizer(filenameTap)
+        if let currentText = filenameLabel.text {
+            filenameLabel.attributedText = NSAttributedString(
+                string: currentText,
+                attributes: [
+                    .underlineStyle: NSUnderlineStyle.single.rawValue,
+                ]
+            )
+        }
         view.addSubview(filenameLabel)
 
         setupConstraints()
@@ -322,7 +336,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Song Size Label
         songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -5),
+            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -7.5),
             songSizeLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             songSizeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 55),
         ])
@@ -467,5 +481,35 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    // MARK: - Quick Look preview of the song file
+    @objc private func previewFile() {
+        guard let url = LibraryManager.shared.urlForSong(song) else { return }
+        previewURL = url
+
+        DispatchQueue.main.async {
+            guard self.presentedViewController == nil else { return }
+            let preview = QLPreviewController()
+            preview.dataSource = self
+            // Add our own Done button (since we’re embedding in a nav controller)
+            preview.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.dismissPreview))
+
+            let nav = UINavigationController(rootViewController: preview)
+            nav.modalPresentationStyle = .fullScreen
+            nav.modalTransitionStyle = .coverVertical
+            nav.navigationBar.tintColor = GraphicColors.orange
+            self.present(nav, animated: true)
+        }
+    }
+
+    // QLPreviewControllerDataSource
+    func numberOfPreviewItems(in controller: QLPreviewController) -> Int { return previewURL == nil ? 0 : 1 }
+    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        return previewURL! as NSURL
+    }
+
+    @objc private func dismissPreview() {
+        self.dismiss(animated: true)
     }
 }

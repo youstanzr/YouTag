@@ -13,14 +13,29 @@ protocol NowPlayingViewDelegate: AnyObject {
     func audioPlayerDidFinishTrack()
 }
 
+protocol NowPlayingLayoutDelegate: AnyObject {
+    func nowPlayingView(_ view: NowPlayingView,
+                        didToggleExpanded isExpanded: Bool,
+                        collapsedPlaylistHeight: CGFloat,
+                        expandedPlaylistHeight: CGFloat)
+}
+
 class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     weak var NPDelegate: NowPlayingViewDelegate?
+    weak var layoutDelegate: NowPlayingLayoutDelegate?
     var audioPlayer: YYTAudioPlayer!
     var currentSong: Song?
     /// Skip the very first periodic callback after loading a song
     private var skipNextPeriodicUpdate = false
-
+    // Single height constraint for playlistControlView that we adjust directly
+    private var playlistHeightConstraint: NSLayoutConstraint!
+    private var collapsedPlaylistHeight: CGFloat = 0
+    private var expandedPlaylistHeight: CGFloat = 0
+    private var didInitPlaylistHeights = false
+    // Tracks whether playlist area is currently expanded
+    private var isPlaylistExpanded: Bool = false
+    
     let thumbnailImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.contentMode = .scaleAspectFill
@@ -140,12 +155,11 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     let lyricsTextView: UITextView = {
         let txtView = UITextView()
         txtView.textColor = GraphicColors.cloudWhite
-        txtView.backgroundColor = .clear
+        txtView.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.08)
         txtView.textAlignment = .center
         txtView.font = UIFont.init(name: "Optima-BoldItalic", size: 15)
         txtView.isEditable = false
-        txtView.layer.borderWidth = 0.5
-        txtView.layer.borderColor = GraphicColors.orange.withAlphaComponent(0.5).cgColor
+        txtView.isSelectable = false
         return txtView
     }()
     
@@ -187,7 +201,11 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         playlistControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         playlistControlView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         playlistControlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        playlistControlView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.4).isActive = true
+        // Start with a placeholder constant; we'll capture the actual collapsed height after first layout
+        playlistHeightConstraint = playlistControlView.heightAnchor.constraint(equalToConstant: 0)
+        playlistHeightConstraint.isActive = true
+
+        playlistHeightConstraint.identifier = "NPC_playlist_height_const"
 
         repeatButton.addTarget(self, action: #selector(repeatButtonAction), for: .touchUpInside)
         playlistControlView.addSubview(repeatButton)
@@ -328,6 +346,18 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -2.5).isActive = true
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard !didInitPlaylistHeights else { return }
+        didInitPlaylistHeights = true
+        // Use the current laid-out height as the collapsed height
+        let current = self.bounds.height * 0.4
+        collapsedPlaylistHeight = current
+        expandedPlaylistHeight = current * 2
+        // Apply the correct initial constant (expanded if needed)
+        playlistHeightConstraint.constant = isPlaylistExpanded ? expandedPlaylistHeight : collapsedPlaylistHeight
+    }
+
     
     // MARK: - Load Song
     func loadSong(song: Song, preparePlayer: Bool = true) {
@@ -346,6 +376,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let hasLyrics = !(song.lyrics?.isEmpty ?? true)
         lyricsTextView.isHidden = !hasLyrics
         lyricsButton.isHidden = hasLyrics
+        setPlaylistAreaExpanded(hasLyrics, animated: false)
         
         // Restart marquee and set direction based on text
         titleLabel.restartLabel()
@@ -465,9 +496,38 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
 
     @objc func lyricsButtonAction() {
         if lyricsTextView.text != "" {
+            let shouldShow = lyricsTextView.isHidden
             lyricsTextView.isHidden.toggle()
             lyricsButton.isHidden.toggle()
+            setPlaylistAreaExpanded(shouldShow, animated: true)
         }
+    }
+
+    private func setPlaylistAreaExpanded(_ expanded: Bool, animated: Bool) {
+        print("setPlaylistAreaExpanded: \(expanded)")
+        isPlaylistExpanded = expanded
+        playlistHeightConstraint.constant = expanded ? expandedPlaylistHeight : collapsedPlaylistHeight
+    
+        UIView.animate(withDuration: 0.25) {
+            self.layoutIfNeeded()
+        }
+        
+        broadcastLayoutState()
+    }
+
+    public func broadcastLayoutState() {
+        print("broadcastLayoutState")
+        // Ensure baseline heights exist
+        if collapsedPlaylistHeight == 0 || expandedPlaylistHeight == 0 {
+            let current = max(30, playlistControlView.bounds.height)
+            let base = current > 0 ? current : max(30, self.bounds.height * 0.4)
+            collapsedPlaylistHeight = base
+            expandedPlaylistHeight = base * 2
+        }
+        layoutDelegate?.nowPlayingView(self,
+                                       didToggleExpanded: isPlaylistExpanded,
+                                       collapsedPlaylistHeight: collapsedPlaylistHeight,
+                                       expandedPlaylistHeight: expandedPlaylistHeight)
     }
 
     // MARK: - Audio Player Delegate

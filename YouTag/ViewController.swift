@@ -8,12 +8,15 @@
 
 import UIKit
 
-class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
+class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate, NowPlayingLayoutDelegate {
     
     // MARK: - Properties
     var tagsView: YYTFilterTagView!
     let playlistManager = PlaylistManager.shared
     var filterPickerView: FilterPickerView!
+    
+    // Now Playing sizing
+    private var nowPlayingHeightConstraint: NSLayoutConstraint!
     
     // AND/OR UI
     private var isAndMode: Bool = false // false = OR (default), true = AND
@@ -85,14 +88,16 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        playlistManager.nowPlayingView.layoutDelegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
         playlistManager.playlistLibraryView.scrollToTop()
+        playlistManager.nowPlayingView.broadcastLayoutState()
     }
-        
+    
     // Automatically present LibraryViewController if library is empty
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -105,7 +110,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
             }
         }
     }
-
+    
     // MARK: - Setup UI
     private func setupUI() {
         view.backgroundColor = GraphicColors.obsidianBlack
@@ -131,16 +136,16 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.layer.cornerRadius = 5
         tagsView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         tagsView.clipsToBounds = true
-
+        
         // AND/OR toggle button
         view.addSubview(filterModeButton)
         
         // Version Label
         view.addSubview(versionLabel)
-
+        
         // Build Label
         view.addSubview(buildLabel)
-
+        
         // Playlist Manager Views
         playlistManager.nowPlayingView.backgroundColor = .clear
         playlistManager.nowPlayingView.addBorder(side: .top, color: GraphicColors.darkGray, width: 0.5)
@@ -155,7 +160,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         filterPickerView.delegate = self
         view.addSubview(filterPickerView)
     }
-
+    
     // MARK: - Constraints
     private func setupConstraints() {
         // Logo View
@@ -164,76 +169,77 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         logoView.trailingAnchor.constraint(equalTo: menuButton.leadingAnchor, constant: -20).isActive = true
         logoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         logoView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1).isActive = true
-
+        
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         logoImageView.leadingAnchor.constraint(equalTo: logoView.leadingAnchor).isActive = true
         logoImageView.centerYAnchor.constraint(equalTo: logoView.centerYAnchor).isActive = true
         logoImageView.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
         // Maintain aspect ratio for the image
         logoImageView.widthAnchor.constraint(equalTo: logoImageView.heightAnchor, multiplier: 1.0).isActive = true
-
+        
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 10).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: logoView.trailingAnchor).isActive = true
         titleLabel.centerYAnchor.constraint(equalTo: logoView.centerYAnchor, constant: 3).isActive = true
         titleLabel.heightAnchor.constraint(equalTo: logoView.heightAnchor).isActive = true
-
+        
         // Menu Button
         menuButton.translatesAutoresizingMaskIntoConstraints = false
         menuButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10).isActive = true
         menuButton.topAnchor.constraint(equalTo: self.logoView.topAnchor).isActive = true
         menuButton.widthAnchor.constraint(equalTo: self.logoView.heightAnchor, multiplier: 0.8).isActive = true
         menuButton.heightAnchor.constraint(equalTo: self.logoView.heightAnchor).isActive = true
-
+        
         // Filter Button
         filterButton.translatesAutoresizingMaskIntoConstraints = false
         filterButton.trailingAnchor.constraint(equalTo: menuButton.trailingAnchor).isActive = true
         filterButton.topAnchor.constraint(equalTo: menuButton.bottomAnchor, constant: 15).isActive = true
         filterButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2).isActive = true
         filterButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2).isActive = true
-
+        
         // Tags View
         tagsView.translatesAutoresizingMaskIntoConstraints = false
         tagsView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         tagsView.trailingAnchor.constraint(equalTo: filterButton.leadingAnchor, constant: -10).isActive = true
         tagsView.topAnchor.constraint(equalTo: filterButton.topAnchor).isActive = true
         tagsView.heightAnchor.constraint(equalTo: filterButton.heightAnchor).isActive = true
-
+        
         // AND/OR Toggle Button
         filterModeButton.translatesAutoresizingMaskIntoConstraints = false
         filterModeButton.trailingAnchor.constraint(equalTo: tagsView.trailingAnchor).isActive = true
         filterModeButton.bottomAnchor.constraint(equalTo: tagsView.topAnchor, constant: 1).isActive = true
         filterModeButton.heightAnchor.constraint(equalToConstant: 22).isActive = true
         filterModeButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
-
+        
         // Build Label
         buildLabel.translatesAutoresizingMaskIntoConstraints = false
         buildLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
         buildLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
         buildLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -1).isActive = true
         buildLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
+        
         // Version Label
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
         versionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -35).isActive = true
         versionLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25).isActive = true
         versionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -1).isActive = true
         versionLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
+        
         // Now Playing View
         playlistManager.nowPlayingView.translatesAutoresizingMaskIntoConstraints = false
         playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-        playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.22).isActive = true
-
+        nowPlayingHeightConstraint = playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.22)
+        nowPlayingHeightConstraint.isActive = true
+        
         // Playlist Library View
         playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
         playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 5).isActive = true
         playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
-
+        
         // Filter Picker View
         filterPickerView.translatesAutoresizingMaskIntoConstraints = false
         filterPickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -241,7 +247,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         filterPickerView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         filterPickerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
-
+    
     // MARK: - Button Actions
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")
@@ -261,6 +267,17 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         print("Toggle filter logic")
         isAndMode.toggle()
         filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()  // Haptic tap
+        // Minimal pulse + shadow emphasis
+        UIView.animate(withDuration: 0.12, animations: {
+            self.filterModeButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            self.filterModeButton.layer.shadowOpacity = 0.18
+        }) { _ in
+            UIView.animate(withDuration: 0.12) {
+                self.filterModeButton.transform = .identity
+                self.filterModeButton.layer.shadowOpacity = 0.12
+            }
+        }
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
     
@@ -274,30 +291,30 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         for filter in removedFilters {
             playlistManager.playlistFilters.deleteFilter(type: PlaylistFilters.FilterType(rawValue: filter[0])!, value: filter[1])
         }
-
+        
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
     }
-
+    
     // MARK: FilterPickerViewDelegate
     // When filter tags are changed by addition
     func processNewFilter(type: PlaylistFilters.FilterType, filters: [Any]) {
         switch type {
-            case .tag, .artist, .album:
-                let stringFilters = filters.compactMap { $0 as? String }
-                playlistManager.playlistFilters.addUniqueFilter(type: type, values: stringFilters)
-            case .releaseYear:
-                let intFilters = filters.compactMap { Int($0 as! String) }
-                playlistManager.playlistFilters.addUniqueFilter(type: type, values: intFilters)
-            case .releaseYearRange:
-                playlistManager.playlistFilters.addUniqueFilter(type: type, values: filters)
-            case .duration:
-                // Expect a flat [TimeInterval] array [lower, upper]
-                let values = filters.compactMap { $0 as? TimeInterval }
-                let durationFilters: [[TimeInterval]] = [values]
-                playlistManager.playlistFilters.addUniqueFilter(type: type, values: durationFilters)
+        case .tag, .artist, .album:
+            let stringFilters = filters.compactMap { $0 as? String }
+            playlistManager.playlistFilters.addUniqueFilter(type: type, values: stringFilters)
+        case .releaseYear:
+            let intFilters = filters.compactMap { Int($0 as! String) }
+            playlistManager.playlistFilters.addUniqueFilter(type: type, values: intFilters)
+        case .releaseYearRange:
+            playlistManager.playlistFilters.addUniqueFilter(type: type, values: filters)
+        case .duration:
+            // Expect a flat [TimeInterval] array [lower, upper]
+            let values = filters.compactMap { $0 as? TimeInterval }
+            let durationFilters: [[TimeInterval]] = [values]
+            playlistManager.playlistFilters.addUniqueFilter(type: type, values: durationFilters)
         }
         playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
-
+        
         // Update tags view using helper conversion
         let rawFilters = playlistManager.playlistFilters.getFilters()
         let tupleFilters = convertFiltersToTuples(rawFilters)
@@ -315,5 +332,19 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
             return (filterType, pair[1])
         }
     }
-
+    
+    // MARK: - NowPlayingLayoutDelegate
+    func nowPlayingView(_ view: NowPlayingView,
+                        didToggleExpanded isExpanded: Bool,
+                        collapsedPlaylistHeight: CGFloat,
+                        expandedPlaylistHeight: CGFloat) {
+        print("didToggleExpanded: \(isExpanded)")
+        // Only add the growth delta on top of the multiplier baseline
+        let delta = max(0, expandedPlaylistHeight - collapsedPlaylistHeight)
+        nowPlayingHeightConstraint.constant = isExpanded ? delta : 0
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
 }
