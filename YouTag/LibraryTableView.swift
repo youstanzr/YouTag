@@ -153,7 +153,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
                 }
                 PlaylistManager.shared.currentPlaylist.append(song)
                 // Refresh playlist UI and play
-                PlaylistManager.shared.playlistLibraryView.refreshTableView()
+                PlaylistManager.shared.playlistLibraryView.reloadData()
                 PlaylistManager.shared.didSelectSong(song: song)
             }
             return UIMenu(title: "", children: [play])
