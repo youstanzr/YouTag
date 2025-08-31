@@ -17,6 +17,23 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     
     static let shared = PlaylistManager()  // Singleton instance
 
+    private var lastAppliedChangeToken: Int = -1
+    private var lastAppliedFilterSignature: String = ""
+    // Helper to build a stable, order-insensitive signature string for PlaylistFilters
+    private func makeFilterSignature(_ f: PlaylistFilters) -> String {
+        // Build a stable, order-insensitive signature string for the filters
+        func sortedJoined<T: CustomStringConvertible>(_ arr: [T]) -> String {
+            arr.map { $0.description }.sorted().joined(separator: "|")
+        }
+        let tags = sortedJoined(f.tags)
+        let artists = sortedJoined(f.artists)
+        let albums = sortedJoined(f.albums)
+        let ranges = sortedJoined(f.releaseYearRanges)
+        let years = sortedJoined(f.releaseYears)
+        let durations = sortedJoined(f.durations)
+        return [tags, artists, albums, ranges, years, durations].joined(separator: "#")
+    }
+
     enum FilterLogic { case and, or }
 
     var nowPlayingView: NowPlayingView!
@@ -36,7 +53,22 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     // MARK: - Playlist Management
+    
+    func computePlaylistIfNeeded(mode: FilterLogic) {
+        let token = LibraryManager.shared.changeToken
+        let filtersSig = makeFilterSignature(playlistFilters)
+        print("computePlaylistIfNeeded: token=\(token), filtersSig=\(filtersSig), mode=\(mode)")
+        if token == lastAppliedChangeToken && filtersSig == lastAppliedFilterSignature && mode == filterLogic {
+            // nothing changed → don’t touch playback
+            return
+        }
+        // something changed → recompute
+        computePlaylist(mode: mode)
+    }
+
+    
     func computePlaylist(mode: FilterLogic) {
+        print("computePlaylist")
         self.filterLogic = mode
         let oldPlaylist = currentPlaylist
 
@@ -55,8 +87,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
             // Different contents; adopt the new playlist
             updatePlaylistLibrary(toPlaylist: playableSongs)
         }
+        refreshStateTokens()
     }
     
+    // Update baseline state to avoid redundant recomputes
+    private func refreshStateTokens() {
+        lastAppliedChangeToken = LibraryManager.shared.changeToken
+        lastAppliedFilterSignature = makeFilterSignature(playlistFilters)
+    }
+
     // Checks if two playlists are the same even if order is not the same
     private func samePlaylist(_ a: [Song], _ b: [Song]) -> Bool {
         guard a.count == b.count else { return false }

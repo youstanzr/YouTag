@@ -141,22 +141,63 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
               (try? url.checkResourceIsReachable()) == true else { return nil }
         
         return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { _ in
-            let play = UIAction(title: "Play", image: UIImage(systemName: "play.fill")) { _ in
+            let play = UIAction(title: "Play Now", image: UIImage(systemName: "play.fill")) { _ in
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                var list = PlaylistManager.shared.currentPlaylist
                 // Rotate playlist so selected song plays last (mirror PlaylistLibraryView.didSelectRowAt)
-                if !PlaylistManager.shared.currentPlaylist.isEmpty {
-                    if let last = PlaylistManager.shared.currentPlaylist.last {
-                        PlaylistManager.shared.currentPlaylist.insert(last, at: 0)
-                        PlaylistManager.shared.currentPlaylist.removeLast()
+                if !list.isEmpty {
+                    if let last = list.last {
+                        list.insert(last, at: 0)
+                        list.removeLast()
                     }
-                    PlaylistManager.shared.currentPlaylist.removeAll { $0.id == song.id }
+                    list.removeAll { $0.id == song.id }
                 }
-                PlaylistManager.shared.currentPlaylist.append(song)
+                list.append(song)
+                PlaylistManager.shared.currentPlaylist = list
                 // Refresh playlist UI and play
-                PlaylistManager.shared.playlistLibraryView.reloadData()
                 PlaylistManager.shared.didSelectSong(song: song)
+                PlaylistManager.shared.playlistLibraryView.reloadData()
             }
-            return UIMenu(title: "", children: [play])
+
+            let addNext = UIAction(title: "Play Next", image: UIImage(systemName: "text.insert")) { _ in
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                var list = PlaylistManager.shared.currentPlaylist
+                let count = list.count
+                if let idx = list.firstIndex(where: { $0.id == song.id }) {
+                    if idx != count - 1 {
+                        let s = list.remove(at: idx)
+                        let insertIndex = max(list.count - 1, 0)
+                        let safeIndex = min(insertIndex, list.count)
+                        list.insert(s, at: safeIndex)
+                    }
+                } else {
+                    let insertIndex = max(count - 1, 0)
+                    let safeIndex = min(insertIndex, count)
+                    list.insert(song, at: safeIndex)
+                }
+                PlaylistManager.shared.currentPlaylist = list
+                PlaylistManager.shared.playlistLibraryView.reloadData()
+            }
+
+            let addLast = UIAction(title: "Play Last", image: UIImage(systemName: "text.badge.plus")) { _ in
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                var list = PlaylistManager.shared.currentPlaylist
+                if let idx = list.firstIndex(where: { $0.id == song.id }) {
+                    // If it's already the current song (last), no-op
+                    if idx == 0 { }
+                    else {
+                        // Move to the front of the queue (farthest from now), index 0
+                        let s = list.remove(at: idx)
+                        list.insert(s, at: 0)
+                    }
+                } else {
+                    // Insert at the front of the queue
+                    list.insert(song, at: 0)
+                }
+                PlaylistManager.shared.currentPlaylist = list
+                PlaylistManager.shared.playlistLibraryView.reloadData()
+            }
+            return UIMenu(title: "", options: .displayInline, children: [play, addNext, addLast])
         }
     }
     

@@ -93,7 +93,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        playlistManager.computePlaylist(mode: isAndMode ? .and : .or)
+        playlistManager.computePlaylistIfNeeded(mode: isAndMode ? .and : .or)
         playlistManager.playlistLibraryView.scrollToTop()
         playlistManager.nowPlayingView.broadcastLayoutState()
     }
