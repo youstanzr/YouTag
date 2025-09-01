@@ -156,7 +156,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
                 PlaylistManager.shared.currentPlaylist = list
                 // Refresh playlist UI and play
                 PlaylistManager.shared.didSelectSong(song: song)
-                PlaylistManager.shared.playlistLibraryView.reloadData()
+                PlaylistManager.shared.playlistTableView.reloadData()
             }
 
             let addNext = UIAction(title: "Play Next", image: UIImage(systemName: "text.insert")) { _ in
@@ -176,7 +176,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
                     list.insert(song, at: safeIndex)
                 }
                 PlaylistManager.shared.currentPlaylist = list
-                PlaylistManager.shared.playlistLibraryView.reloadData()
+                PlaylistManager.shared.playlistTableView.reloadData()
             }
 
             let addLast = UIAction(title: "Play Last", image: UIImage(systemName: "text.badge.plus")) { _ in
@@ -195,7 +195,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
                     list.insert(song, at: 0)
                 }
                 PlaylistManager.shared.currentPlaylist = list
-                PlaylistManager.shared.playlistLibraryView.reloadData()
+                PlaylistManager.shared.playlistTableView.reloadData()
             }
             return UIMenu(title: "", options: .displayInline, children: [play, addNext, addLast])
         }

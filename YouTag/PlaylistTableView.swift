@@ -1,5 +1,5 @@
 //
-//  PlaylistLibraryView.swift
+//  PlaylistTableView.swift
 //  YouTag
 //
 //  Created by Youstanzr on 2/29/20.
@@ -12,7 +12,7 @@ protocol PlaylistLibraryViewDelegate: AnyObject {
     func didSelectSong(song: Song)
 }
 
-class PlaylistLibraryView: LibraryTableView, UITableViewDragDelegate, UITableViewDropDelegate {
+class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewDropDelegate {
 
     weak var PLDelegate: PlaylistLibraryViewDelegate?
 
@@ -144,7 +144,7 @@ class PlaylistLibraryView: LibraryTableView, UITableViewDragDelegate, UITableVie
         PlaylistManager.shared.currentPlaylist.append(song)
 
         // Refresh playlist UI and kick playback
-        PlaylistManager.shared.playlistLibraryView.refreshTableView()
+        PlaylistManager.shared.playlistTableView.refreshTableView()
         self.PLDelegate?.didSelectSong(song: song)
     }
 
@@ -163,7 +163,7 @@ class PlaylistLibraryView: LibraryTableView, UITableViewDragDelegate, UITableVie
             PlaylistManager.shared.currentPlaylist.insert(song, at: safeIndex)
         }
         // Lightweight UI refresh
-        PlaylistManager.shared.playlistLibraryView.reloadData()
+        PlaylistManager.shared.playlistTableView.reloadData()
     }
 
     // MARK: - UITableView Data Source

@@ -13,7 +13,7 @@ private extension String {
 }
 
 
-class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate {
+class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate, PlaylistControlViewDelegate {
     
     static let shared = PlaylistManager()  // Singleton instance
 
@@ -37,7 +37,8 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     enum FilterLogic { case and, or }
 
     var nowPlayingView: NowPlayingView!
-    var playlistLibraryView: PlaylistLibraryView!
+    var playlistControlView: PlaylistControlView!
+    var playlistTableView: PlaylistTableView!
     var audioPlayer: YYTAudioPlayer!
     var playlistFilters = PlaylistFilters(tags: [], artists: [], albums: [], releaseYearRanges: [], releaseYears: [], durations: [])
     var currentPlaylist: [Song] = []
@@ -46,10 +47,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     override init() {
         super.init()
         audioPlayer = YYTAudioPlayer()
-        playlistLibraryView = PlaylistLibraryView(frame: .zero, style: .plain)
-        playlistLibraryView.PLDelegate = self
+        playlistTableView = PlaylistTableView(frame: .zero, style: .plain)
+        playlistTableView.PLDelegate = self
+        
         nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
         nowPlayingView.NPDelegate = self
+
+        playlistControlView = PlaylistControlView(frame: .zero)
+        playlistControlView.PCdelegate = self
+        nowPlayingView.connectPlaylistControlView(playlistControlView)
     }
     
     // MARK: - Playlist Management
@@ -125,7 +131,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     // MARK: - Playlist Manipulation
     
     func refreshPlaylistLibraryView(uiOnly: Bool = false) {
-        playlistLibraryView.refreshTableView()
+        playlistTableView.refreshTableView()
         refreshNowPlayingView(uiOnly: uiOnly)
     }
     
@@ -154,8 +160,8 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         let lastSong = currentPlaylist.removeLast()
         currentPlaylist.shuffle()
         currentPlaylist.append(lastSong)
-        playlistLibraryView.refreshTableView()
-        playlistLibraryView.scrollToTop()
+        playlistTableView.refreshTableView()
+        playlistTableView.scrollToTop()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()  // Haptic tap
     }
     
@@ -182,4 +188,13 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         }
     }
     
+    // MARK: Playlist Control View Delegate
+    func playlistControlViewDidTapShuffle(_ view: PlaylistControlView) {
+        shufflePlaylist()
+    }
+    
+    func playlistControlView(_ view: PlaylistControlView, didToggleRepeat isOn: Bool) {
+        audioPlayer.isSongRepeat.toggle()
+    }
+
 }

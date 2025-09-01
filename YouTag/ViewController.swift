@@ -8,15 +8,16 @@
 
 import UIKit
 
-class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate, NowPlayingLayoutDelegate {
+class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDelegate {
     
     // MARK: - Properties
     var tagsView: YYTFilterTagView!
     let playlistManager = PlaylistManager.shared
     var filterPickerView: FilterPickerView!
     
-    // Now Playing sizing
-    private var nowPlayingHeightConstraint: NSLayoutConstraint!
+    // Height constraint for playlist control view
+    private var playlistControlHeightConstraint: NSLayoutConstraint!
+    private var playlistControlBaseHeight: CGFloat = 60
     
     // AND/OR UI
     private var isAndMode: Bool = false // false = OR (default), true = AND
@@ -88,14 +89,16 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         super.viewDidLoad()
         setupUI()
         setupConstraints()
-        playlistManager.nowPlayingView.layoutDelegate = self
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleLyricsToggle(_:)),
+                                               name: .playlistControlLyricsToggled,
+                                               object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         playlistManager.computePlaylistIfNeeded(mode: isAndMode ? .and : .or)
-        playlistManager.playlistLibraryView.scrollToTop()
-        playlistManager.nowPlayingView.broadcastLayoutState()
+        playlistManager.playlistTableView.scrollToTop()
     }
     
     // Automatically present LibraryViewController if library is empty
@@ -149,11 +152,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         // Playlist Manager Views
         playlistManager.nowPlayingView.backgroundColor = .clear
         playlistManager.nowPlayingView.addBorder(side: .top, color: GraphicColors.darkGray, width: 0.5)
-        playlistManager.nowPlayingView.addBorder(side: .bottom, color: GraphicColors.darkGray, width: 0.5)
-        view.addSubview(playlistManager.nowPlayingView)
         
-        playlistManager.playlistLibraryView.backgroundColor = .clear
-        view.addSubview(playlistManager.playlistLibraryView)
+        playlistManager.playlistControlView.addBorder(side: .bottom, color: GraphicColors.darkGray, width: 0.5)
+        
+        playlistManager.playlistTableView.backgroundColor = .clear
+        
+        view.addSubview(playlistManager.nowPlayingView)
+        view.addSubview(playlistManager.playlistControlView)
+        view.addSubview(playlistManager.playlistTableView)
         
         // Filter Picker View
         filterPickerView = FilterPickerView()
@@ -230,15 +236,23 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         playlistManager.nowPlayingView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         playlistManager.nowPlayingView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         playlistManager.nowPlayingView.topAnchor.constraint(equalTo: tagsView.bottomAnchor, constant: 15).isActive = true
-        nowPlayingHeightConstraint = playlistManager.nowPlayingView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.22)
-        nowPlayingHeightConstraint.isActive = true
+        playlistManager.nowPlayingView.heightAnchor.constraint(greaterThanOrEqualToConstant: 115).isActive = true
+        playlistManager.nowPlayingView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.125).isActive = true
+        
+        // Playlist Control View
+        playlistManager.playlistControlView.translatesAutoresizingMaskIntoConstraints = false
+        playlistManager.playlistControlView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        playlistManager.playlistControlView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        playlistManager.playlistControlView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor).isActive = true
+        playlistControlHeightConstraint = playlistManager.playlistControlView.heightAnchor.constraint(equalToConstant: playlistControlBaseHeight)
+        playlistControlHeightConstraint.isActive = true
         
         // Playlist Library View
-        playlistManager.playlistLibraryView.translatesAutoresizingMaskIntoConstraints = false
-        playlistManager.playlistLibraryView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        playlistManager.playlistLibraryView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        playlistManager.playlistLibraryView.topAnchor.constraint(equalTo: playlistManager.nowPlayingView.bottomAnchor, constant: 5).isActive = true
-        playlistManager.playlistLibraryView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
+        playlistManager.playlistTableView.translatesAutoresizingMaskIntoConstraints = false
+        playlistManager.playlistTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        playlistManager.playlistTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        playlistManager.playlistTableView.topAnchor.constraint(equalTo: playlistManager.playlistControlView.bottomAnchor, constant: 5).isActive = true
+        playlistManager.playlistTableView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor).isActive = true
         
         // Filter Picker View
         filterPickerView.translatesAutoresizingMaskIntoConstraints = false
@@ -333,18 +347,17 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         }
     }
     
-    // MARK: - NowPlayingLayoutDelegate
-    func nowPlayingView(_ view: NowPlayingView,
-                        didToggleExpanded isExpanded: Bool,
-                        collapsedPlaylistHeight: CGFloat,
-                        expandedPlaylistHeight: CGFloat) {
-        print("didToggleExpanded: \(isExpanded)")
-        // Only add the growth delta on top of the multiplier baseline
-        let delta = max(0, expandedPlaylistHeight - collapsedPlaylistHeight)
-        nowPlayingHeightConstraint.constant = isExpanded ? delta : 0
-        UIView.animate(withDuration: 0.25) {
+    @objc private func handleLyricsToggle(_ note: Notification) {
+        guard let info = note.userInfo,
+              let isShown = info["isShown"] as? Bool else { return }
+        playlistControlHeightConstraint.constant = isShown ? (playlistControlBaseHeight * 2) : playlistControlBaseHeight
+        UIView.animate(withDuration: 0.2) {
             self.view.layoutIfNeeded()
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .playlistControlLyricsToggled, object: nil)
     }
     
 }
