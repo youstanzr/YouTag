@@ -21,25 +21,25 @@ extension UIApplication {
             .rootViewController
     }()) -> UIViewController? {
 
-		if let nav = base as? UINavigationController {
-			return getCurrentViewController(base: nav.visibleViewController)
-			
-		} else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
-			return getCurrentViewController(base: selected)
-			
-		} else if let presented = base?.presentedViewController {
-			return getCurrentViewController(base: presented)
-		}
-		return base
-	}
-	
-	var version: String? {
-		return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-	}
+        if let nav = base as? UINavigationController {
+            return getCurrentViewController(base: nav.visibleViewController)
+            
+        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+            return getCurrentViewController(base: selected)
+            
+        } else if let presented = base?.presentedViewController {
+            return getCurrentViewController(base: presented)
+        }
+        return base
+    }
+    
+    var version: String? {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    }
 
-	var buildNumber: String? {
-		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String
-	}
+    var buildNumber: String? {
+        return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String
+    }
 
 }
 
@@ -503,9 +503,23 @@ extension NSArray {
 // MARK: NSMutableArray
 extension NSMutableArray {
 
-	func sortAscending() -> NSMutableArray {
-		return NSMutableArray(array: (self as AnyObject as! [String]).sorted {
-			$0.localizedCompare($1) == ComparisonResult.orderedAscending
-		})
-	}
+    func sortAscending() -> NSMutableArray {
+        return NSMutableArray(array: (self as AnyObject as! [String]).sorted {
+            $0.localizedCompare($1) == ComparisonResult.orderedAscending
+        })
+    }
+}
+
+
+// MARK: UIDevice
+extension UIDevice {
+    static var isLandscape: Bool {
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.interfaceOrientation.isLandscape ?? false
+    }
+
+    static var isPhone: Bool {
+        return UIDevice.current.userInterfaceIdiom == .phone
+    }
 }
