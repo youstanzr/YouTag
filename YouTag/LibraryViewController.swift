@@ -110,19 +110,19 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            addButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            addButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            addButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.09),
-            addButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            addButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        addButton.applyStandardBottomBarHeight(70)
         
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            dismissButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            dismissButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            dismissButton.topAnchor.constraint(equalTo: addButton.topAnchor),
-            dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            dismissButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dismissButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        dismissButton.applyStandardBottomBarHeight(70)
     }
 
     // MARK: - Add Button Action

@@ -11,10 +11,26 @@ import QuickLook
 
 // This is the view that shows up whenever you add a new song from the web and want to edit its details before adding to your library
 class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, QLPreviewControllerDataSource {
-
+    
     var song: Song!
     var tagsView: YYTTagView!
     private var previewURL: URL?
+    
+    // Thumbnail size constraints (portrait vs landscape)
+    private var portraitThumbHeight: NSLayoutConstraint!
+    private var landscapeThumbHeight: NSLayoutConstraint!
+    // Extra constraints to stabilize transitions
+    private var portraitThumbMinHeight: NSLayoutConstraint!
+    private var landscapeThumbMinHeight: NSLayoutConstraint!
+    private var landscapeThumbCenterYConstraint: NSLayoutConstraint!
+
+    // Thumbnail position constraints (portrait vs landscape)
+    private var portraitThumbPosConstraints: [NSLayoutConstraint] = []
+    private var landscapeThumbPosConstraints: [NSLayoutConstraint] = []
+
+    // Form layout constraints (portrait vs landscape)
+    private var portraitFormConstraints: [NSLayoutConstraint] = []
+    private var landscapeFormConstraints: [NSLayoutConstraint] = []
     
     let dismissButton: UIButton = {
         let btn = UIButton()
@@ -80,7 +96,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.font = UIFont(name: "DINCondensed-Bold", size: 16)
         txtField.theme.font = UIFont(name: "DINCondensed-Bold", size: 16)!
         txtField.highlightAttributes = [NSAttributedString.Key.backgroundColor: GraphicColors.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:txtField.theme.font]
-
+        
         return txtField
     }()
     let releaseYrTextField: UITextField = {
@@ -125,7 +141,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         lbl.textAlignment = .right
         return lbl
     }()
-
+    
     let filenameLabel: UILabel = {
         let lbl = UILabel()
         lbl.textColor = GraphicColors.darkGray
@@ -133,7 +149,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         lbl.textAlignment = .left
         return lbl
     }()
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -143,20 +159,20 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         view.addGestureRecognizer(tapGesture)
         populateFields()
     }
-
+    
     private func setupUI() {
         view.backgroundColor = GraphicColors.obsidianBlack
         setupObservers()
-
+        
         // Thumbnail
         let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         thumbnailImageView.addGestureRecognizer(imageTap)
         view.addSubview(thumbnailImageView)
-
+        
         // Title
         titleTextField.delegate = self
         view.addSubview(titleTextField)
-
+        
         // Artists Tags View
         let artistsStyle = TagViewStyle(
             isAddEnabled: true,
@@ -180,15 +196,15 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         albumTextField.delegate = self
         albumTextField.filterStrings(LibraryManager.shared.getAllDistinctValues(for: "album"))
         view.addSubview(albumTextField)
-
+        
         // Release Year
         releaseYrTextField.delegate = self
         view.addSubview(releaseYrTextField)
-
+        
         // Lyrics
         lyricsTextView.delegate = self
         view.addSubview(lyricsTextView)
-
+        
         // Tags View
         let tagsStyle = TagViewStyle(
             isAddEnabled: true,
@@ -207,11 +223,11 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         )
         tagsView.addTagPlaceHolder = "Tag"
         view.addSubview(tagsView)
-
+        
         // Dismiss Button
         dismissButton.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         view.addSubview(dismissButton)
-
+        
         // Song Size Label
         if let fileURL = LibraryManager.shared.urlForSong(song) {
             songSizeLabel.text = "\(LocalFilesManager.getLocalFileSize(fileURL: fileURL))"
@@ -219,7 +235,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             songSizeLabel.text = "?? MB"
         }
         view.addSubview(songSizeLabel)
-
+        
         // Filename Label
         if let fileURL = LibraryManager.shared.urlForSong(song) {
             filenameLabel.text = "\(fileURL.lastPathComponent)"
@@ -239,10 +255,10 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             )
         }
         view.addSubview(filenameLabel)
-
+        
         setupConstraints()
     }
-
+    
     private func populateFields() {
         titleTextField.text = song.title
         albumTextField.text = song.album
@@ -250,114 +266,198 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         let lyrics = song.lyrics ?? ""
         lyricsTextView.text = lyrics.isEmpty ? "Lyrics" : lyrics
         lyricsTextView.textColor = lyrics.isEmpty ? GraphicColors.medGray : GraphicColors.cloudWhite
-
+        
         // Populate artists tags
         artistsTagsView.tagsList = song.artists
         artistsTagsView.collectionView.reloadData()
-
+        
         // Populate other tags
         tagsView.tagsList = song.tags
         tagsView.collectionView.reloadData()
-
+        
         thumbnailImageView.image = LibraryManager.shared.fetchThumbnail(for: song)
-            ?? UIImage(named: "placeholder")
+        ?? UIImage(named: "placeholder")
     }
-
+    
     private func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
+    
     private func setupConstraints() {
+        let safe = view.safeAreaLayoutGuide
         // Thumbnail
         thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
+        // Thumbnail position variants
+        portraitThumbPosConstraints = [
+            thumbnailImageView.topAnchor.constraint(equalTo: safe.topAnchor, constant: 8),
+            thumbnailImageView.centerXAnchor.constraint(equalTo: safe.centerXAnchor)
+        ]
+        landscapeThumbCenterYConstraint = thumbnailImageView.centerYAnchor.constraint(equalTo: safe.centerYAnchor)
+        landscapeThumbCenterYConstraint.priority = UILayoutPriority(750)
+        landscapeThumbPosConstraints = [
+            thumbnailImageView.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 20),
+            landscapeThumbCenterYConstraint
+        ]
+        
+        // Use soft caps (≤, priority 999) so both can be active during transitions
+        portraitThumbHeight = thumbnailImageView.heightAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.6)
+        portraitThumbHeight.priority = UILayoutPriority(999)
+        landscapeThumbHeight = thumbnailImageView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.6)
+        landscapeThumbHeight.priority = UILayoutPriority(999)
+        // Sensible minimums to avoid collapsing
+        portraitThumbMinHeight = thumbnailImageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 160)
+        landscapeThumbMinHeight = thumbnailImageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 140)
+        NSLayoutConstraint.activate([portraitThumbHeight, landscapeThumbHeight, portraitThumbMinHeight, landscapeThumbMinHeight])
+
         NSLayoutConstraint.activate([
-            thumbnailImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            thumbnailImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            thumbnailImageView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
+            // keep aspect ratio after setting height
             thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 4.0 / 3.0)
         ])
+        if traitCollection.verticalSizeClass == .compact {
+            NSLayoutConstraint.activate(landscapeThumbPosConstraints)
+        } else {
+            NSLayoutConstraint.activate(portraitThumbPosConstraints)
+        }
+        
+        // Between field padding constant
+        let pad: CGFloat = 10
 
-        // Title Text Field
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            titleTextField.topAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: 15),
-            titleTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            titleTextField.heightAnchor.constraint(equalToConstant: 34)
-        ])
-
-        // Artists Tags View
         artistsTagsView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            artistsTagsView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 10),
+        albumTextField.translatesAutoresizingMaskIntoConstraints = false
+        releaseYrTextField.translatesAutoresizingMaskIntoConstraints = false
+        lyricsTextView.translatesAutoresizingMaskIntoConstraints = false
+        tagsView.translatesAutoresizingMaskIntoConstraints = false
+        filenameLabel.translatesAutoresizingMaskIntoConstraints = false
+        songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        // PORTRAIT layout
+        portraitFormConstraints = [
+            titleTextField.topAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: pad * 1.5),
+            titleTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            titleTextField.widthAnchor.constraint(equalTo: safe.widthAnchor, multiplier: 0.8),
+            titleTextField.heightAnchor.constraint(equalToConstant: 34),
+
+            artistsTagsView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: pad),
             artistsTagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             artistsTagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            artistsTagsView.heightAnchor.constraint(equalToConstant: 44)
-        ])
+            artistsTagsView.heightAnchor.constraint(equalToConstant: 64),
 
-        // Album Text Field
-        albumTextField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: 10),
+            albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: pad),
             albumTextField.leadingAnchor.constraint(equalTo: artistsTagsView.leadingAnchor),
-            albumTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.65, constant: -2.5),
-            albumTextField.heightAnchor.constraint(equalToConstant: 34)
-        ])
+            albumTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.65, constant: -pad * 0.25),
+            albumTextField.heightAnchor.constraint(equalToConstant: 34),
 
-        // Release Year Text Field
-        releaseYrTextField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
             releaseYrTextField.topAnchor.constraint(equalTo: albumTextField.topAnchor),
-            releaseYrTextField.leadingAnchor.constraint(equalTo: albumTextField.trailingAnchor, constant: 5),
-            releaseYrTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.35, constant: -2.5),
-            releaseYrTextField.heightAnchor.constraint(equalToConstant: 34)
-        ])
+            releaseYrTextField.leadingAnchor.constraint(equalTo: albumTextField.trailingAnchor, constant: pad * 0.5),
+            releaseYrTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            releaseYrTextField.heightAnchor.constraint(equalToConstant: 34),
 
-        // Lyrics Text View
-        lyricsTextView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: 10),
+            lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: pad),
             lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100)
-        ])
+            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 90),
 
-        // Tags View
-        tagsView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: 10),
+            tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: pad),
+            tagsView.bottomAnchor.constraint(equalTo: filenameLabel.topAnchor, constant: -pad),
             tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            tagsView.bottomAnchor.constraint(equalTo: songSizeLabel.topAnchor, constant: -10),
-            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 90)
-        ])
-
-        // Song Size Label
-        songSizeLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -7.5),
+            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70),
+            
+            songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -pad * 0.75),
             songSizeLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            songSizeLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 15),
             songSizeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 55),
-        ])
-
-        // Filename Label
-        filenameLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
+            
             filenameLabel.topAnchor.constraint(equalTo: songSizeLabel.topAnchor),
             filenameLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             filenameLabel.trailingAnchor.constraint(equalTo: songSizeLabel.leadingAnchor),
-        ])
+            filenameLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 15),
+        ]
+
+        // LANDSCAPE layout: single right-column stack (like portrait), thumbnail on left
+        landscapeFormConstraints = [
+            // Left: Thumbnail capped size
+            thumbnailImageView.widthAnchor.constraint(lessThanOrEqualTo: safe.widthAnchor, multiplier: 0.5),
+
+            // Right column (stack all fields vertically like portrait)
+            titleTextField.topAnchor.constraint(equalTo: safe.topAnchor, constant: pad * 2),
+            titleTextField.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: pad * 2),
+            titleTextField.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -20),
+            titleTextField.heightAnchor.constraint(equalToConstant: 34),
+
+            artistsTagsView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: pad),
+            artistsTagsView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            artistsTagsView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            artistsTagsView.heightAnchor.constraint(equalToConstant: 64),
+
+            albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: pad),
+            albumTextField.leadingAnchor.constraint(equalTo: artistsTagsView.leadingAnchor),
+            albumTextField.widthAnchor.constraint(equalTo: artistsTagsView.widthAnchor, multiplier: 0.65, constant: -pad * 0.25),
+            albumTextField.heightAnchor.constraint(equalToConstant: 34),
+
+            releaseYrTextField.topAnchor.constraint(equalTo: albumTextField.topAnchor),
+            releaseYrTextField.leadingAnchor.constraint(equalTo: albumTextField.trailingAnchor, constant: pad * 0.5),
+            releaseYrTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            releaseYrTextField.heightAnchor.constraint(equalToConstant: 34),
+            
+            lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: pad),
+            lyricsTextView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            lyricsTextView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70),
+
+            tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: pad),
+            tagsView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            tagsView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            tagsView.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -pad * 2),
+            
+            filenameLabel.topAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: pad),
+            filenameLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.leadingAnchor, constant: pad),
+            filenameLabel.trailingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: -pad),
+            filenameLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
+
+            songSizeLabel.topAnchor.constraint(equalTo: filenameLabel.bottomAnchor, constant: pad),
+            songSizeLabel.leadingAnchor.constraint(equalTo: filenameLabel.leadingAnchor),
+            songSizeLabel.trailingAnchor.constraint(equalTo: filenameLabel.trailingAnchor),
+            songSizeLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
+            songSizeLabel.bottomAnchor.constraint(lessThanOrEqualTo: dismissButton.topAnchor, constant: -pad * 0.75),
+        ]
+
+        // Activate the appropriate set now
+        let isLandscape = traitCollection.verticalSizeClass == .compact
+        NSLayoutConstraint.activate(isLandscape ? landscapeFormConstraints : portraitFormConstraints)
+        
+        filenameLabel.textAlignment = isLandscape ? .center : .left
+        songSizeLabel.textAlignment = isLandscape ? .center : .right
 
         // Dismiss Button
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             dismissButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             dismissButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            dismissButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.09)
+            dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        dismissButton.applyStandardBottomBarHeight(70)
+
+        // Prefer shrinking lyrics and tags before fields
+        lyricsTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        tagsView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     }
+        
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        let isLandscape = traitCollection.verticalSizeClass == .compact
+        NSLayoutConstraint.deactivate(isLandscape ? portraitFormConstraints : landscapeFormConstraints)
+        NSLayoutConstraint.activate(isLandscape ? landscapeFormConstraints : portraitFormConstraints)
+        UIView.animate(withDuration: 0.2) { self.view.layoutIfNeeded() }
+        
+        filenameLabel.textAlignment = isLandscape ? .center : .left
+        songSizeLabel.textAlignment = isLandscape ? .center : .right
+    }
+
     @objc func dismissView() {
         if !releaseYrTextField.text!.isNumeric && !releaseYrTextField.text!.isEmpty {
             showAlert(message: "Please input correct release year")
@@ -369,7 +469,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             dismiss(animated: true, completion: nil)
         }
     }
-
+    
     private func updateSong() {
         song.title = titleTextField.text ?? ""
         song.artists = artistsTagsView.tagsList
@@ -384,19 +484,19 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             }
         }
     }
-
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
     }
-
+    
     @objc func imageTapped() {
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         present(imagePicker, animated: true, completion: nil)
     }
-
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             thumbnailImageView.image = image
@@ -424,7 +524,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             textView.textColor = GraphicColors.cloudWhite
         }
     }
-
+    
     func textViewDidEndEditing(_ textView: UITextView) {
         textView.text = textView.text.trim()
         textView.contentOffset = .zero
@@ -433,7 +533,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             textView.textColor = GraphicColors.medGray
         }
     }
-        
+    
     @objc func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo else {return}
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
@@ -448,7 +548,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             self.view.frame.origin.y = 0
         }
     }
-
+    
     func getMoveableDistance(keyboarHeight: CGFloat) ->  CGFloat {
         var y:CGFloat = 0.0
         if let activeTF = getSelectedTextField() {
@@ -487,14 +587,14 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     @objc private func previewFile() {
         guard let url = LibraryManager.shared.urlForSong(song) else { return }
         previewURL = url
-
+        
         DispatchQueue.main.async {
             guard self.presentedViewController == nil else { return }
             let preview = QLPreviewController()
             preview.dataSource = self
             // Add our own Done button (since we’re embedding in a nav controller)
             preview.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.dismissPreview))
-
+            
             let nav = UINavigationController(rootViewController: preview)
             nav.modalPresentationStyle = .fullScreen
             nav.modalTransitionStyle = .coverVertical
@@ -502,13 +602,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             self.present(nav, animated: true)
         }
     }
-
+    
     // QLPreviewControllerDataSource
     func numberOfPreviewItems(in controller: QLPreviewController) -> Int { return previewURL == nil ? 0 : 1 }
     func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
         return previewURL! as NSURL
     }
-
+    
     @objc private func dismissPreview() {
         self.dismiss(animated: true)
     }

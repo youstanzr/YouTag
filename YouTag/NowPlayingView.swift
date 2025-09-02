@@ -149,38 +149,39 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         songControlView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         songControlView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
+        songControlView.addSubview(progressBar)
+        songControlView.addSubview(currentTimeLabel)
+        songControlView.addSubview(timeLeftLabel)
+        songControlView.addSubview(playbackRateButton)
+
         let thumbImage = makeCircleImage(radius: 20.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
         let selectedThumbImage = makeCircleImage(radius: 25.0, color: GraphicColors.darkGray, borderColor: .clear, borderWidth: 0.0)
         progressBar.setThumbImage(thumbImage, for: .normal)
         progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
         progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
-        songControlView.addSubview(progressBar)
         progressBar.translatesAutoresizingMaskIntoConstraints = false
-        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 10.0).isActive = true
-        progressBar.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.63, constant: -2.5).isActive = true
+        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 5.0).isActive = true
+        progressBar.trailingAnchor.constraint(equalTo: currentTimeLabel.leadingAnchor, constant: -5.0).isActive = true
         progressBar.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         progressBar.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
         
         currentTimeLabel.addBorder(side: .right, color: GraphicColors.orange, width: 0.5)
-        songControlView.addSubview(currentTimeLabel)
         currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentTimeLabel.leadingAnchor.constraint(equalTo: progressBar.trailingAnchor, constant: 2.5).isActive = true
-        currentTimeLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.12, constant: -2.5).isActive = true
+        currentTimeLabel.trailingAnchor.constraint(equalTo: timeLeftLabel.leadingAnchor).isActive = true
+        currentTimeLabel.widthAnchor.constraint(equalToConstant: 60).isActive = true
         currentTimeLabel.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         currentTimeLabel.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
         
         timeLeftLabel.addBorder(side: .left, color: GraphicColors.orange, width: 0.5)
-        songControlView.addSubview(timeLeftLabel)
         timeLeftLabel.translatesAutoresizingMaskIntoConstraints = false
-        timeLeftLabel.widthAnchor.constraint(equalTo: songControlView.widthAnchor, multiplier: 0.12, constant: -2.5).isActive = true
-        timeLeftLabel.leadingAnchor.constraint(equalTo: currentTimeLabel.trailingAnchor).isActive = true
+        timeLeftLabel.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        timeLeftLabel.trailingAnchor.constraint(equalTo: playbackRateButton.leadingAnchor).isActive = true
         timeLeftLabel.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         timeLeftLabel.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
         
         playbackRateButton.addTarget(self, action: #selector(playbackRateButtonAction), for: .touchUpInside)
-        songControlView.addSubview(playbackRateButton)
         playbackRateButton.translatesAutoresizingMaskIntoConstraints = false
-        playbackRateButton.leadingAnchor.constraint(equalTo: timeLeftLabel.trailingAnchor, constant: 2.5).isActive = true
+        playbackRateButton.widthAnchor.constraint(equalToConstant: 45).isActive = true
         playbackRateButton.trailingAnchor.constraint(equalTo: songControlView.trailingAnchor, constant: -2.5).isActive = true
         playbackRateButton.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         playbackRateButton.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
@@ -190,7 +191,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         thumbnailImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5).isActive = true
         thumbnailImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 3.5).isActive = true
         thumbnailImageView.bottomAnchor.constraint(equalTo: songControlView.topAnchor, constant: -2.5).isActive = true
-        thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 1.25).isActive = true
+        thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 4.0 / 3.0).isActive = true
         
         thumbnailImageView.layer.cornerRadius = 5.0
         thumbnailImageView.layer.borderWidth = 0.5
@@ -203,6 +204,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         nextButton.centerYAnchor.constraint(equalTo: thumbnailImageView.centerYAnchor).isActive = true
         nextButton.heightAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.25).isActive = true
         nextButton.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 0.25).isActive = true
+        nextButton.heightAnchor.constraint(lessThanOrEqualToConstant: 60).isActive = true
+        nextButton.widthAnchor.constraint(lessThanOrEqualToConstant: 60).isActive = true
         
         pausePlayButton.addTarget(self, action: #selector(pausePlayButtonAction), for: .touchUpInside)
         self.addSubview(pausePlayButton)
@@ -211,6 +214,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         pausePlayButton.centerYAnchor.constraint(equalTo: nextButton.centerYAnchor).isActive = true
         pausePlayButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor, multiplier: 1.5).isActive = true
         pausePlayButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor, multiplier: 1.5).isActive = true
+        pausePlayButton.heightAnchor.constraint(lessThanOrEqualToConstant: 90).isActive = true
+        pausePlayButton.widthAnchor.constraint(lessThanOrEqualToConstant: 90).isActive = true
         
         previousButton.addTarget(self, action: #selector(previousButtonAction), for: .touchUpInside)
         self.addSubview(previousButton)
@@ -219,6 +224,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         previousButton.centerYAnchor.constraint(equalTo: pausePlayButton.centerYAnchor).isActive = true
         previousButton.heightAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
         previousButton.widthAnchor.constraint(equalTo: nextButton.heightAnchor).isActive = true
+        previousButton.heightAnchor.constraint(lessThanOrEqualToConstant: 60).isActive = true
+        previousButton.widthAnchor.constraint(lessThanOrEqualToConstant: 60).isActive = true
         
         //        titleLabel.backgroundColor = .blue
         //        subLabel.backgroundColor = .red
@@ -245,6 +252,27 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 5).isActive = true
         tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -2.5).isActive = true
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        // Defer to next runloop to avoid doing work mid-transition
+        DispatchQueue.main.async { [weak self] in self?.invalidateTagLayout() }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // If bounds changed significantly (e.g., rotation), refresh layout
+        invalidateTagLayout()
+    }
+
+    // MARK: - Layout Maintenance
+    private func invalidateTagLayout() {
+        guard !tagView.isHidden else { return }
+        // Ensure the collection view recomputes cell sizes on size-class/orientation changes
+        tagView.collectionView.collectionViewLayout.invalidateLayout()
+        tagView.collectionView.reloadData()
+    }
+
     
     // MARK: - Load Song
     func loadSong(song: Song, preparePlayer: Bool = true) {

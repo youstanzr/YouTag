@@ -20,6 +20,9 @@ class FilterPickerView: UIView {
     weak var delegate: FilterPickerViewDelegate?
     
     var tagView: YYTTagView!
+    // Content height per orientation
+    private var contentViewPortraitHeight: NSLayoutConstraint!
+    private var contentViewLandscapeHeight: NSLayoutConstraint!
     let contentView: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
@@ -166,9 +169,16 @@ class FilterPickerView: UIView {
         NSLayoutConstraint.activate([
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.4)
+            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
+        // Portrait vs. landscape heights
+        contentViewPortraitHeight = contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.40)
+        contentViewLandscapeHeight = contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.60)
+        if traitCollection.verticalSizeClass == .compact {
+            contentViewLandscapeHeight.isActive = true
+        } else {
+            contentViewPortraitHeight.isActive = true
+        }
 
         filterSegment.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -183,8 +193,8 @@ class FilterPickerView: UIView {
             addButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: -2.5),
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 2.5),
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            addButton.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.09)
         ])
+        addButton.applyStandardBottomBarHeight(70)
 
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -247,6 +257,19 @@ class FilterPickerView: UIView {
             rangeSliderUpperLabel.topAnchor.constraint(equalTo: rangeSlider.bottomAnchor),
             rangeSliderUpperLabel.heightAnchor.constraint(equalTo: rangeSliderView.heightAnchor, multiplier: 0.15)
         ])
+    }
+
+    private func applyContentHeightForTraits() {
+        let isLandscape = traitCollection.verticalSizeClass == .compact
+        contentViewPortraitHeight?.isActive = !isLandscape
+        contentViewLandscapeHeight?.isActive = isLandscape
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        applyContentHeightForTraits()
     }
 
     private func configureActions() {
@@ -372,6 +395,7 @@ class FilterPickerView: UIView {
         print("Show tag picker view")
         self.isHidden = false
         self.filterValueChanged(sender: filterSegment)
+        applyContentHeightForTraits()
         if animated {
             self.contentView.frame.origin.y = UIScreen.main.bounds.height
             UIView.animate(withDuration: 0.2, animations: {
