@@ -58,6 +58,16 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.delegate = self
         searchBar.enablesReturnKeyAutomatically = false
         searchBar.returnKeyType = .search
+        
+        // Keep allSongs in sync with the library whenever the table view refreshes.
+        // This ensures search always works with the latest library state, including after deletions.
+        NotificationCenter.default.addObserver(
+            forName: .libraryTableDidRefresh,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.allSongs = LibraryManager.shared.libraryArray
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {

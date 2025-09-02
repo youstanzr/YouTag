@@ -9,6 +9,10 @@
 import UIKit
 import UniformTypeIdentifiers
 
+extension Notification.Name {
+    static let libraryTableDidRefresh = Notification.Name("LibraryTableViewDidRefresh")
+}
+
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIDocumentPickerDelegate {
     private var pendingRelinkIndexPath: IndexPath?
     
@@ -31,6 +35,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         LibraryManager.shared.refreshLibraryArray()
         DispatchQueue.main.async {
             self.reloadData()
+            NotificationCenter.default.post(name: .libraryTableDidRefresh, object: self)
         }
     }
     
