@@ -32,10 +32,13 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
     }
 
     // MARK: - Index Mapping Helpers
-    private func playlistIndex(forVisible indexPath: IndexPath) -> Int {
+    private func playlistIndex(forVisible indexPath: IndexPath) -> Int? {
         // Visible rows show everything except the current (last). Visible 0 == second-to-last
         let count = PlaylistManager.shared.currentPlaylist.count
-        return (count - 2 - indexPath.row) % max(count, 1)
+        guard count > 1 else { return nil }
+        let idx = (count - 2) - indexPath.row
+        guard idx >= 0 && idx < (count - 1) else { return nil }
+        return idx
     }
 
     private func visibleIndexPath(forPlaylistIndex pIndex: Int) -> IndexPath? {
@@ -48,7 +51,7 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
 
     // MARK: - UITableViewDragDelegate
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let idx = playlistIndex(forVisible: indexPath)
+        guard let idx = playlistIndex(forVisible: indexPath) else { return [] }
         let song = PlaylistManager.shared.currentPlaylist[idx]
         let item = UIDragItem(itemProvider: NSItemProvider())
         item.localObject = song
@@ -88,7 +91,7 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
             ?? IndexPath(row: 0, section: 0)
 
         let toIndex = playlistIndex(forVisible: destIndexPath)
-        let clampedTo = min(max(toIndex, 0), count - 2)
+        let clampedTo = min(max(toIndex ?? 0, 0), count - 2)
         if fromIndex == clampedTo {
             // No-op drop (same position)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -117,7 +120,7 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
 
     // MARK: - Swipe Actions (Right swipe)
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let adjustedIndex = playlistIndex(forVisible: indexPath)
+        guard let adjustedIndex = playlistIndex(forVisible: indexPath) else { return nil }
         let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
 
         let playNextAction = UIContextualAction(style: .normal, title: "Play Next") { [weak self] _, _, completion in
@@ -178,7 +181,8 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
         
         guard !PlaylistManager.shared.currentPlaylist.isEmpty else { return UITableViewCell() }
 
-        let adjustedIndex = playlistIndex(forVisible: indexPath)
+        let visibleCount = max(0, PlaylistManager.shared.currentPlaylist.count - 1)
+        guard indexPath.row < visibleCount, let adjustedIndex = playlistIndex(forVisible: indexPath) else { return UITableViewCell() }
         let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
         
         cell.refreshCell(with: song, showTags: true)
@@ -188,7 +192,7 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
     // MARK: - UITableView Delegate
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let adjustedIndex = playlistIndex(forVisible: indexPath)
+        guard let adjustedIndex = playlistIndex(forVisible: indexPath) else { return }
         let song = PlaylistManager.shared.currentPlaylist[adjustedIndex]
         print("Selected cell number \(indexPath.row) -> \(song.title)")
         play(song: song)
@@ -197,7 +201,7 @@ class PlaylistTableView: LibraryTableView, UITableViewDragDelegate, UITableViewD
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let adjustedIndex = playlistIndex(forVisible: indexPath)
+            guard let adjustedIndex = playlistIndex(forVisible: indexPath) else { return }
             PlaylistManager.shared.currentPlaylist.remove(at: adjustedIndex)
             tableView.reloadData()
         }
