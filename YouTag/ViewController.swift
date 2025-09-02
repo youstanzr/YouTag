@@ -296,7 +296,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
             // Playlist Library View
             playlistManager.playlistTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             playlistManager.playlistTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            playlistManager.playlistTableView.topAnchor.constraint(equalTo: playlistManager.playlistControlView.bottomAnchor, constant: 5),
+            playlistManager.playlistTableView.topAnchor.constraint(equalTo: playlistManager.playlistControlView.bottomAnchor),
             playlistManager.playlistTableView.bottomAnchor.constraint(equalTo: versionLabel.topAnchor),
 
             // Filter Picker View fills screen
