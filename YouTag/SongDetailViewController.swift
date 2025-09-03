@@ -78,7 +78,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.maxNumberOfResults = 5
         txtField.backgroundColor = .clear
         txtField.textAlignment = .left
-        txtField.font = UIFont.init(name: "DINCondensed-Bold", size: 16)
+        txtField.font = UIFont(name: "DINCondensed-Bold", size: 16)
         txtField.autocorrectionType = .no
         txtField.attributedPlaceholder = NSAttributedString(
             string: "Album",
@@ -91,8 +91,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         txtField.layer.cornerRadius = 5
         txtField.layer.borderWidth = 1.0
         txtField.layer.borderColor = GraphicColors.darkGray.cgColor
-        
-        txtField.font = UIFont(name: "DINCondensed-Bold", size: 16)
         txtField.theme.font = UIFont(name: "DINCondensed-Bold", size: 16)!
         txtField.highlightAttributes = [NSAttributedString.Key.backgroundColor: GraphicColors.yellow.withAlphaComponent(0.3), NSAttributedString.Key.font:txtField.theme.font]
         
