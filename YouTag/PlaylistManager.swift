@@ -8,10 +8,6 @@
 
 import UIKit
 
-private extension String {
-    var nilIfEmpty: String? { isEmpty ? nil : self }
-}
-
 
 class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate, PlaylistControlViewDelegate {
     
