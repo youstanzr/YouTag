@@ -100,6 +100,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                                                selector: #selector(handleLyricsToggle(_:)),
                                                name: .playlistControlLyricsToggled,
                                                object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onPlaylistWillUpdate),
+                                               name: .playlistWillUpdate,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onPlaylistDidUpdate),
+                                               name: .playlistDidUpdate,
+                                               object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -119,6 +127,20 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                 present(libraryVC, animated: false, completion: nil)
             }
         }
+    }
+    
+    // MARK: Playlist Manager
+    @objc private func onPlaylistWillUpdate(_ note: Notification) {
+        // Collapse BEFORE any table reloads happen, no animation to avoid races
+        let uiOnly = note.userInfo?["uiOnly"] as! Bool
+        if !uiOnly {
+            collapsePlaylistControlHeight(animated: true)
+        }
+    }
+
+    @objc private func onPlaylistDidUpdate(_ note: Notification) {
+        // Restore to the correct state based on your flags/orientation
+        print("Playlist did update")
     }
     
     // MARK: - Setup UI
@@ -446,7 +468,14 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         layoutIfInWindow()
     }
     
+    func collapsePlaylistControlHeight(animated: Bool = false) {
+        playlistControlHeightConstraint.constant =  playlistControlBaseHeight
+        layoutIfInWindow(animated: animated)
+    }
+    
     deinit {
+        NotificationCenter.default.removeObserver(self, name: .playlistDidUpdate, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .playlistWillUpdate, object: nil)
         NotificationCenter.default.removeObserver(self, name: .playlistControlLyricsToggled, object: nil)
     }
     

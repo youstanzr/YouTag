@@ -8,6 +8,10 @@
 
 import UIKit
 
+extension Notification.Name {
+    static let playlistWillUpdate = Notification.Name("playlistWillUpdate")
+    static let playlistDidUpdate  = Notification.Name("playlistDidUpdate")
+}
 
 class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate, PlaylistControlViewDelegate {
     
@@ -124,8 +128,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
 
     func updatePlaylistLibrary(toPlaylist newPlaylist: [Song], uiOnly: Bool = false) {
+        NotificationCenter.default.post(name: .playlistWillUpdate, object: nil, userInfo: ["uiOnly": uiOnly])
         currentPlaylist = newPlaylist
         refreshPlaylistLibraryView(uiOnly: uiOnly)
+        NotificationCenter.default.post(name: .playlistDidUpdate, object: nil, userInfo: ["uiOnly": uiOnly])
     }
     
     // MARK: - Playlist Manipulation
