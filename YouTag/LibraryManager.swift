@@ -239,7 +239,8 @@ class LibraryManager {
 
         let fetchQuery = """
         SELECT id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath
-        FROM Songs;
+        FROM Songs
+        ORDER BY rowid ASC;
         """
         let songs = fetchSongs(from: fetchQuery)
         libraryArray = songs
@@ -386,6 +387,9 @@ class LibraryManager {
             }
         }
 
+        // Ensure deterministic order: oldest inserts first
+        query += " ORDER BY rowid ASC"
+
         // Execute base query
         let rawSongs = fetchSongs(from: query)
 
@@ -420,40 +424,6 @@ class LibraryManager {
                 return duration >= low && duration <= high
             }
         }
-    }
-
-    func fetchSongsByTags(tags: [String]) -> [Song] {
-        guard !tags.isEmpty else { return [] }
-
-        let placeholders = tags.map { _ in "?" }.joined(separator: ", ")
-        let query = """
-        SELECT s.id, s.title, s.album, s.releaseYear, s.duration, s.lyrics, s.filePath, s.thumbnailPath
-        FROM Songs s
-        JOIN SongTags st ON s.id = st.song_id
-        JOIN Tags t ON st.tag_id = t.id
-        WHERE t.tag_name IN (\(placeholders))
-        GROUP BY s.id
-        HAVING COUNT(DISTINCT t.id) = ?;
-        """
-
-        var statement: OpaquePointer?
-        var fetchedSongs: [Song] = []
-
-        if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
-            let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-            for (index, tag) in tags.enumerated() {
-                sqlite3_bind_text(statement, Int32(index + 1), tag, -1, transient)
-            }
-            sqlite3_bind_int(statement, Int32(tags.count + 1), Int32(tags.count))
-
-            while sqlite3_step(statement) == SQLITE_ROW {
-                if let song = parseSong(from: statement) {
-                    fetchedSongs.append(song)
-                }
-            }
-        }
-        sqlite3_finalize(statement)
-        return fetchedSongs
     }
 
     func getTagsForSong(id: String) -> [String] {
