@@ -9,8 +9,7 @@
 import UIKit
 import QuickLook
 
-// This is the view that shows up whenever you add a new song from the web and want to edit its details before adding to your library
-class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, QLPreviewControllerDataSource {
+class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, QLPreviewControllerDataSource {
     
     var song: Song!
     var tagsView: YYTTagView!
