@@ -423,11 +423,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         ]
 
         // Activate the appropriate set now
-        let isLandscape = traitCollection.verticalSizeClass == .compact
-        NSLayoutConstraint.activate(isLandscape ? landscapeFormConstraints : portraitFormConstraints)
-        
-        filenameLabel.textAlignment = isLandscape ? .center : .left
-        songSizeLabel.textAlignment = isLandscape ? .center : .right
+        applyLayoutForCurrentTraits()
 
         // Dismiss Button
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
@@ -445,12 +441,36 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
+        UIView.animate(withDuration: 0.2) {
+            self.applyLayoutForCurrentTraits()
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            self.applyLayoutForCurrentTraits()
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+
+    // Helper to update constraints and alignments for current trait environment
+    private func applyLayoutForCurrentTraits() {
+        // Decide orientation by size class (works on iPhone/iPad, incl. split view)
         let isLandscape = traitCollection.verticalSizeClass == .compact
-        NSLayoutConstraint.deactivate(isLandscape ? portraitFormConstraints : landscapeFormConstraints)
+
+        // 1) Toggle the right-hand form stacks
+        NSLayoutConstraint.deactivate(portraitFormConstraints)
+        NSLayoutConstraint.deactivate(landscapeFormConstraints)
         NSLayoutConstraint.activate(isLandscape ? landscapeFormConstraints : portraitFormConstraints)
-        UIView.animate(withDuration: 0.2) { self.view.layoutIfNeeded() }
-        
+
+        // 2) Toggle thumbnail position constraints
+        NSLayoutConstraint.deactivate(portraitThumbPosConstraints)
+        NSLayoutConstraint.deactivate(landscapeThumbPosConstraints)
+        NSLayoutConstraint.activate(isLandscape ? landscapeThumbPosConstraints : portraitThumbPosConstraints)
+
+        // 3) Update label alignments to match layout
         filenameLabel.textAlignment = isLandscape ? .center : .left
         songSizeLabel.textAlignment = isLandscape ? .center : .right
     }
