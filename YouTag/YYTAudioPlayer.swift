@@ -67,8 +67,6 @@ class YYTAudioPlayer: NSObject {
             return false
         }
         avPlayer = AVPlayer(url: url)
-        // Log AVPlayer rate changes
-        avPlayer?.addObserver(self, forKeyPath: "rate", options: [.new, .old], context: nil)
         setupNowPlaying(song: song)
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         if let avp = avPlayer {
@@ -219,7 +217,6 @@ class YYTAudioPlayer: NSObject {
     }
 
     func unsuspend() {
-        print("✅ UNSUSPEND called")
         isSuspended = false
     }
 
@@ -468,12 +465,5 @@ class YYTAudioPlayer: NSObject {
         commandCenter.nextTrackCommand.removeTarget(nil)
         commandCenter.previousTrackCommand.removeTarget(nil)
         commandCenter.changePlaybackPositionCommand.removeTarget(nil)
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?,
-                               change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "rate" {
-            print("🎚️ AVPlayer rate changed: \(change?[.oldKey] ?? "?") → \(change?[.newKey] ?? "?")")
-        }
     }
 }
