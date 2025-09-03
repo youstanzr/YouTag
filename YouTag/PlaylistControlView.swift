@@ -130,9 +130,13 @@ class PlaylistControlView: UIView {
     }
 
     @objc private func repeatTapped() {
-        let newAlpha: CGFloat = (abs(repeatButton.alpha - 1.0) < 0.01) ? 0.35 : 1.0
-        repeatButton.alpha = newAlpha
-        PCdelegate?.playlistControlView(self, didToggleRepeat: newAlpha == 1.0)
+        let isOn = !(abs(repeatButton.alpha - 1.0) < 0.01)
+        setRepeat(isOn: isOn)
+        PCdelegate?.playlistControlView(self, didToggleRepeat: isOn)
+    }
+    
+    func setRepeat(isOn: Bool) {
+        repeatButton.alpha = isOn ? 1.0 : 0.35
     }
 
     @objc private func toggleLyrics() {

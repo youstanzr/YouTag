@@ -72,9 +72,13 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         computePlaylist(mode: mode)
     }
 
-    
     func computePlaylist(mode: FilterLogic) {
         print("computePlaylist")
+        
+        // Always turn off repeat when recomputing the playlist
+        audioPlayer.isSongRepeat = false
+        playlistControlView.setRepeat(isOn: false)
+
         self.filterLogic = mode
         let oldPlaylist = currentPlaylist
 
@@ -194,7 +198,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     func playlistControlView(_ view: PlaylistControlView, didToggleRepeat isOn: Bool) {
-        audioPlayer.isSongRepeat.toggle()
+        audioPlayer.isSongRepeat = isOn
     }
 
 }
