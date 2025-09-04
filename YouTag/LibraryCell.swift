@@ -206,7 +206,7 @@ class LibraryCell : UITableViewCell {
             // Duration stays on right, centered vertically across cell
             durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             durationLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            durationLabel.widthAnchor.constraint(equalToConstant: 35),
+            durationLabel.widthAnchor.constraint(equalToConstant: 50),
 
             // TagView row
             tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),

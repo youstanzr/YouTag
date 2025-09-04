@@ -267,13 +267,16 @@ extension CGRect {
 extension TimeInterval {
 
     func stringFromTimeInterval() -> String {
-        
-        let time = NSInteger(self)
-        let seconds = time % 60
-        var minutes = (time / 60) % 60
-        minutes += Int(time / 3600) * 60  // to account for the hours as minutes
-        
-        return String(format: "%0.2d:%0.2d",minutes,seconds)
+        let total = Int(self.rounded())
+        let seconds = total % 60
+        let minutes = (total / 60) % 60
+        let hours = total / 3600
+
+        if hours > 0 {
+            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
     }
     
 }
