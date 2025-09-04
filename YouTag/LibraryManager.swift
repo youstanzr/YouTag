@@ -781,6 +781,29 @@ class LibraryManager {
         }
     }
     
+    // Normalize every stored duration to hh:mm:ss or mm:ss based on it duration
+    func recomputeSongDurations() async {
+        var fixes = 0
+        for i in 0..<libraryArray.count {
+            var s = libraryArray[i]
+            guard let url = urlForSong(s) else { continue }
+            
+            // Read true duration from file (your helper)
+            let fileDurationStr = await LocalFilesManager.extractDurationForSong(fileURL: url)
+            // Normalize formatting to hh:mm:ss or mm:ss
+            let normalized = fileDurationStr.convertToTimeInterval().stringFromTimeInterval()
+
+            if s.duration != normalized {
+                s.duration = normalized
+                updateSongDetails(song: s)   // writes to DB
+                fixes += 1
+            }
+        }
+        if fixes > 0 {
+            refreshLibraryArray()
+            notifyLibraryChanged()
+        }
+    }
 
     // MARK: - Delete Song
     func deleteSongFromLibrary(songID: String) {
