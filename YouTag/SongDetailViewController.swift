@@ -339,7 +339,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             artistsTagsView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: pad),
             artistsTagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             artistsTagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            artistsTagsView.heightAnchor.constraint(equalToConstant: 64),
+            artistsTagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
 
             albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: pad),
             albumTextField.leadingAnchor.constraint(equalTo: artistsTagsView.leadingAnchor),
@@ -354,23 +354,26 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: pad),
             lyricsTextView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             lyricsTextView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 90),
+            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
 
             tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: pad),
             tagsView.bottomAnchor.constraint(equalTo: filenameLabel.topAnchor, constant: -pad),
             tagsView.centerXAnchor.constraint(equalTo: titleTextField.centerXAnchor),
             tagsView.widthAnchor.constraint(equalTo: titleTextField.widthAnchor),
-            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70),
+            tagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
             
             songSizeLabel.bottomAnchor.constraint(equalTo: dismissButton.topAnchor, constant: -pad * 0.75),
             songSizeLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             songSizeLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 15),
             songSizeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 55),
+            songSizeLabel.heightAnchor.constraint(lessThanOrEqualToConstant: 40),
             
             filenameLabel.topAnchor.constraint(equalTo: songSizeLabel.topAnchor),
             filenameLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             filenameLabel.trailingAnchor.constraint(equalTo: songSizeLabel.leadingAnchor),
             filenameLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 15),
+            filenameLabel.heightAnchor.constraint(lessThanOrEqualToConstant: 40),
+            filenameLabel.bottomAnchor.constraint(lessThanOrEqualTo: dismissButton.topAnchor, constant: -pad * 0.75),
         ]
 
         // LANDSCAPE layout: single right-column stack (like portrait), thumbnail on left
@@ -387,7 +390,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             artistsTagsView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: pad),
             artistsTagsView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             artistsTagsView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
-            artistsTagsView.heightAnchor.constraint(equalToConstant: 64),
+            artistsTagsView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
 
             albumTextField.topAnchor.constraint(equalTo: artistsTagsView.bottomAnchor, constant: pad),
             albumTextField.leadingAnchor.constraint(equalTo: artistsTagsView.leadingAnchor),
@@ -402,7 +405,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             lyricsTextView.topAnchor.constraint(equalTo: albumTextField.bottomAnchor, constant: pad),
             lyricsTextView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             lyricsTextView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
-            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70),
+            lyricsTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
 
             tagsView.topAnchor.constraint(equalTo: lyricsTextView.bottomAnchor, constant: pad),
             tagsView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
@@ -422,6 +425,27 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             songSizeLabel.bottomAnchor.constraint(lessThanOrEqualTo: dismissButton.topAnchor, constant: -pad * 0.75),
         ]
 
+        // Proportional growth: distribute extra vertical space as Lyrics : Artists : Tags = 10 : 3 : 6
+        // Keep existing minimum heights; these are soft ratio constraints to guide growth only.
+        // Artists ≤ 0.3 × Lyrics, Tags ≤ 0.6 × Lyrics, and Tags == 2 × Artists
+        let artistsVsLyrics = artistsTagsView.heightAnchor.constraint(lessThanOrEqualTo: lyricsTextView.heightAnchor, multiplier: 0.3)
+        artistsVsLyrics.priority = UILayoutPriority(900)
+        let tagsVsLyrics = tagsView.heightAnchor.constraint(lessThanOrEqualTo: lyricsTextView.heightAnchor, multiplier: 0.6)
+        tagsVsLyrics.priority = UILayoutPriority(900)
+        let tagsVsArtists = tagsView.heightAnchor.constraint(equalTo: artistsTagsView.heightAnchor, multiplier: 2.0)
+        tagsVsArtists.priority = UILayoutPriority(900)
+        NSLayoutConstraint.activate([artistsVsLyrics, tagsVsLyrics, tagsVsArtists])
+
+        // Make all three willing to grow: lower vertical hugging so they expand to satisfy the ratios
+        lyricsTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        artistsTagsView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        tagsView.setContentHuggingPriority(.defaultLow, for: .vertical)
+
+        // Prefer shrinking lyrics and tags before fields (keep existing) and include artists as well
+        lyricsTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        artistsTagsView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        tagsView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
         // Activate the appropriate set now
         applyLayoutForCurrentTraits()
 
@@ -433,10 +457,6 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         dismissButton.applyStandardBottomBarHeight(70)
-
-        // Prefer shrinking lyrics and tags before fields
-        lyricsTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        tagsView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     }
         
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
