@@ -373,9 +373,16 @@ class FilterPickerView: UIView {
     func show(animated: Bool) {
         print("Show tag picker view")
         self.isHidden = false
+        addButton.isHidden = false
         rebuildSegments()
         if filterSegment.selectedSegmentIndex == UISegmentedControl.noSegment {
-            // Nothing to show; keep picker empty
+            // Nothing to show → inform the user and dismiss the picker
+            presentNoFiltersAlert()
+            self.isHidden = true
+            releaseYrSegment.isHidden = true
+            rangeSliderView.isHidden = true
+            addButton.isHidden = true
+            return
         } else {
             self.filterValueChanged(sender: filterSegment)
         }
@@ -386,6 +393,25 @@ class FilterPickerView: UIView {
                 self.contentView.frame.origin.y = UIScreen.main.bounds.height - self.contentView.frame.height
             }, completion: nil)
         }
+    }
+
+    private func presentNoFiltersAlert() {
+        // Walk the responder chain to find a presenting view controller
+        var responder: UIResponder? = self
+        var hostVC: UIViewController?
+        while responder != nil {
+            responder = responder?.next
+            if let vc = responder as? UIViewController { hostVC = vc; break }
+        }
+        guard let presenter = hostVC else { return }
+
+        let alert = UIAlertController(
+            title: "No filters available",
+            message: "Add or update song metadata to use filters.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        presenter.present(alert, animated: true)
     }
     
     @objc func filterValueChanged(sender: UISegmentedControl) {
