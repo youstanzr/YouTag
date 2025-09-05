@@ -65,7 +65,10 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         let filtersSig = makeFilterSignature(playlistFilters)
         print("computePlaylistIfNeeded: token=\(token), filtersSig=\(filtersSig), mode=\(mode)")
         if token == lastAppliedChangeToken && filtersSig == lastAppliedFilterSignature && mode == filterLogic {
-            // nothing changed → don’t touch playback
+            // nothing changed → don’t touch playback but update UI
+            let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
+            let reordered = reorderToMatchOldOrder(newPlaylist: songs, oldPlaylist: currentPlaylist)
+            updatePlaylistLibrary(toPlaylist: reordered, uiOnly: true)
             return
         }
         // something changed → recompute
