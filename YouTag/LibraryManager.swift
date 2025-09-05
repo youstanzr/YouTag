@@ -499,6 +499,21 @@ class LibraryManager {
         return Array(resultList)
     }
     
+    // Distinct values limited to a given set of songs
+    func getAllDistinctValues(for column: String, in songs: [Song]) -> [String] {
+        switch column {
+        case "tags":
+            return Array(Set(songs.flatMap { $0.tags })).sorted()
+        case "artists":
+            return Array(Set(songs.flatMap { $0.artists })).sorted()
+        case "album":
+            return Array(Set(songs.compactMap { $0.album }.filter { !$0.isEmpty })).sorted()
+        case "releaseYear":
+            return Array(Set(songs.compactMap { $0.releaseYear }.filter { !$0.isEmpty })).sorted()
+        default:
+            return []
+        }
+    }
     
     func getDuration(_ type: ValueType) -> Double {
         guard !libraryArray.isEmpty else { return 0 }
@@ -511,6 +526,12 @@ class LibraryManager {
             case .max:
                 return durations.max() ?? 0
         }
+    }
+    
+    func getDuration(_ type: ValueType, in songs: [Song]) -> Double {
+        let vals = songs.compactMap { $0.duration.convertToTimeInterval() }
+        guard !vals.isEmpty else { return 0 }
+        return (type == .min) ? (vals.min() ?? 0) : (vals.max() ?? 0)
     }
 
     func getReleaseYear(_ type: ValueType) -> Int {
@@ -529,6 +550,12 @@ class LibraryManager {
             case .max:
                 return releaseYears.max() ?? 0
         }
+    }
+    
+    func getReleaseYear(_ type: ValueType, in songs: [Song]) -> Int {
+        let vals = songs.compactMap { $0.releaseYear }.compactMap(Int.init)
+        guard !vals.isEmpty else { return 0 }
+        return (type == .min) ? (vals.min() ?? 0) : (vals.max() ?? 0)
     }
 
     func fetchThumbnail(for song: Song) -> UIImage? {

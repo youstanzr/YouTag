@@ -95,6 +95,7 @@ class FilterPickerView: UIView {
         lbl.textAlignment = .right
         return lbl
     }()
+    var scope: [Song]
     fileprivate var tagViewDefaultTopAnchor: NSLayoutConstraint?
     fileprivate var tagViewWithSegmentTopAnchor: NSLayoutConstraint?
     fileprivate var rangeSliderViewDefaultTopAnchor: NSLayoutConstraint?
@@ -106,6 +107,7 @@ class FilterPickerView: UIView {
     }
     
     init() {
+        scope = []
         super.init(frame: UIScreen.main.bounds)
         setupView()
         setupConstraints()
@@ -319,7 +321,22 @@ class FilterPickerView: UIView {
         close() // Close the picker view
         tagView.deselectAllTags()
     }
+    
+    func show(animated: Bool) {
+        print("Show tag picker view")
+        self.isHidden = false
+        scope = LibraryManager.shared.getFilteredSongs(with: PlaylistManager.shared.playlistFilters, mode: PlaylistManager.shared.filterLogic)
 
+        self.filterValueChanged(sender: filterSegment)
+        applyContentHeightForTraits()
+        if animated {
+            self.contentView.frame.origin.y = UIScreen.main.bounds.height
+            UIView.animate(withDuration: 0.2, animations: {
+                self.contentView.frame.origin.y = UIScreen.main.bounds.height - self.contentView.frame.height
+            }, completion: nil)
+        }
+    }
+    
     @objc func filterValueChanged(sender: UISegmentedControl) {
         tagView.isHidden = true
         releaseYrSegment.isHidden = true
@@ -333,24 +350,27 @@ class FilterPickerView: UIView {
         switch sender.selectedSegmentIndex {
         case 0: // Tags
             tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "tags")
-        case 1: // Artists
+            let all = LibraryManager.shared.getAllDistinctValues(for: "tags", in: scope)
+            tagView.tagsList = removeActive(all, for: .tag)
+      case 1: // Artists
             tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "artists")
+            let all = LibraryManager.shared.getAllDistinctValues(for: "artists", in: scope)
+            tagView.tagsList = removeActive(all, for: .artist)
         case 2: // Albums
             tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "album")
+            let all = LibraryManager.shared.getAllDistinctValues(for: "album", in: scope)
+            tagView.tagsList = removeActive(all, for: .album)
         case 3: // Release Year
             releaseYrSegment.isHidden = false
             releaseYrValueChanged(releaseYrSegment)
         case 4: // Duration
             rangeSliderView.isHidden = false
-            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getDuration(.min))
-            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getDuration(.max))
+            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getDuration(.min, in: scope))
+            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getDuration(.max, in: scope))
             rangeSlider.lowerValue = rangeSlider.minimumValue
             rangeSlider.upperValue = rangeSlider.maximumValue
-            rangeSliderLowerLabel.text = LibraryManager.shared.getDuration(.min).stringFromTimeInterval()
-            rangeSliderUpperLabel.text = LibraryManager.shared.getDuration(.max).stringFromTimeInterval()
+            rangeSliderLowerLabel.text = LibraryManager.shared.getDuration(.min, in: scope).stringFromTimeInterval()
+            rangeSliderUpperLabel.text = LibraryManager.shared.getDuration(.max, in: scope).stringFromTimeInterval()
         default:
             break
         }
@@ -365,16 +385,17 @@ class FilterPickerView: UIView {
             rangeSliderView.isHidden = false
             rangeSliderViewDefaultTopAnchor?.isActive = false
             rangeSliderViewWithSegmentTopAnchor?.isActive = true
-            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getReleaseYear(.min))
-            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getReleaseYear(.max))
+            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getReleaseYear(.min, in: scope))
+            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getReleaseYear(.max, in: scope))
             rangeSlider.lowerValue = rangeSlider.minimumValue
             rangeSlider.upperValue = rangeSlider.maximumValue
-            rangeSliderLowerLabel.text = String(LibraryManager.shared.getReleaseYear(.min))
-            rangeSliderUpperLabel.text = String(LibraryManager.shared.getReleaseYear(.max))
+            rangeSliderLowerLabel.text = String(LibraryManager.shared.getReleaseYear(.min, in: scope))
+            rangeSliderUpperLabel.text = String(LibraryManager.shared.getReleaseYear(.max, in: scope))
         } else { // Exact year
             rangeSliderView.isHidden = true
             tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "releaseYear")
+            let all = LibraryManager.shared.getAllDistinctValues(for: "releaseYear", in: scope)
+            tagView.tagsList = removeActive(all, for: .releaseYear)
             tagViewDefaultTopAnchor?.isActive = false
             tagViewWithSegmentTopAnchor?.isActive = true
         }
@@ -391,17 +412,14 @@ class FilterPickerView: UIView {
             rangeSliderUpperLabel.text = TimeInterval(sender.upperValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
         }
     }
-    func show(animated: Bool) {
-        print("Show tag picker view")
-        self.isHidden = false
-        self.filterValueChanged(sender: filterSegment)
-        applyContentHeightForTraits()
-        if animated {
-            self.contentView.frame.origin.y = UIScreen.main.bounds.height
-            UIView.animate(withDuration: 0.2, animations: {
-                self.contentView.frame.origin.y = UIScreen.main.bounds.height - self.contentView.frame.height
-            }, completion: nil)
-        }
-    }
     
+    private func removeActive(_ values: [String], for type: PlaylistFilters.FilterType) -> [String] {
+        let active = Set(
+            PlaylistManager.shared.playlistFilters
+                .getFilters()
+                .filter { $0[0] == type.rawValue }
+                .map { $0[1] }
+        )
+        return values.filter { !active.contains($0) }
+    }
 }
