@@ -397,22 +397,13 @@ class FilterPickerView: UIView {
     }
     
     private func presentNoFiltersAlert() {
-        // Walk the responder chain to find a presenting view controller
-        var responder: UIResponder? = self
-        var hostVC: UIViewController?
-        while responder != nil {
-            responder = responder?.next
-            if let vc = responder as? UIViewController { hostVC = vc; break }
-        }
-        guard let presenter = hostVC else { return }
-        
         let alert = UIAlertController(
             title: "No filters available",
             message: "Add or update song metadata to use filters.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        presenter.present(alert, animated: true)
+        UIApplication.getCurrentViewController()?.present(alert, animated: true)
     }
     
     @objc func filterValueChanged(sender: UISegmentedControl) {
