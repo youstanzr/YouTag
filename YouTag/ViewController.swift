@@ -73,7 +73,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }()
     let buildLabel: UILabel = {
         let lbl = UILabel()
-        lbl.text = "v" + UIApplication.shared.buildNumber!
+        lbl.text = "b" + UIApplication.shared.buildNumber!
         lbl.font = UIFont.init(name: "DINCondensed-Bold", size: 14)
         lbl.textAlignment = .right
         lbl.textColor = GraphicColors.darkGray
