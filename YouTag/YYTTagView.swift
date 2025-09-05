@@ -40,17 +40,18 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
 
     weak var yytdelegate: YYTTagViewDelegate?
     var addTagPlaceHolder: String!
+    private var allSuggestions: [String] = []
     var tagsList: [String] = [] {
         didSet {
             selectedTagList = []
-            suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
             collectionView.reloadData()
             setNeedsLayout()
         }
     }
     var suggestionsList: [String]? {
-        didSet {
-            suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
+        get { allSuggestions.filter { !tagsList.contains($0) } }
+        set {
+            allSuggestions = newValue ?? []
             collectionView.reloadData()
             setNeedsLayout()
         }
