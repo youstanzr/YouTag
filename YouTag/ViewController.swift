@@ -27,10 +27,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     private var landscapeConstraints: [NSLayoutConstraint] = []
     
     // AND/OR UI
-    private var isAndMode: Bool = false // false = OR (default), true = AND
+    private var isAndMode: Bool = true // false = OR , true = AND (default)
     private lazy var filterModeButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("OR", for: .normal)
         btn.setTitleColor(GraphicColors.cloudWhite, for: .normal)
         btn.backgroundColor = GraphicColors.orange
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
@@ -171,6 +170,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         tagsView.clipsToBounds = true
         
         // AND/OR toggle button
+        filterModeButton.setTitle(isAndMode ? "AND" : "OR", for: .normal)
         view.addSubview(filterModeButton)
         
         // Version Label
