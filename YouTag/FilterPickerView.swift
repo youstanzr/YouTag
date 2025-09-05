@@ -343,7 +343,12 @@ class FilterPickerView: UIView {
                 delegate?.processNewFilter(type: .album, filters: tagView.selectedTagList)
             }
         case .releaseYear:
-            if releaseYrSegment.selectedSegmentIndex == 0 {
+            let ymin = LibraryManager.shared.getReleaseYear(.min, in: scope)
+            let ymax = LibraryManager.shared.getReleaseYear(.max, in: scope)
+            let canRange = ymin < ymax
+            let isRangeSelected = canRange && !releaseYrSegment.isHidden && releaseYrSegment.selectedSegmentIndex == 0
+
+            if isRangeSelected {
                 // Year range
                 if Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
                     let lowerValue = Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
