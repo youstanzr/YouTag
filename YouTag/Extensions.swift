@@ -478,6 +478,28 @@ extension String {
         return interval
     }
     
+    // Helper to map Arabic/Persian digits to Latin
+    var latinDigits: String {
+        var out = String()
+        out.reserveCapacity(self.count)
+        for scalar in self.unicodeScalars {
+            let v = scalar.value
+            // Arabic-Indic 0-9: U+0660...U+0669
+            if 0x0660...0x0669 ~= v {
+                let mapped = UnicodeScalar(0x0030 + (v - 0x0660))!
+                out.unicodeScalars.append(mapped)
+                continue
+            }
+            // Extended Arabic-Indic (Persian) 0-9: U+06F0...U+06F9
+            if 0x06F0...0x06F9 ~= v {
+                let mapped = UnicodeScalar(0x0030 + (v - 0x06F0))!
+                out.unicodeScalars.append(mapped)
+                continue
+            }
+            out.unicodeScalars.append(scalar)
+        }
+        return out
+    }
 }
 
 // MARK: NSArray
