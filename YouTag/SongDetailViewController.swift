@@ -500,6 +500,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     }
 
     @objc func dismissView() {
+        releaseYrTextField.text = releaseYrTextField.text?.latinDigits
         if !releaseYrTextField.text!.isNumeric && !releaseYrTextField.text!.isEmpty {
             showAlert(message: "Please input correct release year")
         } else if titleTextField.text!.isEmpty {
