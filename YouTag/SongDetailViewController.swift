@@ -580,7 +580,7 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue
         if self.view.frame.origin.y == 0 {
-            self.view.frame.origin.y -= getMoveableDistance(keyboarHeight: keyboardFrame.height)
+            self.view.frame.origin.y -= getMoveableDistance(keyboarHeight: keyboardFrame.height + 55)
         }
     }
     
