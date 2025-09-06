@@ -274,6 +274,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                     }
                     pop.permittedArrowDirections = .any
                 }
+                UIApplication.hideKeyboard()
                 UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
             }
         } else {
@@ -290,6 +291,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                 pop.sourceRect = CGRect(x: point.x, y: point.y, width: 1, height: 1)
                 pop.permittedArrowDirections = .any
             }
+            UIApplication.hideKeyboard()
             UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
         }
     }
