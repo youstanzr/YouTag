@@ -66,9 +66,17 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         print("computePlaylistIfNeeded: token=\(token), filtersSig=\(filtersSig), mode=\(mode)")
         if token == lastAppliedChangeToken && filtersSig == lastAppliedFilterSignature && mode == filterLogic {
             // nothing changed → don’t touch playback but update UI
+            // Refresh metadata for songs visible under current filters
             let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
-            let reordered = reorderToMatchOldOrder(newPlaylist: songs, oldPlaylist: currentPlaylist)
-            updatePlaylistLibrary(toPlaylist: reordered, uiOnly: true)
+            // Filter out any songs whose file is missing (match computePlaylist behavior)
+            let playableSongs = songs.filter { song in
+                guard let url = LibraryManager.shared.urlForSong(song) else { return false }
+                return FileManager.default.fileExists(atPath: url.path)
+            }
+            // Map by id and update existing playlist entries to their fresh copies
+            let mapById: [String: Song] = Dictionary(uniqueKeysWithValues: playableSongs.map { ($0.id, $0) })
+            let updated = currentPlaylist.compactMap { mapById[$0.id] }
+            updatePlaylistLibrary(toPlaylist: updated, uiOnly: true)
             return
         }
         // something changed → recompute
