@@ -802,9 +802,24 @@ class LibraryManager {
         if let oldSong = oldSong {
             let filters = PlaylistManager.shared.playlistFilters
             let mode = PlaylistManager.shared.filterLogic
-            let wasIn = matches(oldSong, filters: filters, mode: mode)
-            let nowIn = matches(song, filters: filters, mode: mode)
-            if wasIn != nowIn { notifyLibraryChanged() }
+
+            let wasMatch = matches(oldSong, filters: filters, mode: mode)
+            let nowMatch = matches(song, filters: filters, mode: mode)
+            let isInCurrentPlaylist = PlaylistManager.shared.currentPlaylist.contains { $0.id == song.id }
+
+            switch (wasMatch, nowMatch) {
+            case (false, true):
+                // Newly qualifies → add to filtered set
+                notifyLibraryChanged()
+
+            case (true, false):
+                // No longer qualifies → only notify if it’s actually in the playlist
+                if isInCurrentPlaylist { notifyLibraryChanged() }
+
+            default:
+                // (true, true) or (false, false): membership unchanged → no recompute
+                break
+            }
         }
     }
     
