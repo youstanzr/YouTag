@@ -191,6 +191,10 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         
         // Album
         albumTextField.delegate = self
+        albumTextField.itemSelectionHandler = {item, itemPosition in
+            self.albumTextField.text = item[itemPosition].title
+            self.albumTextField.resignFirstResponder()
+        }
         albumTextField.filterStrings(LibraryManager.shared.getAllDistinctValues(for: "album"))
         view.addSubview(albumTextField)
         
