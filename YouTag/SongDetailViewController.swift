@@ -14,6 +14,8 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     var song: Song!
     var tagsView: YYTTagView!
     private var previewURL: URL?
+    // Track if artwork was changed by user
+    private var artworkChanged = false
     
     // Thumbnail size constraints (portrait vs landscape)
     private var portraitThumbHeight: NSLayoutConstraint!
@@ -164,6 +166,10 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Thumbnail
         let imageTap = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         thumbnailImageView.addGestureRecognizer(imageTap)
+        // Long press to remove artwork
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(thumbnailLongPressed(_:)))
+        longPress.minimumPressDuration = 0.5
+        thumbnailImageView.addGestureRecognizer(longPress)
         view.addSubview(thumbnailImageView)
         
         // Title
@@ -508,10 +514,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         } else {
             updateSong()
             LibraryManager.shared.updateSongDetails(song: song)
+            if let name = song.thumbnailPath, !name.isEmpty {
+                LibraryCell.thumbnailCache.removeObject(forKey: name as NSString)
+            }
             dismiss(animated: true, completion: nil)
         }
     }
-    
+
     private func updateSong() {
         song.title = titleTextField.text ?? ""
         song.artists = artistsTagsView.tagsList
@@ -519,11 +528,30 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         song.releaseYear = releaseYrTextField.text
         song.lyrics = lyricsTextView.textColor == GraphicColors.medGray ? "" : lyricsTextView.text
         song.tags = tagsView.tagsList
-        if let image = thumbnailImageView.image, image != UIImage(named: "placeholder") {
-            if let fileURL = LocalFilesManager.saveImage(image, withName: song.id) {
-                // Store only the filename for thumbnailPath
-                song.thumbnailPath = fileURL.lastPathComponent
+
+        // Handle artwork only if changed by user (picked new one or deleted)
+        if artworkChanged {
+            // If user set a custom image (not placeholder), (re)save it
+            if let image = thumbnailImageView.image, image != UIImage(named: "placeholder") {
+                // Save (overwrite) under a stable name based on song id
+                if let fileURL = LocalFilesManager.saveImage(image, withName: song.id) {
+                    let oldName = song.thumbnailPath
+                    // Store only the filename for thumbnailPath
+                    song.thumbnailPath = fileURL.lastPathComponent
+                    // Invalidate cache so LibraryCell reloads from disk
+                    if let oldName = oldName, !oldName.isEmpty {
+                        LibraryCell.thumbnailCache.removeObject(forKey: oldName as NSString)
+                    }
+                    LibraryCell.thumbnailCache.removeObject(forKey: fileURL.lastPathComponent as NSString)
+                }
+            } else {
+                // User cleared artwork; ensure path is nil and invalidate cache
+                if let oldName = song.thumbnailPath, !oldName.isEmpty {
+                    LibraryCell.thumbnailCache.removeObject(forKey: oldName as NSString)
+                }
+                song.thumbnailPath = nil
             }
+            artworkChanged = false
         }
     }
     
@@ -538,10 +566,46 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         imagePicker.sourceType = .photoLibrary
         present(imagePicker, animated: true, completion: nil)
     }
+
+    @objc private func thumbnailLongPressed(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        // Only offer delete if there is a custom image
+        let hasCustomArtwork = (thumbnailImageView.image != UIImage(named: "placeholder")) || (song.thumbnailPath != nil)
+        guard hasCustomArtwork else { return }
+
+        let alert = UIAlertController(title: "Delete Artwork", message: "Delete the current artwork for this song?", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [weak self] _ in
+            guard let self = self else { return }
+            // Delete stored thumbnail file if present
+            if let name = self.song.thumbnailPath, !name.isEmpty {
+                LocalFilesManager.deleteImage(named: name)
+            }
+            // Reset model and UI
+            let oldName = self.song.thumbnailPath
+            self.song.thumbnailPath = nil
+            self.thumbnailImageView.image = UIImage(named: "placeholder")
+            self.artworkChanged = true
+            // Invalidate any cached image for this song
+            if let oldName = oldName, !oldName.isEmpty {
+                LibraryCell.thumbnailCache.removeObject(forKey: oldName as NSString)
+            }
+            // Persist change
+            LibraryManager.shared.updateSongDetails(song: self.song)
+        }))
+
+        // iPad presentation safety
+        if let pop = alert.popoverPresentationController {
+            pop.sourceView = thumbnailImageView
+            pop.sourceRect = thumbnailImageView.bounds
+        }
+        present(alert, animated: true)
+    }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             thumbnailImageView.image = image
+            artworkChanged = true
         }
         picker.dismiss(animated: true, completion: nil)
     }
