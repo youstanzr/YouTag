@@ -34,7 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LibraryManager.shared.setupDatabase()
         LocalFilesManager.ensureImagesDirectoryExists()
         LocalFilesManager.getSongsDirectoryURL()
-
+        LibraryManager.shared.recomputeSongDurationsBlocking()
+        
         // Add session state observer
         NotificationCenter.default.addObserver(
             forName: AVAudioSession.silenceSecondaryAudioHintNotification,

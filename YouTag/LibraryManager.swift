@@ -824,7 +824,7 @@ class LibraryManager {
     }
     
     // Normalize every stored duration to hh:mm:ss or mm:ss based on it duration
-    func recomputeSongDurations() async {
+    func recomputeSongDurationsAsync() async -> Int {
         var fixes = 0
         for i in 0..<libraryArray.count {
             var s = libraryArray[i]
@@ -841,11 +841,20 @@ class LibraryManager {
                 fixes += 1
             }
         }
-        if fixes > 0 {
-            refreshLibraryArray()
-            notifyLibraryChanged()
-        }
+        return fixes
     }
+    
+    func recomputeSongDurationsBlocking() {
+        let sema = DispatchSemaphore(value: 0)
+        var fixes = 0
+        Task.detached { [weak self] in
+            guard let self else { sema.signal(); return }
+            _ = await self.recomputeSongDurationsAsync()
+            sema.signal()
+        }
+        sema.wait() // ⛔️ Blocks current thread
+    }
+
 
     // MARK: - Delete Song
     func deleteSongFromLibrary(songID: String) {

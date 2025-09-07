@@ -93,7 +93,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-//        Task { await LibraryManager.shared.recomputeSongDurations() }
+//        Task { await LibraryManager.shared.recomputeSongDurationsAsync() }
         setupUI()
         setupConstraints()
         NotificationCenter.default.addObserver(self,
