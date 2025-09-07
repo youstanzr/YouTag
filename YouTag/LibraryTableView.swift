@@ -29,6 +29,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         self.delegate = self
         self.dataSource = self
         self.prefetchDataSource = self
+        self.keyboardDismissMode = .onDrag
     }
     
     func refreshTableView() {
