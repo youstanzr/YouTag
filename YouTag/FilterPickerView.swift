@@ -15,11 +15,16 @@ protocol FilterPickerViewDelegate: AnyObject {
 }
 
 class FilterPickerView: UIView {
-
+    
     // MARK: - Properties
+    private struct SegmentItem { let type: PlaylistFilters.FilterType; let title: String }
+    private var segmentItems: [SegmentItem] = []
     weak var delegate: FilterPickerViewDelegate?
     
     var tagView: YYTTagView!
+    // Content height per orientation
+    private var contentViewPortraitHeight: NSLayoutConstraint!
+    private var contentViewLandscapeHeight: NSLayoutConstraint!
     let contentView: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
@@ -92,42 +97,44 @@ class FilterPickerView: UIView {
         lbl.textAlignment = .right
         return lbl
     }()
+    var scope: [Song]
     fileprivate var tagViewDefaultTopAnchor: NSLayoutConstraint?
     fileprivate var tagViewWithSegmentTopAnchor: NSLayoutConstraint?
     fileprivate var rangeSliderViewDefaultTopAnchor: NSLayoutConstraint?
     fileprivate var rangeSliderViewWithSegmentTopAnchor: NSLayoutConstraint?
-
+    
     // MARK: - Initialization
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     init() {
+        scope = []
         super.init(frame: UIScreen.main.bounds)
         setupView()
         setupConstraints()
         configureActions()
     }
-
+    
     // MARK: - Setup
     private func setupView() {
         self.isHidden = true
         self.backgroundColor = GraphicColors.obsidianBlack.withAlphaComponent(0.85)
-
+        
         // Close Button
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
         self.addSubview(closeButton)
-
+        
         // Content View
         self.addSubview(contentView)
         contentView.addSubview(filterSegment)
         contentView.addSubview(pickerView)
         contentView.addSubview(addButton)
-
+        
         // Picker View
         pickerView.addSubview(releaseYrSegment)
         pickerView.addSubview(rangeSliderView)
-
+        
         // Tag View
         let style = TagViewStyle(
             isAddEnabled: false,
@@ -145,14 +152,14 @@ class FilterPickerView: UIView {
             style: style
         )
         pickerView.addSubview(tagView)
-
+        
         // Range Slider View
         rangeSlider.addTarget(self, action: #selector(rangeSliderValueChanged(_:)), for: .valueChanged)
         rangeSliderView.addSubview(rangeSlider)
         rangeSliderView.addSubview(rangeSliderLowerLabel)
         rangeSliderView.addSubview(rangeSliderUpperLabel)
     }
-
+    
     private func setupConstraints() {
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -161,15 +168,22 @@ class FilterPickerView: UIView {
             closeButton.widthAnchor.constraint(equalTo: self.widthAnchor),
             closeButton.heightAnchor.constraint(equalTo: self.heightAnchor)
         ])
-
+        
         contentView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.4)
+            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
-
+        // Portrait vs. landscape heights
+        contentViewPortraitHeight = contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.40)
+        contentViewLandscapeHeight = contentView.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.60)
+        if traitCollection.verticalSizeClass == .compact {
+            contentViewLandscapeHeight.isActive = true
+        } else {
+            contentViewPortraitHeight.isActive = true
+        }
+        
         filterSegment.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             filterSegment.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
@@ -177,15 +191,15 @@ class FilterPickerView: UIView {
             filterSegment.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             filterSegment.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.15)
         ])
-
+        
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             addButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: -2.5),
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 2.5),
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            addButton.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.09)
         ])
-
+        addButton.applyStandardBottomBarHeight(70)
+        
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             pickerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -193,7 +207,7 @@ class FilterPickerView: UIView {
             pickerView.topAnchor.constraint(equalTo: filterSegment.bottomAnchor),
             pickerView.bottomAnchor.constraint(equalTo: addButton.topAnchor)
         ])
-
+        
         releaseYrSegment.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             releaseYrSegment.leadingAnchor.constraint(equalTo: pickerView.leadingAnchor, constant: 5),
@@ -201,7 +215,7 @@ class FilterPickerView: UIView {
             releaseYrSegment.topAnchor.constraint(equalTo: pickerView.topAnchor, constant: 5),
             releaseYrSegment.heightAnchor.constraint(equalTo: pickerView.heightAnchor, multiplier: 0.15)
         ])
-
+        
         tagView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             tagView.leadingAnchor.constraint(equalTo: pickerView.leadingAnchor, constant: 5),
@@ -212,7 +226,7 @@ class FilterPickerView: UIView {
         tagViewWithSegmentTopAnchor = tagView.topAnchor.constraint(equalTo: releaseYrSegment.bottomAnchor, constant: 5)
         tagViewDefaultTopAnchor?.isActive = true
         tagViewWithSegmentTopAnchor?.isActive = false
-
+        
         rangeSliderView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             rangeSliderView.leadingAnchor.constraint(equalTo: pickerView.leadingAnchor, constant: 15),
@@ -223,7 +237,7 @@ class FilterPickerView: UIView {
         rangeSliderViewWithSegmentTopAnchor = rangeSliderView.topAnchor.constraint(equalTo: releaseYrSegment.bottomAnchor, constant: 5)
         rangeSliderViewDefaultTopAnchor?.isActive = true
         rangeSliderViewWithSegmentTopAnchor?.isActive = false
-
+        
         rangeSlider.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             rangeSlider.leadingAnchor.constraint(equalTo: rangeSliderView.leadingAnchor, constant: 5),
@@ -231,7 +245,7 @@ class FilterPickerView: UIView {
             rangeSlider.heightAnchor.constraint(equalToConstant: 30),
             rangeSlider.centerYAnchor.constraint(equalTo: rangeSliderView.centerYAnchor)
         ])
-
+        
         rangeSliderLowerLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             rangeSliderLowerLabel.leadingAnchor.constraint(equalTo: rangeSlider.leadingAnchor),
@@ -239,7 +253,7 @@ class FilterPickerView: UIView {
             rangeSliderLowerLabel.topAnchor.constraint(equalTo: rangeSlider.bottomAnchor),
             rangeSliderLowerLabel.heightAnchor.constraint(equalTo: rangeSliderView.heightAnchor, multiplier: 0.15)
         ])
-
+        
         rangeSliderUpperLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             rangeSliderUpperLabel.trailingAnchor.constraint(equalTo: rangeSlider.trailingAnchor),
@@ -248,130 +262,137 @@ class FilterPickerView: UIView {
             rangeSliderUpperLabel.heightAnchor.constraint(equalTo: rangeSliderView.heightAnchor, multiplier: 0.15)
         ])
     }
-
+    
+    private func applyContentHeightForTraits() {
+        let isLandscape = traitCollection.verticalSizeClass == .compact
+        contentViewPortraitHeight?.isActive = !isLandscape
+        contentViewLandscapeHeight?.isActive = isLandscape
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        applyContentHeightForTraits()
+    }
+    
     private func configureActions() {
         filterSegment.addTarget(self, action: #selector(filterValueChanged(sender:)), for: .valueChanged)
         releaseYrSegment.addTarget(self, action: #selector(releaseYrValueChanged(_:)), for: .valueChanged)
         addButton.addTarget(self, action: #selector(add), for: .touchUpInside)
     }
-
+    
+    private func rebuildSegments() {
+        scope = LibraryManager.shared.getFilteredSongs(with: PlaylistManager.shared.playlistFilters, mode: PlaylistManager.shared.filterLogic)
+        
+        func filtered(_ values: [String], _ t: PlaylistFilters.FilterType) -> [String] {
+            removeActive(values, for: t)
+        }
+        
+        // Build candidate lists per tab
+        let tags    = filtered(LibraryManager.shared.getAllDistinctValues(for: "tags", in: scope), .tag)
+        let artists = filtered(LibraryManager.shared.getAllDistinctValues(for: "artists", in: scope), .artist)
+        let albums  = filtered(LibraryManager.shared.getAllDistinctValues(for: "album", in: scope), .album)
+        let years   = filtered(LibraryManager.shared.getAllDistinctValues(for: "releaseYear", in: scope), .releaseYear)
+        let dmin    = LibraryManager.shared.getDuration(.min, in: scope)
+        let dmax    = LibraryManager.shared.getDuration(.max, in: scope)
+        
+        var items: [SegmentItem] = []
+        if !tags.isEmpty                 { items.append(.init(type: .tag,          title: "Tag")) }
+        if !artists.isEmpty              { items.append(.init(type: .artist,       title: "Artist")) }
+        if !albums.isEmpty               { items.append(.init(type: .album,        title: "Album")) }
+        if !years.isEmpty                { items.append(.init(type: .releaseYear,  title: "Year")) }
+        if dmin < dmax                   { items.append(.init(type: .duration,     title: "Length")) }
+        
+        segmentItems = items
+        
+        // Update segmented control to show only non-empty tabs
+        filterSegment.removeAllSegments()
+        for (idx, it) in items.enumerated() {
+            filterSegment.insertSegment(withTitle: it.title, at: idx, animated: false)
+        }
+        UIView.performWithoutAnimation {
+            filterSegment.selectedSegmentIndex = items.isEmpty ? UISegmentedControl.noSegment : 0
+            filterSegment.layoutIfNeeded()
+        }
+    }
+    
     // MARK: - Actions
     @objc private func close() {
         self.isHidden = true
     }
-
+    
     @objc func add() {
         print("Add button pressed")
-        switch filterSegment.selectedSegmentIndex {
-        case 0: // Tags filter
+        guard !segmentItems.isEmpty,
+              filterSegment.selectedSegmentIndex >= 0,
+              filterSegment.selectedSegmentIndex < segmentItems.count else { return }
+        
+        let item = segmentItems[filterSegment.selectedSegmentIndex]
+        switch item.type {
+        case .tag:
             if !tagView.selectedTagList.isEmpty {
-                delegate?.processNewFilter(type: FilterType.tag, filters: tagView.selectedTagList)
+                delegate?.processNewFilter(type: .tag, filters: tagView.selectedTagList)
             }
-        case 1: // Artists filter
+        case .artist:
             if !tagView.selectedTagList.isEmpty {
-                delegate?.processNewFilter(type: FilterType.artist, filters: tagView.selectedTagList)
+                delegate?.processNewFilter(type: .artist, filters: tagView.selectedTagList)
             }
-        case 2: // Album filter
+        case .album:
             if !tagView.selectedTagList.isEmpty {
-                delegate?.processNewFilter(type: FilterType.album, filters: tagView.selectedTagList)
+                delegate?.processNewFilter(type: .album, filters: tagView.selectedTagList)
             }
-        case 3: // Release year filter
-            if releaseYrSegment.selectedSegmentIndex == 0, // Year range
-               Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
-                let lowerValue = Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
-                let upperValue = Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero))
-                delegate?.processNewFilter(type: FilterType.releaseYearRange, filters: [lowerValue, upperValue])
-            } else if releaseYrSegment.selectedSegmentIndex == 1, !tagView.selectedTagList.isEmpty { // Exact year
-                delegate?.processNewFilter(type: FilterType.releaseYear, filters: tagView.selectedTagList)
+        case .releaseYear:
+            let ymin = LibraryManager.shared.getReleaseYear(.min, in: scope)
+            let ymax = LibraryManager.shared.getReleaseYear(.max, in: scope)
+            let canRange = ymin < ymax
+            let isRangeSelected = canRange && !releaseYrSegment.isHidden && releaseYrSegment.selectedSegmentIndex == 0
+
+            if isRangeSelected {
+                // Year range
+                if Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
+                    let lowerValue = Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero))
+                    let upperValue = Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero))
+                    delegate?.processNewFilter(type: .releaseYearRange, filters: [lowerValue, upperValue])
+                }
+            } else {
+                // Exact year(s)
+                if !tagView.selectedTagList.isEmpty {
+                    delegate?.processNewFilter(type: .releaseYear, filters: tagView.selectedTagList)
+                }
             }
-        case 4: // Duration filter
+        case .duration:
             if Int(rangeSlider.lowerValue.rounded(.toNearestOrAwayFromZero)) != Int(rangeSlider.upperValue.rounded(.toNearestOrAwayFromZero)) {
                 let lowerValue = TimeInterval(rangeSlider.lowerValue).rounded(.toNearestOrAwayFromZero)
                 let upperValue = TimeInterval(rangeSlider.upperValue).rounded(.toNearestOrAwayFromZero)
-                delegate?.processNewFilter(type: FilterType.duration, filters: [lowerValue, upperValue])
+                delegate?.processNewFilter(type: .duration, filters: [lowerValue, upperValue])
             }
-        default:
+        case .releaseYearRange:
+            // Not presented as a separate tab; handled via .releaseYear UI
             break
         }
-        close() // Close the picker view
+        
+        close()
         tagView.deselectAllTags()
     }
-
-    @objc func filterValueChanged(sender: UISegmentedControl) {
-        tagView.isHidden = true
-        releaseYrSegment.isHidden = true
-        rangeSliderView.isHidden = true
-
-        tagViewWithSegmentTopAnchor?.isActive = false
-        tagViewDefaultTopAnchor?.isActive = true
-        rangeSliderViewWithSegmentTopAnchor?.isActive = false
-        rangeSliderViewDefaultTopAnchor?.isActive = true
-
-        switch sender.selectedSegmentIndex {
-        case 0: // Tags
-            tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "tags")
-        case 1: // Artists
-            tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "artists")
-        case 2: // Albums
-            tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "album")
-        case 3: // Release Year
-            releaseYrSegment.isHidden = false
-            releaseYrValueChanged(releaseYrSegment)
-        case 4: // Duration
-            rangeSliderView.isHidden = false
-            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getDuration(.min))
-            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getDuration(.max))
-            rangeSlider.lowerValue = rangeSlider.minimumValue
-            rangeSlider.upperValue = rangeSlider.maximumValue
-            rangeSliderLowerLabel.text = LibraryManager.shared.getDuration(.min).stringFromTimeInterval()
-            rangeSliderUpperLabel.text = LibraryManager.shared.getDuration(.max).stringFromTimeInterval()
-        default:
-            break
-        }
-        tagView.collectionView.reloadData()
-        self.layoutIfNeeded()
-        tagView.collectionView.setContentOffset(.zero, animated: false) // Scroll to top
-    }
     
-    @objc func releaseYrValueChanged(_ sender: UISegmentedControl) {
-        if sender.selectedSegmentIndex == 0 { // Year range
-            tagView.isHidden = true
-            rangeSliderView.isHidden = false
-            rangeSliderViewDefaultTopAnchor?.isActive = false
-            rangeSliderViewWithSegmentTopAnchor?.isActive = true
-            rangeSlider.minimumValue = CGFloat(LibraryManager.shared.getReleaseYear(.min))
-            rangeSlider.maximumValue = CGFloat(LibraryManager.shared.getReleaseYear(.max))
-            rangeSlider.lowerValue = rangeSlider.minimumValue
-            rangeSlider.upperValue = rangeSlider.maximumValue
-            rangeSliderLowerLabel.text = String(LibraryManager.shared.getReleaseYear(.min))
-            rangeSliderUpperLabel.text = String(LibraryManager.shared.getReleaseYear(.max))
-        } else { // Exact year
-            rangeSliderView.isHidden = true
-            tagView.isHidden = false
-            tagView.tagsList = LibraryManager.shared.getAllDistinctValues(for: "releaseYear")
-            tagViewDefaultTopAnchor?.isActive = false
-            tagViewWithSegmentTopAnchor?.isActive = true
-        }
-        tagView.collectionView.reloadData()
-        self.layoutIfNeeded()
-    }
-
-    @objc func rangeSliderValueChanged(_ sender: YYTRangeSlider) {
-        if filterSegment.selectedSegmentIndex == 3 { // Release year
-            rangeSliderLowerLabel.text = String(Int(sender.lowerValue.rounded(.toNearestOrAwayFromZero)))
-            rangeSliderUpperLabel.text = String(Int(sender.upperValue.rounded(.toNearestOrAwayFromZero)))
-        } else { // Duration
-            rangeSliderLowerLabel.text = TimeInterval(sender.lowerValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
-            rangeSliderUpperLabel.text = TimeInterval(sender.upperValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
-        }
-    }
     func show(animated: Bool) {
         print("Show tag picker view")
         self.isHidden = false
-        self.filterValueChanged(sender: filterSegment)
+        addButton.isHidden = false
+        rebuildSegments()
+        if filterSegment.selectedSegmentIndex == UISegmentedControl.noSegment {
+            // Nothing to show → inform the user and dismiss the picker
+            presentNoFiltersAlert()
+            self.isHidden = true
+            releaseYrSegment.isHidden = true
+            rangeSliderView.isHidden = true
+            addButton.isHidden = true
+            return
+        } else {
+            self.filterValueChanged(sender: filterSegment)
+        }
+        applyContentHeightForTraits()
         if animated {
             self.contentView.frame.origin.y = UIScreen.main.bounds.height
             UIView.animate(withDuration: 0.2, animations: {
@@ -380,4 +401,166 @@ class FilterPickerView: UIView {
         }
     }
     
+    private func presentNoFiltersAlert() {
+        let alert = UIAlertController(
+            title: "No filters available",
+            message: "Add or update song metadata to use filters.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        UIApplication.getCurrentViewController()?.present(alert, animated: true)
+    }
+    
+    @objc func filterValueChanged(sender: UISegmentedControl) {
+        tagView.isHidden = true
+        releaseYrSegment.isHidden = true
+        rangeSliderView.isHidden = true
+        
+        tagViewWithSegmentTopAnchor?.isActive = false
+        tagViewDefaultTopAnchor?.isActive = true
+        rangeSliderViewWithSegmentTopAnchor?.isActive = false
+        rangeSliderViewDefaultTopAnchor?.isActive = true
+        
+        guard !segmentItems.isEmpty,
+              sender.selectedSegmentIndex >= 0,
+              sender.selectedSegmentIndex < segmentItems.count else {
+            tagView.collectionView.reloadData()
+            return
+        }
+        
+        let item = segmentItems[sender.selectedSegmentIndex]
+        
+        switch item.type {
+        case .tag:
+            tagView.isHidden = false
+            let all = LibraryManager.shared.getAllDistinctValues(for: "tags", in: scope)
+            tagView.tagsList = removeActive(all, for: .tag)
+            
+        case .artist:
+            tagView.isHidden = false
+            let all = LibraryManager.shared.getAllDistinctValues(for: "artists", in: scope)
+            tagView.tagsList = removeActive(all, for: .artist)
+            
+        case .album:
+            tagView.isHidden = false
+            let all = LibraryManager.shared.getAllDistinctValues(for: "album", in: scope)
+            tagView.tagsList = removeActive(all, for: .album)
+            
+        case .releaseYear:
+            let years = removeActive(LibraryManager.shared.getAllDistinctValues(for: "releaseYear", in: scope), for: .releaseYear)
+            let ymin = LibraryManager.shared.getReleaseYear(.min, in: scope)
+            let ymax = LibraryManager.shared.getReleaseYear(.max, in: scope)
+            let canRange = ymin < ymax
+            
+            if canRange {
+                releaseYrSegment.isHidden = false
+                
+                if releaseYrSegment.selectedSegmentIndex == 0 { // Range selected
+                    showYearRange(ymin: ymin, ymax: ymax)
+                } else { // Exact year selected
+                    showExactYears(years, underSegment: true)
+                }
+            } else {
+                // Only exact year makes sense
+                releaseYrSegment.isHidden = true
+                showExactYears(years, underSegment: false)
+            }
+            
+        case .duration:
+            let dmin = LibraryManager.shared.getDuration(.min, in: scope)
+            let dmax = LibraryManager.shared.getDuration(.max, in: scope)
+            rangeSliderView.isHidden = false
+            rangeSlider.minimumValue = CGFloat(dmin)
+            rangeSlider.maximumValue = CGFloat(dmax)
+            rangeSlider.lowerValue = rangeSlider.minimumValue
+            rangeSlider.upperValue = rangeSlider.maximumValue
+            rangeSliderLowerLabel.text = dmin.stringFromTimeInterval()
+            rangeSliderUpperLabel.text = dmax.stringFromTimeInterval()
+        case .releaseYearRange:
+            // Not presented as a separate tab; handled via .releaseYear UI
+            break
+        }
+        
+        tagView.collectionView.reloadData()
+        self.layoutIfNeeded()
+        tagView.collectionView.setContentOffset(.zero, animated: false)
+    }
+    
+    @objc func releaseYrValueChanged(_ sender: UISegmentedControl) {
+        let ymin = LibraryManager.shared.getReleaseYear(.min, in: scope)
+        let ymax = LibraryManager.shared.getReleaseYear(.max, in: scope)
+        let canRange = ymin < ymax
+        
+        if sender.selectedSegmentIndex == 0 && !canRange {
+            // Force to exact year if range is not meaningful
+            sender.selectedSegmentIndex = 1
+        }
+        
+        if sender.selectedSegmentIndex == 0 { // Year range
+            showYearRange(ymin: ymin, ymax: ymax)
+        } else { // Exact year
+            let all = LibraryManager.shared.getAllDistinctValues(for: "releaseYear", in: scope)
+            showExactYears(removeActive(all, for: .releaseYear), underSegment: true)
+        }
+        tagView.collectionView.reloadData()
+        self.layoutIfNeeded()
+    }
+    
+    @objc func rangeSliderValueChanged(_ sender: YYTRangeSlider) {
+        guard !segmentItems.isEmpty,
+              filterSegment.selectedSegmentIndex >= 0,
+              filterSegment.selectedSegmentIndex < segmentItems.count else { return }
+        
+        let type = segmentItems[filterSegment.selectedSegmentIndex].type
+        switch type {
+        case .releaseYear:
+            // When on Year tab and in range mode, show integer years
+            rangeSliderLowerLabel.text = String(Int(sender.lowerValue.rounded(.toNearestOrAwayFromZero)))
+            rangeSliderUpperLabel.text = String(Int(sender.upperValue.rounded(.toNearestOrAwayFromZero)))
+        case .duration:
+            // When on Length tab, show time strings
+            rangeSliderLowerLabel.text = TimeInterval(sender.lowerValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
+            rangeSliderUpperLabel.text = TimeInterval(sender.upperValue).rounded(.toNearestOrAwayFromZero).stringFromTimeInterval()
+        case .tag, .artist, .album, .releaseYearRange:
+            break
+        }
+    }
+    
+    private func removeActive(_ values: [String], for type: PlaylistFilters.FilterType) -> [String] {
+        let active = Set(
+            PlaylistManager.shared.playlistFilters
+                .getFilters()
+                .filter { $0[0] == type.rawValue }
+                .map { $0[1] }
+        )
+        return values.filter { !active.contains($0) }
+    }
+    
+    // MARK: - Year UI helpers
+    private func showYearRange(ymin: Int, ymax: Int) {
+        // Layout under the Year segmented control
+        tagView.isHidden = true
+        rangeSliderView.isHidden = false
+        rangeSliderViewDefaultTopAnchor?.isActive = false
+        rangeSliderViewWithSegmentTopAnchor?.isActive = true
+        
+        // Configure slider bounds + labels
+        rangeSlider.minimumValue = CGFloat(ymin)
+        rangeSlider.maximumValue = CGFloat(ymax)
+        rangeSlider.lowerValue = rangeSlider.minimumValue
+        rangeSlider.upperValue = rangeSlider.maximumValue
+        rangeSliderLowerLabel.text = String(ymin)
+        rangeSliderUpperLabel.text = String(ymax)
+    }
+    
+    private func showExactYears(_ years: [String], underSegment: Bool) {
+        rangeSliderView.isHidden = true
+        tagView.isHidden = false
+        tagView.tagsList = years
+        // Position chips either under the Year segment or at the default top
+        tagViewDefaultTopAnchor?.isActive = !underSegment
+        tagViewWithSegmentTopAnchor?.isActive = underSegment
+        tagView.collectionView.reloadData()
+        self.layoutIfNeeded()
+    }
 }

@@ -40,17 +40,18 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
 
     weak var yytdelegate: YYTTagViewDelegate?
     var addTagPlaceHolder: String!
+    private var allSuggestions: [String] = []
     var tagsList: [String] = [] {
         didSet {
             selectedTagList = []
-            suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
             collectionView.reloadData()
             setNeedsLayout()
         }
     }
     var suggestionsList: [String]? {
-        didSet {
-            suggestionsList = suggestionsList?.filter { !tagsList.contains($0) }
+        get { allSuggestions.filter { !tagsList.contains($0) } }
+        set {
+            allSuggestions = newValue ?? []
             collectionView.reloadData()
             setNeedsLayout()
         }
@@ -260,6 +261,20 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                     self.removeTag(at: index.row)
                 })
 
+                // iPad: configure popover anchor from the pressed cell
+                if let pop = actionSheet.popoverPresentationController {
+                    pop.sourceView = self.collectionView
+                    // Anchor to the cell's frame within the collectionView
+                    if let cell = self.collectionView.cellForItem(at: index) {
+                        pop.sourceRect = cell.convert(cell.bounds, to: self.collectionView)
+                    } else {
+                        // Fallback to the press location
+                        let point = gestureReconizer.location(in: self.collectionView)
+                        pop.sourceRect = CGRect(x: point.x, y: point.y, width: 1, height: 1)
+                    }
+                    pop.permittedArrowDirections = .any
+                }
+                UIApplication.hideKeyboard()
                 UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
             }
         } else {
@@ -269,6 +284,14 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                 print("User requested delete for all tags")
                 self.removeAllTags()
             })
+            // iPad: configure popover anchor from the press location within the collection view
+            if let pop = actionSheet.popoverPresentationController {
+                pop.sourceView = self.collectionView
+                let point = gestureReconizer.location(in: self.collectionView)
+                pop.sourceRect = CGRect(x: point.x, y: point.y, width: 1, height: 1)
+                pop.permittedArrowDirections = .any
+            }
+            UIApplication.hideKeyboard()
             UIApplication.getCurrentViewController()?.present(actionSheet, animated: true, completion: nil)
         }
     }

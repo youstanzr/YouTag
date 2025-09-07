@@ -35,6 +35,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LocalFilesManager.ensureImagesDirectoryExists()
         LocalFilesManager.getSongsDirectoryURL()
 
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            LibraryManager.shared.recomputeSongDurationsBlocking()
+            group.leave()
+        }
+        group.wait()
+        
         // Add session state observer
         NotificationCenter.default.addObserver(
             forName: AVAudioSession.silenceSecondaryAudioHintNotification,

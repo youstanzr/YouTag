@@ -58,12 +58,23 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.delegate = self
         searchBar.enablesReturnKeyAutomatically = false
         searchBar.returnKeyType = .search
+
+        // Keep allSongs in sync with the library whenever the table view refreshes.
+        // This ensures search always works with the latest library state, including after deletions.
+        NotificationCenter.default.addObserver(
+            forName: .libraryTableDidRefresh,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.allSongs = LibraryManager.shared.libraryArray
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        searchBar.text = ""
-        self.libraryTableView.refreshTableView()
+        libraryTableView.refreshTableView()
+        allSongs = LibraryManager.shared.libraryArray
+        searchBar(searchBar, textDidChange: searchBar.text ?? "")
     }
 
     // MARK: - Setup UI
@@ -110,19 +121,19 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            addButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            addButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            addButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.09),
-            addButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            addButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        addButton.applyStandardBottomBarHeight(70)
         
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            dismissButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            dismissButton.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.5),
-            dismissButton.topAnchor.constraint(equalTo: addButton.topAnchor),
-            dismissButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            dismissButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dismissButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        dismissButton.applyStandardBottomBarHeight(70)
     }
 
     // MARK: - Add Button Action
@@ -230,14 +241,15 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.resignFirstResponder()
         searchBar.setShowsCancelButton(false, animated: true)
         // Restore full song list
-        LibraryManager.shared.libraryArray = allSongs
-        libraryTableView.reloadData()
+        libraryTableView.refreshTableView()
+        allSongs = LibraryManager.shared.libraryArray
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let text = searchText.lowercased()
         if text.isEmpty {
-            LibraryManager.shared.libraryArray = allSongs
+            libraryTableView.refreshTableView()
+            allSongs = LibraryManager.shared.libraryArray
         } else {
             LibraryManager.shared.libraryArray = allSongs.filter { song in
                 song.title.lowercased().contains(text)
@@ -245,8 +257,8 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
                 || (song.album?.lowercased().contains(text) ?? false)
                 || song.tags.contains(where: { $0.lowercased().contains(text) })
             }
+            libraryTableView.reloadData()
         }
-        libraryTableView.reloadData()
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

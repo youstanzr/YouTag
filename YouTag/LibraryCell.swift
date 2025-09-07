@@ -188,8 +188,8 @@ class LibraryCell : UITableViewCell {
         NSLayoutConstraint.activate([
             thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             thumbnailImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            thumbnailImageView.widthAnchor.constraint(equalToConstant: 70),
             thumbnailImageView.heightAnchor.constraint(equalToConstant: 70),
+            thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor, multiplier: 4.0 / 3.0),
 
             // Title row
             titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 10),
@@ -206,7 +206,7 @@ class LibraryCell : UITableViewCell {
             // Duration stays on right, centered vertically across cell
             durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             durationLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            durationLabel.widthAnchor.constraint(equalToConstant: 35),
+            durationLabel.widthAnchor.constraint(equalToConstant: 50),
 
             // TagView row
             tagView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),

@@ -18,7 +18,8 @@ enum ValueType {
 class LibraryManager {
 
     static let shared = LibraryManager() // Singleton instance
-
+    private(set) var changeToken: Int = 0
+    
     struct Constants {
         static let databaseName = "libraryDB.db"
         static let imageDirectory = "images"
@@ -37,6 +38,106 @@ class LibraryManager {
         closeDatabase()
     }
     
+    func notifyLibraryChanged() { changeToken &+= 1 }
+    
+    // Return true if the given song matches the provided filters/mode (mirrors getFilteredSongs logic but for a single song)
+    private func matches(_ song: Song, filters: PlaylistFilters, mode: PlaylistManager.FilterLogic) -> Bool {
+        func norm(_ s: String?) -> String { (s ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+
+        // TAGS
+        if !filters.tags.isEmpty {
+            let songTags = Set(song.tags.map { $0.lowercased() })
+            let filterTags = Set(filters.tags.map { $0.lowercased() })
+            if mode == .or {
+                if songTags.isDisjoint(with: filterTags) { return false }
+            } else { // .and
+                if !filterTags.isSubset(of: songTags) { return false }
+            }
+        }
+
+        // ARTISTS
+        if !filters.artists.isEmpty {
+            let songArtists = Set(song.artists.map { $0.lowercased() })
+            let filterArtists = Set(filters.artists.map { $0.lowercased() })
+            if mode == .or {
+                if songArtists.isDisjoint(with: filterArtists) { return false }
+            } else {
+                if !filterArtists.isSubset(of: songArtists) { return false }
+            }
+        }
+
+        // ALBUMS (always OR semantics across provided albums)
+        if !filters.albums.isEmpty {
+            let wanted = Set(filters.albums.map { $0.lowercased() })
+            let albumOK = song.album.map { wanted.contains($0.lowercased()) } ?? false
+            if !albumOK { return false }
+        }
+
+        // RELEASE YEAR(S) & RANGES
+        let parsedYears: [Int] = filters.releaseYears.compactMap { Int($0) }
+        let songYearInt: Int? = song.releaseYear.flatMap { Int($0) }
+        if mode == .or {
+            var ok = true
+            if !filters.releaseYears.isEmpty || !filters.releaseYearRanges.isEmpty {
+                ok = false
+                if !parsedYears.isEmpty, let y = songYearInt, Set(parsedYears).contains(y) { ok = true }
+                else if !filters.releaseYears.isEmpty, songYearInt == nil {
+                    // fallback to direct string compare when year is non-numeric
+                    if let sy = song.releaseYear?.lowercased() {
+                        ok = filters.releaseYears.map { String(describing: $0).lowercased() }.contains(sy)
+                    }
+                }
+                if !ok && !filters.releaseYearRanges.isEmpty, let y = songYearInt {
+                    for r in filters.releaseYearRanges where r.count >= 2 {
+                        if y >= r[0] && y <= r[1] { ok = true; break }
+                    }
+                }
+            }
+            if !ok { return false }
+        } else { // AND mode → intersect constraints
+            var hasConstraint = false
+            var low = Int.min
+            var high = Int.max
+
+            let uniqueYears = Set(parsedYears)
+            if !uniqueYears.isEmpty {
+                if uniqueYears.count > 1 { return false }
+                if let y = uniqueYears.first { low = max(low, y); high = min(high, y); hasConstraint = true }
+            }
+            for r in filters.releaseYearRanges where r.count >= 2 {
+                low = max(low, r[0])
+                high = min(high, r[1])
+                hasConstraint = true
+            }
+            if hasConstraint {
+                guard let y = songYearInt, low <= y && y <= high else { return false }
+            }
+        }
+
+        // DURATIONS
+        if !filters.durations.isEmpty {
+            let dur = song.duration.convertToTimeInterval()
+            guard !dur.isNaN else { return false }
+            if mode == .or {
+                let any = filters.durations.contains { $0.count == 2 && dur >= $0[0] && dur <= $0[1] }
+                if !any { return false }
+            } else {
+                var low = -Double.infinity
+                var high = Double.infinity
+                var any = false
+                for r in filters.durations where r.count == 2 {
+                    low = max(low, r[0]); high = min(high, r[1]); any = true
+                }
+                if any {
+                    if !(low <= dur && dur <= high) { return false }
+                }
+            }
+        }
+
+        return true
+    }
+
+
     func setupDatabase() {
         if db != nil { return }
         
@@ -138,7 +239,8 @@ class LibraryManager {
 
         let fetchQuery = """
         SELECT id, title, album, releaseYear, duration, lyrics, filePath, thumbnailPath
-        FROM Songs;
+        FROM Songs
+        ORDER BY rowid ASC;
         """
         let songs = fetchSongs(from: fetchQuery)
         libraryArray = songs
@@ -285,6 +387,9 @@ class LibraryManager {
             }
         }
 
+        // Ensure deterministic order: oldest inserts first
+        query += " ORDER BY rowid ASC"
+
         // Execute base query
         let rawSongs = fetchSongs(from: query)
 
@@ -319,40 +424,6 @@ class LibraryManager {
                 return duration >= low && duration <= high
             }
         }
-    }
-
-    func fetchSongsByTags(tags: [String]) -> [Song] {
-        guard !tags.isEmpty else { return [] }
-
-        let placeholders = tags.map { _ in "?" }.joined(separator: ", ")
-        let query = """
-        SELECT s.id, s.title, s.album, s.releaseYear, s.duration, s.lyrics, s.filePath, s.thumbnailPath
-        FROM Songs s
-        JOIN SongTags st ON s.id = st.song_id
-        JOIN Tags t ON st.tag_id = t.id
-        WHERE t.tag_name IN (\(placeholders))
-        GROUP BY s.id
-        HAVING COUNT(DISTINCT t.id) = ?;
-        """
-
-        var statement: OpaquePointer?
-        var fetchedSongs: [Song] = []
-
-        if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
-            let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-            for (index, tag) in tags.enumerated() {
-                sqlite3_bind_text(statement, Int32(index + 1), tag, -1, transient)
-            }
-            sqlite3_bind_int(statement, Int32(tags.count + 1), Int32(tags.count))
-
-            while sqlite3_step(statement) == SQLITE_ROW {
-                if let song = parseSong(from: statement) {
-                    fetchedSongs.append(song)
-                }
-            }
-        }
-        sqlite3_finalize(statement)
-        return fetchedSongs
     }
 
     func getTagsForSong(id: String) -> [String] {
@@ -428,6 +499,21 @@ class LibraryManager {
         return Array(resultList)
     }
     
+    // Distinct values limited to a given set of songs
+    func getAllDistinctValues(for column: String, in songs: [Song]) -> [String] {
+        switch column {
+        case "tags":
+            return Array(Set(songs.flatMap { $0.tags })).sorted()
+        case "artists":
+            return Array(Set(songs.flatMap { $0.artists })).sorted()
+        case "album":
+            return Array(Set(songs.compactMap { $0.album }.filter { !$0.isEmpty })).sorted()
+        case "releaseYear":
+            return Array(Set(songs.compactMap { $0.releaseYear }.filter { !$0.isEmpty })).sorted()
+        default:
+            return []
+        }
+    }
     
     func getDuration(_ type: ValueType) -> Double {
         guard !libraryArray.isEmpty else { return 0 }
@@ -440,6 +526,12 @@ class LibraryManager {
             case .max:
                 return durations.max() ?? 0
         }
+    }
+    
+    func getDuration(_ type: ValueType, in songs: [Song]) -> Double {
+        let vals = songs.compactMap { $0.duration.convertToTimeInterval() }
+        guard !vals.isEmpty else { return 0 }
+        return (type == .min) ? (vals.min() ?? 0) : (vals.max() ?? 0)
     }
 
     func getReleaseYear(_ type: ValueType) -> Int {
@@ -458,6 +550,12 @@ class LibraryManager {
             case .max:
                 return releaseYears.max() ?? 0
         }
+    }
+    
+    func getReleaseYear(_ type: ValueType, in songs: [Song]) -> Int {
+        let vals = songs.compactMap { $0.releaseYear }.compactMap(Int.init)
+        guard !vals.isEmpty else { return 0 }
+        return (type == .min) ? (vals.min() ?? 0) : (vals.max() ?? 0)
     }
 
     func fetchThumbnail(for song: Song) -> UIImage? {
@@ -543,6 +641,12 @@ class LibraryManager {
                 libraryArray.append(song)
                 addTagsToSong(songID: song.id, tags: song.tags)
                 addArtistsToSong(songID: song.id, artists: song.artists)
+                // Notify only if this addition affects the current filtered playlist
+                let filters = PlaylistManager.shared.playlistFilters
+                let mode = PlaylistManager.shared.filterLogic
+                if matches(song, filters: filters, mode: mode) {
+                    notifyLibraryChanged()
+                }
             } else {
                 print("❌ Error inserting song: \(sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error")")
             }
@@ -559,7 +663,7 @@ class LibraryManager {
         sqlite3_bind_text(statement, 2, song.title, -1, transient)
         sqlite3_bind_text(statement, 3, song.album ?? "", -1, transient)
         sqlite3_bind_text(statement, 4, song.releaseYear ?? "", -1, transient)
-        let formattedDuration = song.duration.convertToTimeInterval().formattedString()
+        let formattedDuration = song.duration.convertToTimeInterval().stringFromTimeInterval()
         sqlite3_bind_text(statement, 5, formattedDuration, -1, transient)
         sqlite3_bind_text(statement, 6, song.lyrics ?? "", -1, transient)
         sqlite3_bind_text(statement, 7, song.filePath ?? "", -1, transient)
@@ -657,6 +761,9 @@ class LibraryManager {
     
     // MARK: - Update Song
     func updateSongDetails(song: Song) {
+        // Snapshot pre-update song (for membership toggle check)
+        let oldSong = libraryArray.first(where: { $0.id == song.id })
+        
         let query = """
         UPDATE Songs
         SET title = ?, album = ?, releaseYear = ?, duration = ?, lyrics = ?, filePath = ?, thumbnailPath = ?
@@ -670,7 +777,7 @@ class LibraryManager {
             sqlite3_bind_text(statement, 1, song.title, -1, transient)
             sqlite3_bind_text(statement, 2, song.album ?? "", -1, transient)
             sqlite3_bind_text(statement, 3, song.releaseYear ?? "", -1, transient)
-            let formattedDuration = song.duration.convertToTimeInterval().formattedString()
+            let formattedDuration = song.duration.convertToTimeInterval().stringFromTimeInterval()
             sqlite3_bind_text(statement, 4, formattedDuration, -1, transient)
             sqlite3_bind_text(statement, 5, song.lyrics ?? "", -1, transient)
             sqlite3_bind_text(statement, 6, song.filePath ?? "", -1, transient)
@@ -685,12 +792,74 @@ class LibraryManager {
         
         purgeUnusedTags()
         purgeUnusedArtists()
+
+        // Keep in-memory cache in sync with DB
+        if let idx = libraryArray.firstIndex(where: { $0.id == song.id }) {
+            libraryArray[idx] = song
+        }
+        
+        // Only notify if membership in current filtered playlist actually toggled
+        if let oldSong = oldSong {
+            let filters = PlaylistManager.shared.playlistFilters
+            let mode = PlaylistManager.shared.filterLogic
+
+            let wasMatch = matches(oldSong, filters: filters, mode: mode)
+            let nowMatch = matches(song, filters: filters, mode: mode)
+            let isInCurrentPlaylist = PlaylistManager.shared.currentPlaylist.contains { $0.id == song.id }
+
+            switch (wasMatch, nowMatch) {
+            case (false, true):
+                // Newly qualifies → add to filtered set
+                notifyLibraryChanged()
+
+            case (true, false):
+                // No longer qualifies → only notify if it’s actually in the playlist
+                if isInCurrentPlaylist { notifyLibraryChanged() }
+
+            default:
+                // (true, true) or (false, false): membership unchanged → no recompute
+                break
+            }
+        }
     }
     
+    // Normalize every stored duration to hh:mm:ss or mm:ss based on it duration
+    func recomputeSongDurationsAsync() async -> Int {
+        var fixes = 0
+        for i in 0..<libraryArray.count {
+            var s = libraryArray[i]
+            guard let url = urlForSong(s) else { continue }
+            
+            // Read true duration from file (your helper)
+            let fileDurationStr = await LocalFilesManager.extractDurationForSong(fileURL: url)
+            // Normalize formatting to hh:mm:ss or mm:ss
+            let normalized = fileDurationStr.convertToTimeInterval().stringFromTimeInterval()
+
+            if s.duration != normalized {
+                s.duration = normalized
+                updateSongDetails(song: s)   // writes to DB
+                fixes += 1
+            }
+        }
+        return fixes
+    }
+    
+    func recomputeSongDurationsBlocking() {
+        let sema = DispatchSemaphore(value: 0)
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self else { sema.signal(); return }
+            _ = await self.recomputeSongDurationsAsync()
+            sema.signal()
+        }
+        sema.wait() // blocks current thread
+    }
+
 
     // MARK: - Delete Song
     func deleteSongFromLibrary(songID: String) {
         print("Delete song \(songID)")
+        // Snapshot the song being removed (for membership check)
+        let removed = libraryArray.first(where: { $0.id == songID })
 
         // 1. Fetch filePath for the song
         var filePathToDelete: String?
@@ -753,6 +922,19 @@ class LibraryManager {
 
         purgeUnusedTags()
         purgeUnusedArtists()
+
+        // Notify if this deletion affects the current playback context:
+        // 1) it matched active filters, or
+        // 2) it existed in the current playlist (manually queued or filtered)
+        if let s = removed {
+            let filters = PlaylistManager.shared.playlistFilters
+            let mode = PlaylistManager.shared.filterLogic
+            let matchedFilters = matches(s, filters: filters, mode: mode)
+            let wasInCurrentPlaylist = PlaylistManager.shared.currentPlaylist.contains { $0.id == s.id }
+            if matchedFilters || wasInCurrentPlaylist {
+                notifyLibraryChanged()
+            }
+        }
     }
     
     private func resetArtists(for songID: String, to artists: [String]) {

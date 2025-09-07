@@ -53,7 +53,7 @@ class YYTTagCell: UICollectionViewCell {
 		// calculates the insets of the maximum square touching the corners of the cell
 		let imageViewInset = 0.5 * self.frame.height / (2.0 * sqrt(2.0)) + 2
 		imageView.isHidden = true
-		self.addSubview(imageView)
+        self.contentView.addSubview(imageView)
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -imageViewInset).isActive = true
 		imageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: imageViewInset).isActive = true
@@ -65,7 +65,6 @@ class YYTTagCell: UICollectionViewCell {
         titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: 3.25).isActive = true
         titleLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -2.5).isActive = true
-        titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5).isActive = true
 		titleLabelDefaultLeadingAnchor = titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 2.5)
 		titleLabelWithImageLeadingAnchor = titleLabel.leadingAnchor.constraint(equalTo: self.imageView.trailingAnchor)
 		titleLabelDefaultLeadingAnchor?.isActive = true

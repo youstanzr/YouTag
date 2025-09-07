@@ -52,8 +52,8 @@ struct PlaylistFilters {
         }
         // Durations
         for durationRange in durations where durationRange.count == 2 {
-            let lower = durationRange[0].formattedString()
-            let upper = durationRange[1].formattedString()
+            let lower = durationRange[0].stringFromTimeInterval()
+            let upper = durationRange[1].stringFromTimeInterval()
             let value = "\(lower) - \(upper)"
             resultArr.append([FilterType.duration.rawValue, value])
         }
@@ -137,15 +137,4 @@ struct PlaylistFilters {
         }
     }
     
-}
-
-// MARK: - TimeInterval Extension for Formatting
-
-extension TimeInterval {
-    func formattedString() -> String {
-        let time = NSInteger(self)
-        let seconds = time % 60
-        let minutes = (time / 60) % 60
-        return String(format: "%0.2d:%0.2d", minutes, seconds)
-    }
 }

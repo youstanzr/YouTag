@@ -8,19 +8,37 @@
 
 import UIKit
 
-private extension String {
-    var nilIfEmpty: String? { isEmpty ? nil : self }
+extension Notification.Name {
+    static let playlistWillUpdate = Notification.Name("playlistWillUpdate")
+    static let playlistDidUpdate  = Notification.Name("playlistDidUpdate")
 }
 
-
-class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate {
+class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate, PlaylistControlViewDelegate {
     
     static let shared = PlaylistManager()  // Singleton instance
+
+    private var lastAppliedChangeToken: Int = -1
+    private var lastAppliedFilterSignature: String = ""
+    // Helper to build a stable, order-insensitive signature string for PlaylistFilters
+    private func makeFilterSignature(_ f: PlaylistFilters) -> String {
+        // Build a stable, order-insensitive signature string for the filters
+        func sortedJoined<T: CustomStringConvertible>(_ arr: [T]) -> String {
+            arr.map { $0.description }.sorted().joined(separator: "|")
+        }
+        let tags = sortedJoined(f.tags)
+        let artists = sortedJoined(f.artists)
+        let albums = sortedJoined(f.albums)
+        let ranges = sortedJoined(f.releaseYearRanges)
+        let years = sortedJoined(f.releaseYears)
+        let durations = sortedJoined(f.durations)
+        return [tags, artists, albums, ranges, years, durations].joined(separator: "#")
+    }
 
     enum FilterLogic { case and, or }
 
     var nowPlayingView: NowPlayingView!
-    var playlistLibraryView: PlaylistLibraryView!
+    var playlistControlView: PlaylistControlView!
+    var playlistTableView: PlaylistTableView!
     var audioPlayer: YYTAudioPlayer!
     var playlistFilters = PlaylistFilters(tags: [], artists: [], albums: [], releaseYearRanges: [], releaseYears: [], durations: [])
     var currentPlaylist: [Song] = []
@@ -29,14 +47,49 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     override init() {
         super.init()
         audioPlayer = YYTAudioPlayer()
-        playlistLibraryView = PlaylistLibraryView(frame: .zero, style: .plain)
-        playlistLibraryView.PLDelegate = self
+        playlistTableView = PlaylistTableView(frame: .zero, style: .plain)
+        playlistTableView.PLDelegate = self
+        
         nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
         nowPlayingView.NPDelegate = self
+
+        playlistControlView = PlaylistControlView(frame: .zero)
+        playlistControlView.PCdelegate = self
+        nowPlayingView.connectPlaylistControlView(playlistControlView)
     }
     
     // MARK: - Playlist Management
+    
+    func computePlaylistIfNeeded(mode: FilterLogic) {
+        let token = LibraryManager.shared.changeToken
+        let filtersSig = makeFilterSignature(playlistFilters)
+        print("computePlaylistIfNeeded: token=\(token), filtersSig=\(filtersSig), mode=\(mode)")
+        if token == lastAppliedChangeToken && filtersSig == lastAppliedFilterSignature && mode == filterLogic {
+            // nothing changed → don’t touch playback but update UI
+            // Refresh metadata for songs visible under current filters
+            let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
+            // Filter out any songs whose file is missing (match computePlaylist behavior)
+            let playableSongs = songs.filter { song in
+                guard let url = LibraryManager.shared.urlForSong(song) else { return false }
+                return FileManager.default.fileExists(atPath: url.path)
+            }
+            // Map by id and update existing playlist entries to their fresh copies
+            let mapById: [String: Song] = Dictionary(uniqueKeysWithValues: playableSongs.map { ($0.id, $0) })
+            let updated = currentPlaylist.compactMap { mapById[$0.id] }
+            updatePlaylistLibrary(toPlaylist: updated, uiOnly: true)
+            return
+        }
+        // something changed → recompute
+        computePlaylist(mode: mode)
+    }
+
     func computePlaylist(mode: FilterLogic) {
+        print("computePlaylist")
+        
+        // Always turn off repeat when recomputing the playlist
+        audioPlayer.isSongRepeat = false
+        playlistControlView.setRepeat(isOn: false)
+
         self.filterLogic = mode
         let oldPlaylist = currentPlaylist
 
@@ -55,8 +108,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
             // Different contents; adopt the new playlist
             updatePlaylistLibrary(toPlaylist: playableSongs)
         }
+        refreshStateTokens()
     }
     
+    // Update baseline state to avoid redundant recomputes
+    private func refreshStateTokens() {
+        lastAppliedChangeToken = LibraryManager.shared.changeToken
+        lastAppliedFilterSignature = makeFilterSignature(playlistFilters)
+    }
+
     // Checks if two playlists are the same even if order is not the same
     private func samePlaylist(_ a: [Song], _ b: [Song]) -> Bool {
         guard a.count == b.count else { return false }
@@ -79,14 +139,16 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
 
     func updatePlaylistLibrary(toPlaylist newPlaylist: [Song], uiOnly: Bool = false) {
+        NotificationCenter.default.post(name: .playlistWillUpdate, object: nil, userInfo: ["uiOnly": uiOnly])
         currentPlaylist = newPlaylist
         refreshPlaylistLibraryView(uiOnly: uiOnly)
+        NotificationCenter.default.post(name: .playlistDidUpdate, object: nil, userInfo: ["uiOnly": uiOnly])
     }
     
     // MARK: - Playlist Manipulation
     
     func refreshPlaylistLibraryView(uiOnly: Bool = false) {
-        playlistLibraryView.refreshTableView()
+        playlistTableView.refreshTableView()
         refreshNowPlayingView(uiOnly: uiOnly)
     }
     
@@ -115,8 +177,8 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         let lastSong = currentPlaylist.removeLast()
         currentPlaylist.shuffle()
         currentPlaylist.append(lastSong)
-        playlistLibraryView.refreshTableView()
-        playlistLibraryView.scrollToTop()
+        playlistTableView.refreshTableView()
+        playlistTableView.scrollToTop()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()  // Haptic tap
     }
     
@@ -143,4 +205,13 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         }
     }
     
+    // MARK: Playlist Control View Delegate
+    func playlistControlViewDidTapShuffle(_ view: PlaylistControlView) {
+        shufflePlaylist()
+    }
+    
+    func playlistControlView(_ view: PlaylistControlView, didToggleRepeat isOn: Bool) {
+        audioPlayer.isSongRepeat = isOn
+    }
+
 }

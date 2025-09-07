@@ -11,12 +11,13 @@
 		2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */; };
 		2B0F1357242853C70061F3FE /* YYTRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1356242853C70061F3FE /* YYTRangeSlider.swift */; };
 		2B0F1359242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F1358242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift */; };
+		2B2320E12E6602C100EB8C7F /* PlaylistControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2320E02E6602B500EB8C7F /* PlaylistControlView.swift */; };
 		2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61795D24072CCB009149CB /* LibraryTableView.swift */; };
 		2B61796224087FBF009149CB /* LibraryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796124087FBF009149CB /* LibraryCell.swift */; };
 		2B61796424088E1C009149CB /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796324088E1C009149CB /* LibraryManager.swift */; };
 		2B6179662408985C009149CB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6179652408985C009149CB /* Extensions.swift */; };
 		2B61796824097147009149CB /* SongDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796724097147009149CB /* SongDetailViewController.swift */; };
-		2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796B2409F837009149CB /* PlaylistLibraryView.swift */; };
+		2B61796C2409F837009149CB /* PlaylistTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61796B2409F837009149CB /* PlaylistTableView.swift */; };
 		2B619E21245999B40090B229 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 2B619E20245999B40090B229 /* MarqueeLabel */; };
 		2B619E242468B9640090B229 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2B619E232468B9640090B229 /* Alamofire */; };
 		2B7863832301AE56001DD6FD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7863822301AE56001DD6FD /* AppDelegate.swift */; };
@@ -63,12 +64,13 @@
 		2B01E5FC242B8EF8002BDD38 /* GraphicColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicColors.swift; sourceTree = "<group>"; };
 		2B0F1356242853C70061F3FE /* YYTRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTRangeSlider.swift; sourceTree = "<group>"; };
 		2B0F1358242858AE0061F3FE /* YYTRangeSliderTrackLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YYTRangeSliderTrackLayer.swift; sourceTree = "<group>"; };
+		2B2320E02E6602B500EB8C7F /* PlaylistControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistControlView.swift; sourceTree = "<group>"; };
 		2B61795D24072CCB009149CB /* LibraryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTableView.swift; sourceTree = "<group>"; };
 		2B61796124087FBF009149CB /* LibraryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryCell.swift; sourceTree = "<group>"; };
 		2B61796324088E1C009149CB /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		2B6179652408985C009149CB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		2B61796724097147009149CB /* SongDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetailViewController.swift; sourceTree = "<group>"; };
-		2B61796B2409F837009149CB /* PlaylistLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistLibraryView.swift; sourceTree = "<group>"; };
+		2B61796B2409F837009149CB /* PlaylistTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistTableView.swift; sourceTree = "<group>"; };
 		2B78637F2301AE56001DD6FD /* YouTag.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YouTag.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B7863822301AE56001DD6FD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2B7863842301AE56001DD6FD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -153,8 +155,9 @@
 				2B61796724097147009149CB /* SongDetailViewController.swift */,
 				2BAC6CDD24235B0500A65583 /* PlaylistManager.swift */,
 				2B81A6DC23020DD800B584E8 /* NowPlayingView.swift */,
+				2B2320E02E6602B500EB8C7F /* PlaylistControlView.swift */,
 				2BCFF4E92E4C405C007073B8 /* PlaybackRateView.swift */,
-				2B61796B2409F837009149CB /* PlaylistLibraryView.swift */,
+				2B61796B2409F837009149CB /* PlaylistTableView.swift */,
 				2B01E5FA242B5DBE002BDD38 /* PlaylistFilters.swift */,
 				2B810F42241DB156002FA583 /* FilterPickerView.swift */,
 				2B61795D24072CCB009149CB /* LibraryTableView.swift */,
@@ -345,7 +348,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B6179662408985C009149CB /* Extensions.swift in Sources */,
-				2B61796C2409F837009149CB /* PlaylistLibraryView.swift in Sources */,
+				2B61796C2409F837009149CB /* PlaylistTableView.swift in Sources */,
 				2BA6246C240C3F1C002D6670 /* YYTAudioPlayer.swift in Sources */,
 				2B810EF8241ABB0A002FA583 /* YYTTagView.swift in Sources */,
 				2B61795E24072CCB009149CB /* LibraryTableView.swift in Sources */,
@@ -360,6 +363,7 @@
 				2B81A6DF23030B2D00B584E8 /* LibraryViewController.swift in Sources */,
 				2B0F1357242853C70061F3FE /* YYTRangeSlider.swift in Sources */,
 				2BA6246A240C2CEA002D6670 /* LocalFilesManager.swift in Sources */,
+				2B2320E12E6602C100EB8C7F /* PlaylistControlView.swift in Sources */,
 				2B01E5FB242B5DBE002BDD38 /* PlaylistFilters.swift in Sources */,
 				2B01E5FD242B8EF8002BDD38 /* GraphicColors.swift in Sources */,
 				2B61796824097147009149CB /* SongDetailViewController.swift in Sources */,
@@ -554,7 +558,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250828;
+				CURRENT_PROJECT_VERSION = 20250907;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
@@ -581,7 +585,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250828;
+				CURRENT_PROJECT_VERSION = 20250907;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
