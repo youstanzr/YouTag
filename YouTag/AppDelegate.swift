@@ -34,7 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LibraryManager.shared.setupDatabase()
         LocalFilesManager.ensureImagesDirectoryExists()
         LocalFilesManager.getSongsDirectoryURL()
-        LibraryManager.shared.recomputeSongDurationsBlocking()
+
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            LibraryManager.shared.recomputeSongDurationsBlocking()
+            group.leave()
+        }
+        group.wait()
         
         // Add session state observer
         NotificationCenter.default.addObserver(

@@ -846,13 +846,12 @@ class LibraryManager {
     
     func recomputeSongDurationsBlocking() {
         let sema = DispatchSemaphore(value: 0)
-        var fixes = 0
-        Task.detached { [weak self] in
+        Task.detached(priority: .userInitiated) { [weak self] in
             guard let self else { sema.signal(); return }
             _ = await self.recomputeSongDurationsAsync()
             sema.signal()
         }
-        sema.wait() // ⛔️ Blocks current thread
+        sema.wait() // blocks current thread
     }
 
 
