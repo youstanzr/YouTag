@@ -58,7 +58,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.delegate = self
         searchBar.enablesReturnKeyAutomatically = false
         searchBar.returnKeyType = .search
-        
+
         // Keep allSongs in sync with the library whenever the table view refreshes.
         // This ensures search always works with the latest library state, including after deletions.
         NotificationCenter.default.addObserver(
@@ -72,8 +72,9 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        searchBar.text = ""
-        self.libraryTableView.refreshTableView()
+        libraryTableView.refreshTableView()
+        allSongs = LibraryManager.shared.libraryArray
+        searchBar(searchBar, textDidChange: searchBar.text ?? "")
     }
 
     // MARK: - Setup UI
@@ -240,14 +241,15 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.resignFirstResponder()
         searchBar.setShowsCancelButton(false, animated: true)
         // Restore full song list
-        LibraryManager.shared.libraryArray = allSongs
-        libraryTableView.reloadData()
+        libraryTableView.refreshTableView()
+        allSongs = LibraryManager.shared.libraryArray
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let text = searchText.lowercased()
         if text.isEmpty {
-            LibraryManager.shared.libraryArray = allSongs
+            libraryTableView.refreshTableView()
+            allSongs = LibraryManager.shared.libraryArray
         } else {
             LibraryManager.shared.libraryArray = allSongs.filter { song in
                 song.title.lowercased().contains(text)
@@ -255,8 +257,8 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
                 || (song.album?.lowercased().contains(text) ?? false)
                 || song.tags.contains(where: { $0.lowercased().contains(text) })
             }
+            libraryTableView.reloadData()
         }
-        libraryTableView.reloadData()
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
