@@ -53,6 +53,12 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         imgView.layer.borderColor = GraphicColors.lightGray.cgColor
         imgView.layer.masksToBounds = true
         imgView.isUserInteractionEnabled = true
+        // Allow upscaling and make flexible for layout
+        imgView.contentMode = .scaleAspectFit
+        imgView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        imgView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        imgView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        imgView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return imgView
     }()
     let titleTextField: UITextField = {
@@ -307,15 +313,15 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
             landscapeThumbCenterYConstraint
         ]
         
-        // Use soft caps (≤, priority 999) so both can be active during transitions
-        portraitThumbHeight = thumbnailImageView.heightAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.6)
+        // Use target equal heights (==, priority 999), do not activate at creation
+        portraitThumbHeight = thumbnailImageView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
         portraitThumbHeight.priority = UILayoutPriority(999)
-        landscapeThumbHeight = thumbnailImageView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.6)
+        landscapeThumbHeight = thumbnailImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6)
         landscapeThumbHeight.priority = UILayoutPriority(999)
         // Sensible minimums to avoid collapsing
         portraitThumbMinHeight = thumbnailImageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 160)
         landscapeThumbMinHeight = thumbnailImageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 140)
-        NSLayoutConstraint.activate([portraitThumbHeight, landscapeThumbHeight, portraitThumbMinHeight, landscapeThumbMinHeight])
+        NSLayoutConstraint.activate([portraitThumbMinHeight, landscapeThumbMinHeight])
 
         NSLayoutConstraint.activate([
             // keep aspect ratio after setting height
@@ -489,6 +495,15 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
     private func applyLayoutForCurrentTraits() {
         // Decide orientation by size class (works on iPhone/iPad, incl. split view)
         let isLandscape = traitCollection.verticalSizeClass == .compact
+
+        // Toggle target thumbnail height so it is always large regardless of source resolution
+        portraitThumbHeight?.isActive = false
+        landscapeThumbHeight?.isActive = false
+        if isLandscape {
+            landscapeThumbHeight?.isActive = true
+        } else {
+            portraitThumbHeight?.isActive = true
+        }
 
         // 1) Toggle the right-hand form stacks
         NSLayoutConstraint.deactivate(portraitFormConstraints)
