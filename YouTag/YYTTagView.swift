@@ -257,7 +257,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
                 let tagTitle = tagCell.titleLabel.text ?? ""
                 let actionSheet = UIAlertController(title: "Are you sure to delete '\(tagTitle)'?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
                 actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
-                actionSheet.addAction(UIAlertAction(title: "Delete", style: .default) { _ in
+                actionSheet.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
                     self.removeTag(at: index.row)
                 })
 
@@ -280,7 +280,7 @@ class YYTTagView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         } else {
             let actionSheet = UIAlertController(title: "Are you sure to delete all tags?", message: nil, preferredStyle: UIAlertController.Style.actionSheet)
             actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
-            actionSheet.addAction(UIAlertAction(title: "Delete", style: .default) { _ in
+            actionSheet.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
                 print("User requested delete for all tags")
                 self.removeAllTags()
             })
