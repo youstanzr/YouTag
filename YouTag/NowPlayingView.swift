@@ -198,6 +198,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         thumbnailImageView.layer.borderColor = GraphicColors.lightGray.cgColor
         
         nextButton.addTarget(self, action: #selector(nextButtonAction), for: .touchUpInside)
+        // Long-press to continuously seek forward
+        let nextLongPress = UILongPressGestureRecognizer(target: self, action: #selector(handleNextLongPress(_:)))
+        nextLongPress.minimumPressDuration = 0.5
+        nextLongPress.cancelsTouchesInView = true   // prevent .touchUpInside after a long press
+        nextLongPress.allowableMovement = 20
+        nextButton.addGestureRecognizer(nextLongPress)
         self.addSubview(nextButton)
         nextButton.translatesAutoresizingMaskIntoConstraints = false
         nextButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5).isActive = true
@@ -218,6 +224,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         pausePlayButton.widthAnchor.constraint(lessThanOrEqualToConstant: 90).isActive = true
         
         previousButton.addTarget(self, action: #selector(previousButtonAction), for: .touchUpInside)
+        // Long-press to continuously seek backward
+        let prevLongPress = UILongPressGestureRecognizer(target: self, action: #selector(handlePreviousLongPress(_:)))
+        prevLongPress.minimumPressDuration = 0.5
+        prevLongPress.cancelsTouchesInView = true   // prevent .touchUpInside after a long press
+        prevLongPress.allowableMovement = 20
+        previousButton.addGestureRecognizer(prevLongPress)
         self.addSubview(previousButton)
         previousButton.translatesAutoresizingMaskIntoConstraints = false
         previousButton.trailingAnchor.constraint(equalTo: pausePlayButton.leadingAnchor, constant: -5).isActive = true
@@ -356,6 +368,29 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         audioPlayer.prev()
     }
     
+    // MARK: - Long-press Seeking Integration
+    @objc private func handleNextLongPress(_ gr: UILongPressGestureRecognizer) {
+        switch gr.state {
+        case .began:
+            audioPlayer.startContinuousSeek(direction: .forward)
+        case .ended, .cancelled, .failed:
+            audioPlayer.stopContinuousSeek()
+        default:
+            break
+        }
+    }
+    
+    @objc private func handlePreviousLongPress(_ gr: UILongPressGestureRecognizer) {
+        switch gr.state {
+        case .began:
+            audioPlayer.startContinuousSeek(direction: .backward)
+        case .ended, .cancelled, .failed:
+            audioPlayer.stopContinuousSeek()
+        default:
+            break
+        }
+    }
+    
     @objc func playbackRateButtonAction() {
         // Determine current rate from button title (fallback to 1.0)
         let currentTitle = playbackRateButton.title(for: .normal) ?? "x1"
@@ -383,7 +418,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
                     slider.value = 0.0
                     return
                 }
-                audioPlayer.setCurrentTime(to: slider.value)
+                audioPlayer.seek(toPercentage: slider.value)
             case .moved:
                 let selectedTime = (slider.value * audioPlayer.duration()).rounded()
                 let timeLeft = ((1 - slider.value) * audioPlayer.duration()).rounded()
