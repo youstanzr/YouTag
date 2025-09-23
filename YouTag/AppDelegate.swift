@@ -111,12 +111,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Configure Audio
     
     func configureAudioSession() {
-        let session = AVAudioSession.sharedInstance()
+        let s = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playback, mode: .default, options: [.allowAirPlay])
-            try session.setActive(true)
+            try s.setCategory(.playback)
+            try s.setActive(true)
         } catch {
-            print("Failed to configure audio session: \(error.localizedDescription)")
+            let e = error as NSError
+            print("AudioSession error: \(e.domain) code=\(e.code) \(e.localizedDescription)")
         }
     }
             
