@@ -311,7 +311,7 @@ class YYTAudioPlayer: NSObject {
         guard let player = player else { return }
 
         timeObserver = player.addPeriodicTimeObserver(
-            forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
+            forInterval: CMTime(seconds: 1, preferredTimescale: 600),
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.handlePeriodicTick() }
