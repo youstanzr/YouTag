@@ -40,18 +40,16 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     var nowPlayingView: NowPlayingView!
     var playlistControlView: PlaylistControlView!
     var playlistTableView: PlaylistTableView!
-    var audioPlayer: YYTAudioPlayer!
     var playlistFilters = PlaylistFilters(tags: [], artists: [], albums: [], releaseYearRanges: [], releaseYears: [], durations: [])
     var currentPlaylist: [Song] = []
     var filterLogic: FilterLogic = .or
 
     override init() {
         super.init()
-        audioPlayer = YYTAudioPlayer()
         playlistTableView = PlaylistTableView(frame: .zero, style: .plain)
         playlistTableView.PLDelegate = self
         
-        nowPlayingView = NowPlayingView(frame: .zero, audioPlayer: audioPlayer)
+        nowPlayingView = NowPlayingView(frame: .zero)
         nowPlayingView.NPDelegate = self
 
         playlistControlView = PlaylistControlView(frame: .zero)
@@ -97,7 +95,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
         print("computePlaylist")
         
         // Always turn off repeat when recomputing the playlist
-        audioPlayer.isSongRepeat = false
+        YYTAudioPlayer.shared.isSongRepeat = false
         playlistControlView.setRepeat(isOn: false)
 
         self.filterLogic = mode
@@ -174,7 +172,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     func didSelectSong(song: Song) {
         print("🎶 didSelectSong: \(song.title)")
         nowPlayingView.loadSong(song: song)
-        audioPlayer.play()
+        YYTAudioPlayer.shared.play()
     }
     
     func movePlaylistForward() {
@@ -212,15 +210,15 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
 
     // Called when the current track finishes playing
     func audioPlayerDidFinishTrack() {
-        if audioPlayer.isSongRepeat {
+        if YYTAudioPlayer.shared.isSongRepeat {
             // Replay the same song
             if let song = currentPlaylist.last {
-                _ = audioPlayer.play(song: song)
+                _ = YYTAudioPlayer.shared.play(song: song)
             }
         } else {
             // Advance to the next song
             movePlaylistForward()
-            audioPlayer.play()
+            YYTAudioPlayer.shared.play()
         }
     }
     
@@ -230,7 +228,7 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
     }
     
     func playlistControlView(_ view: PlaylistControlView, didToggleRepeat isOn: Bool) {
-        audioPlayer.isSongRepeat = isOn
+        YYTAudioPlayer.shared.isSongRepeat = isOn
     }
 
 }

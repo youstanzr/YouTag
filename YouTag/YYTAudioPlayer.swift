@@ -24,6 +24,7 @@ enum SeekDirection {
 @MainActor
 class YYTAudioPlayer: NSObject {
 
+    static let shared = YYTAudioPlayer()
     weak var delegate: YYTAudioPlayerDelegate?
     private var avPlayer: AVPlayer?
     private(set) var isSuspended: Bool = false

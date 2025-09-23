@@ -18,7 +18,6 @@ protocol NowPlayingViewDelegate: AnyObject {
 class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     weak var NPDelegate: NowPlayingViewDelegate?
-    var audioPlayer: YYTAudioPlayer!
     var currentSong: Song?
     
     let thumbnailImageView: UIImageView = {
@@ -134,10 +133,9 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         super.init(coder: aDecoder)
     }
     
-    init(frame: CGRect, audioPlayer: YYTAudioPlayer) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
-        self.audioPlayer = audioPlayer
-        self.audioPlayer.delegate = self
+        YYTAudioPlayer.shared.delegate = self
         setupUI()
     }
     
@@ -331,7 +329,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         ?? UIImage(named: "placeholder")
                 
         // Prepare the player without auto-playing
-        if preparePlayer, audioPlayer.setupPlayer(withSong: song) {
+        if preparePlayer, YYTAudioPlayer.shared.setupPlayer(withSong: song) {
             // Reset UI
             progressBar.value = 0.0
             currentTimeLabel.text = "00:00"
@@ -341,8 +339,8 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     func clearNowPlaying() {
         currentSong = nil
-        audioPlayer.clearPlayback()
-        audioPlayer.setPlaybackRate(to: 1.0)
+        YYTAudioPlayer.shared.clearPlayback()
+        YYTAudioPlayer.shared.setPlaybackRate(to: 1.0)
         playbackRateButton.setTitle("x1", for: .normal)
         titleLabel.text = ""
         subLabel.text = ""
@@ -355,28 +353,28 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     
     // MARK: - Button Actions
     @objc func pausePlayButtonAction() {
-        if audioPlayer.isPlaying() {
-            audioPlayer.pause()
+        if YYTAudioPlayer.shared.isPlaying() {
+            YYTAudioPlayer.shared.pause()
         } else {
-            audioPlayer.play()
+            YYTAudioPlayer.shared.play()
         }
     }
     
     @objc func nextButtonAction() {
-        audioPlayer.next()
+        YYTAudioPlayer.shared.next()
     }
     
     @objc func previousButtonAction() {
-        audioPlayer.prev()
+        YYTAudioPlayer.shared.prev()
     }
     
     // MARK: - Long-press Seeking Integration
     @objc private func handleNextLongPress(_ gr: UILongPressGestureRecognizer) {
         switch gr.state {
         case .began:
-            audioPlayer.startContinuousSeek(direction: .forward)
+            YYTAudioPlayer.shared.startContinuousSeek(direction: .forward)
         case .ended, .cancelled, .failed:
-            audioPlayer.stopContinuousSeek()
+            YYTAudioPlayer.shared.stopContinuousSeek()
         default:
             break
         }
@@ -385,9 +383,9 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     @objc private func handlePreviousLongPress(_ gr: UILongPressGestureRecognizer) {
         switch gr.state {
         case .began:
-            audioPlayer.startContinuousSeek(direction: .backward)
+            YYTAudioPlayer.shared.startContinuousSeek(direction: .backward)
         case .ended, .cancelled, .failed:
-            audioPlayer.stopContinuousSeek()
+            YYTAudioPlayer.shared.stopContinuousSeek()
         default:
             break
         }
@@ -402,7 +400,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         let popup = PlaybackRateView(currentRate: currentRate)
         popup.onApply = { [weak self] newRate in
             guard let self = self else { return }
-            self.audioPlayer.setPlaybackRate(to: newRate)
+            YYTAudioPlayer.shared.setPlaybackRate(to: newRate)
             self.playbackRateButton.setTitle("x\(self.formatRate(newRate))", for: .normal)
         }
         popup.present(over: hostView)
@@ -420,10 +418,10 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
                     slider.value = 0.0
                     return
                 }
-                audioPlayer.seek(toPercentage: slider.value)
+                YYTAudioPlayer.shared.seek(toPercentage: slider.value)
             case .moved:
-                let selectedTime = (slider.value * audioPlayer.duration()).rounded()
-                let timeLeft = ((1 - slider.value) * audioPlayer.duration()).rounded()
+                let selectedTime = (slider.value * YYTAudioPlayer.shared.duration()).rounded()
+                let timeLeft = ((1 - slider.value) * YYTAudioPlayer.shared.duration()).rounded()
                 currentTimeLabel.text = TimeInterval(selectedTime).stringFromTimeInterval()
                 timeLeftLabel.text = TimeInterval(timeLeft).stringFromTimeInterval()
             default:
@@ -435,7 +433,7 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
     // MARK: - Audio Player Delegate
     func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float) {
         // Refresh Control Center elapsed time
-        audioPlayer.updateNowPlaying(isPaused: !audioPlayer.isPlaying())
+        YYTAudioPlayer.shared.updateNowPlaying(isPaused: !YYTAudioPlayer.shared.isPlaying())
         if !isProgressBarSliding {
             if duration == 0 {
                 currentTimeLabel.text = "00:00"
