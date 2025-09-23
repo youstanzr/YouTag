@@ -133,11 +133,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         super.viewDidAppear(animated)
         // If no songs in the library, prompt user to add
         if LibraryManager.shared.libraryArray.isEmpty {
-            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-            if let libraryVC = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as? LibraryViewController {
-                libraryVC.modalPresentationStyle = .fullScreen
-                present(libraryVC, animated: false, completion: nil)
-            }
+            let LVC = LibraryViewController()
+            LVC.modalPresentationStyle = .fullScreen
+            self.present(LVC, animated: false)
         }
     }
     
@@ -389,11 +387,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     // MARK: - Button Actions
     @objc func menuButtonAction(sender: UIButton!) {
         print("Menu Button tapped")
-        let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        let LVC: LibraryViewController = storyboard.instantiateViewController(withIdentifier: "LibraryViewController") as! LibraryViewController
+        let LVC = LibraryViewController()
         LVC.modalPresentationStyle = .fullScreen
-        LVC.modalTransitionStyle = .coverVertical
-        self.present(LVC, animated: true, completion: nil)
+        self.present(LVC, animated: true)
     }
     
     @objc func filterButtonAction(sender: UIButton!) {

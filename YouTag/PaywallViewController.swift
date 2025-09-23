@@ -601,12 +601,6 @@ final class PaywallViewController: UIViewController {
     }
 
     // MARK: – Presentation API
-    static func present(from vc: UIViewController) {
-        let paywall = PaywallViewController()
-        paywall.modalPresentationStyle = .fullScreen
-        vc.present(paywall, animated: true)
-    }
-    
     private func promptManageForLifetimeUpgrade() {
         let alert = UIAlertController(
             title: "Lifetime Requires Cancel",

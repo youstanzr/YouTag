@@ -121,9 +121,9 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         // Block locked songs on free tier; offer paywall
         if isLocked(row: indexPath) {
             UINotificationFeedbackGenerator().notificationOccurred(.warning)
-            if let host = UIApplication.getCurrentViewController() {
-                PaywallViewController.present(from: host)
-            }
+            let PVC = PaywallViewController()
+            PVC.modalPresentationStyle = .fullScreen
+            UIApplication.getCurrentViewController()?.present(PVC, animated: true)
             tableView.deselectRow(at: indexPath, animated: true)
             return
         }
@@ -132,12 +132,10 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         if let url = LibraryManager.shared.urlForSong(selectedSong),
            (try? url.checkResourceIsReachable()) == true {
             // Proceed to detail view
-            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-            guard let songDetailVC = storyboard.instantiateViewController(withIdentifier: "SongDetailViewController") as? SongDetailViewController else { return }
+            let songDetailVC = SongDetailViewController()
             songDetailVC.song = selectedSong
             songDetailVC.modalPresentationStyle = .fullScreen
-            songDetailVC.modalTransitionStyle = .coverVertical
-            UIApplication.getCurrentViewController()?.present(songDetailVC, animated: true, completion: nil)
+            UIApplication.getCurrentViewController()?.present(songDetailVC, animated: true)
         } else {
             // Prompt user to relink
             pendingRelinkIndexPath = indexPath

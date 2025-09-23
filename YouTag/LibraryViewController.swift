@@ -382,7 +382,9 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
     }
 
     private func presentPaywall() {
-        PaywallViewController.present(from: self)
+        let paywall = PaywallViewController()
+        paywall.modalPresentationStyle = .fullScreen
+        self.present(paywall, animated: true)
     }
     
     @objc private func quotaBadgeTapped() {
