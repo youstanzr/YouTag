@@ -16,12 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
         
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        /*
-         To allow the sound continue playing in background mode
-         AVAudioSession: An intermediary object that communicates to the system how you intend to use audio in your app.
-         */
+
         configureAudioSession()
 
+        // Prepare App Data
+        LibraryManager.shared.setupDatabase()
+        LocalFilesManager.ensureImagesDirectoryExists()
+        LocalFilesManager.getSongsDirectoryURL()
+        
         // Observe audio session interruptions
         NotificationCenter.default.addObserver(
             self,
@@ -29,20 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             name: AVAudioSession.interruptionNotification,
             object: nil
         )
-        
-        // Prepare App Data
-        LibraryManager.shared.setupDatabase()
-        LocalFilesManager.ensureImagesDirectoryExists()
-        LocalFilesManager.getSongsDirectoryURL()
-
-        let group = DispatchGroup()
-        group.enter()
-        DispatchQueue.global(qos: .userInitiated).async {
-            LibraryManager.shared.recomputeSongDurationsBlocking()
-            group.leave()
-        }
-        group.wait()
-        
+            
         // Add session state observer
         NotificationCenter.default.addObserver(
             forName: AVAudioSession.silenceSecondaryAudioHintNotification,
@@ -76,6 +65,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("♻️ Media services were reset")
         }
         
+        // 1) Apply last-known entitlements immediately (instant UX, safe offline)
+        SubscriptionManager.shared.bootstrapEntitlementFromCache()
+
+        // 2) Fire a real scan in the background (uses local receipt; no network dependency)
+        Task { await SubscriptionManager.shared.updateEntitlementStatus() }
+
+        SubscriptionManager.shared.startTransactionListener()
         return true
     }
     
@@ -142,5 +138,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-    
 }

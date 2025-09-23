@@ -13,6 +13,7 @@ extension Notification.Name {
     static let playlistDidUpdate  = Notification.Name("playlistDidUpdate")
 }
 
+@MainActor
 class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDelegate, PlaylistControlViewDelegate {
     
     static let shared = PlaylistManager()  // Singleton instance
@@ -68,13 +69,22 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
             // nothing changed → don’t touch playback but update UI
             // Refresh metadata for songs visible under current filters
             let songs = LibraryManager.shared.getFilteredSongs(with: playlistFilters, mode: mode)
-            // Filter out any songs whose file is missing (match computePlaylist behavior)
+            // Filter out missing files
             let playableSongs = songs.filter { song in
                 guard let url = LibraryManager.shared.urlForSong(song) else { return false }
                 return FileManager.default.fileExists(atPath: url.path)
             }
-            // Map by id and update existing playlist entries to their fresh copies
-            let mapById: [String: Song] = Dictionary(uniqueKeysWithValues: playableSongs.map { ($0.id, $0) })
+            // Enforce subscription cap: exclude songs whose library index is locked
+            let cap = SubscriptionManager.shared.currentCap
+            let unlockedSongs = playableSongs.filter { s in
+                guard let cap = cap else { return true }
+                if let idx = LibraryManager.shared.libraryArray.firstIndex(where: { $0.id == s.id }) {
+                    return idx < cap
+                }
+                return true
+            }
+            // Map by id and update existing playlist entries to their fresh copies (unlocked only)
+            let mapById: [String: Song] = Dictionary(uniqueKeysWithValues: unlockedSongs.map { ($0.id, $0) })
             let updated = currentPlaylist.compactMap { mapById[$0.id] }
             updatePlaylistLibrary(toPlaylist: updated, uiOnly: true)
             return
@@ -99,14 +109,23 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
             guard let url = LibraryManager.shared.urlForSong(song) else { return false }
             return FileManager.default.fileExists(atPath: url.path)
         }
+        // Enforce subscription cap by excluding locked songs from the playlist entirely
+        let cap = SubscriptionManager.shared.currentCap
+        let unlockedSongs = playableSongs.filter { s in
+            guard let cap = cap else { return true }
+            if let idx = LibraryManager.shared.libraryArray.firstIndex(where: { $0.id == s.id }) {
+                return idx < cap
+            }
+            return true
+        }
         
-        if samePlaylist(oldPlaylist, playableSongs) {
+        if samePlaylist(oldPlaylist, unlockedSongs) {
             // Same set of songs; keep old order to avoid jarring UI/audio changes
-            let reordered = reorderToMatchOldOrder(newPlaylist: playableSongs, oldPlaylist: oldPlaylist)
+            let reordered = reorderToMatchOldOrder(newPlaylist: unlockedSongs, oldPlaylist: oldPlaylist)
             updatePlaylistLibrary(toPlaylist: reordered, uiOnly: true)
         } else {
             // Different contents; adopt the new playlist
-            updatePlaylistLibrary(toPlaylist: playableSongs)
+            updatePlaylistLibrary(toPlaylist: unlockedSongs)
         }
         refreshStateTokens()
     }

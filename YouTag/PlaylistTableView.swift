@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol PlaylistLibraryViewDelegate: AnyObject {
     func didSelectSong(song: Song)
 }

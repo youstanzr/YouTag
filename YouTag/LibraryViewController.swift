@@ -9,8 +9,19 @@
 import UIKit
 import UniformTypeIdentifiers
 import AVFoundation
+import StoreKit
 
 class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearchBarDelegate {
+
+    private let quotaBadge = UIView()
+    private let quotaLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.textColor = GraphicColors.cloudWhite
+        lbl.font = UIFont(name: "DINCondensed-Bold", size: 16)
+        lbl.textAlignment = .left
+        lbl.text = "0 / 25"
+        return lbl
+    }()
 
     private var allSongs: [Song] = []
     private let searchBar = UISearchBar()
@@ -23,7 +34,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         config.attributedTitle = AttributedString("+", attributes: AttributeContainer([.font: UIFont.boldSystemFont(ofSize: 42)]))
         config.baseForegroundColor = GraphicColors.orange
         config.titleAlignment = .center
-        config.titlePadding = -10.0 // Adjust padding
+        config.titlePadding = -10.0
         config.background.cornerRadius = 0
         btn.configuration = config
         btn.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
@@ -68,6 +79,30 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         ) { [weak self] _ in
             self?.allSongs = LibraryManager.shared.libraryArray
         }
+        NotificationCenter.default.addObserver(
+            forName: .libraryTableDidRefresh,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateQuotaLabel()
+        }
+        NotificationCenter.default.addObserver(
+                    forName: .subscriptionEntitlementDidChange,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] _ in
+                    guard let self else { return }
+                    // Re-read data + refresh UI tied to caps/unlocks
+                    self.libraryTableView.refreshTableView()
+                    self.allSongs = LibraryManager.shared.libraryArray
+                    self.searchBar(self.searchBar, textDidChange: self.searchBar.text ?? "")
+                    self.updateQuotaLabel()
+                }
+        
+        // Tap to open paywall (only meaningful on free tier)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(quotaBadgeTapped))
+        quotaBadge.addGestureRecognizer(tap)
+        quotaBadge.isUserInteractionEnabled = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -75,6 +110,9 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         libraryTableView.refreshTableView()
         allSongs = LibraryManager.shared.libraryArray
         searchBar(searchBar, textDidChange: searchBar.text ?? "")
+        updateQuotaLabel()
+        // Ensure entitlement is current when returning to this screen
+        Task { await SubscriptionManager.shared.updateEntitlementStatus() }
     }
 
     // MARK: - Setup UI
@@ -111,14 +149,6 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         dismissButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         self.view.addSubview(dismissButton)
 
-        libraryTableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            libraryTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            libraryTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -5),
-            libraryTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
-            libraryTableView.bottomAnchor.constraint(equalTo: addButton.topAnchor)
-        ])
-        
         addButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -126,7 +156,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
             addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         addButton.applyStandardBottomBarHeight(70)
-        
+
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             dismissButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -134,11 +164,50 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
             dismissButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         dismissButton.applyStandardBottomBarHeight(70)
+
+        // Quota badge (visible, professional look)
+        quotaBadge.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.8)
+        quotaBadge.layer.shadowColor = UIColor.black.cgColor
+        quotaBadge.layer.shadowOpacity = 0.25
+        quotaBadge.layer.shadowOffset = CGSize(width: 0, height: -2)
+        quotaBadge.layer.shadowRadius = 4
+        quotaBadge.addBorder(side: .top, color: GraphicColors.darkGray, width: 1.0)
+
+        view.addSubview(quotaBadge)
+        quotaBadge.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            quotaBadge.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            quotaBadge.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            quotaBadge.bottomAnchor.constraint(equalTo: dismissButton.topAnchor),
+            quotaBadge.heightAnchor.constraint(equalToConstant: 26)
+        ])
+
+        quotaBadge.addSubview(quotaLabel)
+        quotaLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            quotaLabel.centerXAnchor.constraint(equalTo: quotaBadge.centerXAnchor),
+            quotaLabel.heightAnchor.constraint(equalTo: quotaBadge.heightAnchor),
+            quotaLabel.centerYAnchor.constraint(equalTo: quotaBadge.centerYAnchor)
+        ])
+
+        libraryTableView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            libraryTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            libraryTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -5),
+            libraryTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            libraryTableView.bottomAnchor.constraint(equalTo: quotaBadge.topAnchor)
+        ])
     }
 
     // MARK: - Add Button Action
     @objc func addButtonAction(sender: UIButton!) {
         print("Add Button tapped")
+        let songCount = LibraryManager.shared.libraryArray.count
+        if !SubscriptionManager.shared.canImport(currentCount: songCount) {
+            presentPaywall()
+            return
+        }
+
         if let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             print("Documents folder path: \(docDir.path)")
         }
@@ -153,6 +222,28 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
 
     // MARK: - Document Picker Delegate
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        // Upfront quota gate: block entire selection if it would exceed the cap
+        let mgr = SubscriptionManager.shared
+        let currentCount = LibraryManager.shared.libraryArray.count
+        if !mgr.isPremium {
+            let remaining = mgr.remainingQuota(currentCount: currentCount) ?? 0
+            if urls.count > remaining {
+                let overBy = urls.count - remaining
+                let cap = Limits.freeCap
+                let msg = remaining > 0
+                    ? "You can import only \(remaining) more song\(remaining == 1 ? "" : "s") on the free plan (cap: \(cap)). Your selection exceeds the limit by \(overBy)."
+                    : "You've reached the free plan limit of \(cap) songs. Upgrade to import more."
+
+                let alert = UIAlertController(title: "Import Limit Reached", message: msg, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+                    self?.presentPaywall()
+                }))
+                present(alert, animated: true)
+                return
+            }
+        }
+
+        // Proceed with import (selection fits within allowance or user is premium)
         for url in urls {
             guard url.startAccessingSecurityScopedResource() else {
                 print("Failed to access security-scoped resource for \(url)")
@@ -206,6 +297,7 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
                 LibraryManager.shared.addSongToLibrary(song: song)
                 DispatchQueue.main.async {
                     self.libraryTableView.refreshTableView()
+                    self.updateQuotaLabel()
                 }
             }
         }
@@ -265,4 +357,41 @@ class LibraryViewController: UIViewController, UIDocumentPickerDelegate, UISearc
         searchBar.resignFirstResponder()
     }
     
+    private func updateQuotaLabel() {
+        let count = LibraryManager.shared.libraryArray.count
+        let mgr = SubscriptionManager.shared
+        let sep = quotaBadge.subviews.first
+        if mgr.isPremium {
+            quotaLabel.textColor = GraphicColors.obsidianBlack
+            quotaLabel.text = "\(count) / ∞"
+            quotaBadge.backgroundColor = GraphicColors.orange
+            sep?.backgroundColor = GraphicColors.orange.withAlphaComponent(0.9)
+        } else {
+            let cap = Limits.freeCap
+            quotaLabel.text = "\(count) / \(cap)"
+            if count > cap {
+                // Over limit → reddish background tint to indicate restriction
+                quotaBadge.backgroundColor = GraphicColors.red.withAlphaComponent(0.85)
+                sep?.backgroundColor = GraphicColors.red.withAlphaComponent(0.9)
+            } else {
+                quotaBadge.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.8)
+                sep?.backgroundColor = GraphicColors.darkGray.withAlphaComponent(0.6)
+            }
+            quotaLabel.textColor = GraphicColors.cloudWhite
+        }
+    }
+
+    private func presentPaywall() {
+        PaywallViewController.present(from: self)
+    }
+    
+    @objc private func quotaBadgeTapped() {
+        presentPaywall()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .libraryTableDidRefresh, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .subscriptionEntitlementDidChange, object: nil)
+    }
+
 }

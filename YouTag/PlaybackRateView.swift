@@ -2,9 +2,10 @@
 //  PlaybackRateView.swift
 //  YouTag
 //
-//  Created by Yousef AlQattan on 2025-08-12.
+//  Created by Youstanzr on 2025-08-12.
 //  Copyright © 2025 Youstanzr. All rights reserved.
 //
+
 import UIKit
 
 final class PlaybackRateView: UIView {

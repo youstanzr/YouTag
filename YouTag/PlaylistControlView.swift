@@ -2,12 +2,13 @@
 //  PlaylistControlView.swift
 //  YouTag
 //
-//  Created by Yousef AlQattan on 2025-09-01.
+//  Created by Youstanzr on 2025-09-01.
 //  Copyright © 2025 Youstanzr. All rights reserved.
 //
 
 import UIKit
 
+@MainActor
 protocol PlaylistControlViewDelegate: AnyObject {
     func playlistControlViewDidTapShuffle(_ view: PlaylistControlView)
     func playlistControlView(_ view: PlaylistControlView,

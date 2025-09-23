@@ -26,6 +26,24 @@ class LibraryCell : UITableViewCell {
         return imgView
     }()
 
+    private let lockOverlay: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+        v.isHidden = true
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.isUserInteractionEnabled = false
+        return v
+    }()
+
+    private let lockImageView: UIImageView = {
+        let iv = UIImageView(image: UIImage(systemName: "lock.fill"))
+        iv.tintColor = GraphicColors.orange
+        iv.contentMode = .scaleAspectFit
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = false
+        return iv
+    }()
+
     private let titleLabel: MarqueeLabel = {
         let lbl = MarqueeLabel.init(frame: .zero, rate: 45.0, fadeLength: 10.0)
         lbl.trailingBuffer = 40.0
@@ -174,17 +192,16 @@ class LibraryCell : UITableViewCell {
         contentView.addSubview(durationLabel)
         contentView.addSubview(tagView)
         
+        // Lock overlay sits on top of the thumbnail
+        thumbnailImageView.addSubview(lockOverlay)
+        lockOverlay.addSubview(lockImageView)
+
         thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         subLabel.translatesAutoresizingMaskIntoConstraints = false
         durationLabel.translatesAutoresizingMaskIntoConstraints = false
         tagView.translatesAutoresizingMaskIntoConstraints = false
         
-//        titleLabel.backgroundColor = .blue
-//        subLabel.backgroundColor = .green
-//        durationLabel.backgroundColor = .red
-//        tagView.backgroundColor = .cyan
-
         NSLayoutConstraint.activate([
             thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             thumbnailImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -213,7 +230,28 @@ class LibraryCell : UITableViewCell {
             tagView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             tagView.topAnchor.constraint(equalTo: subLabel.bottomAnchor, constant: 3),
             tagView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor, constant: -1.5),
+            
+            lockOverlay.leadingAnchor.constraint(equalTo: thumbnailImageView.leadingAnchor),
+            lockOverlay.trailingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor),
+            lockOverlay.topAnchor.constraint(equalTo: thumbnailImageView.topAnchor),
+            lockOverlay.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor),
+
+            lockImageView.centerXAnchor.constraint(equalTo: lockOverlay.centerXAnchor),
+            lockImageView.centerYAnchor.constraint(equalTo: lockOverlay.centerYAnchor),
+            lockImageView.widthAnchor.constraint(equalTo: thumbnailImageView.widthAnchor, multiplier: 0.35),
+            lockImageView.heightAnchor.constraint(equalTo: lockImageView.widthAnchor)
         ])
+    }
+
+    // MARK: - Lock State
+    func setLocked(_ locked: Bool) {
+        lockOverlay.isHidden = !locked
+        // Visually dim the artwork when locked
+        thumbnailImageView.alpha = locked ? 0.65 : 1.0
+        // Keep text readable but slightly subdued when locked
+        titleLabel.textColor = locked ? GraphicColors.medGray : GraphicColors.cloudWhite
+        subLabel.textColor = locked ? GraphicColors.darkGray : GraphicColors.medGray
+        durationLabel.textColor = locked ? GraphicColors.darkGray : GraphicColors.medGray
     }
 
 }

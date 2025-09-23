@@ -641,11 +641,12 @@ class LibraryManager {
                 libraryArray.append(song)
                 addTagsToSong(songID: song.id, tags: song.tags)
                 addArtistsToSong(songID: song.id, artists: song.artists)
-                // Notify only if this addition affects the current filtered playlist
-                let filters = PlaylistManager.shared.playlistFilters
-                let mode = PlaylistManager.shared.filterLogic
-                if matches(song, filters: filters, mode: mode) {
-                    notifyLibraryChanged()
+                // Notify only if this addition affects the current filtered playlist (query PM on the MainActor)
+                Task { @MainActor in
+                    let pm = PlaylistManager.shared
+                    if self.matches(song, filters: pm.playlistFilters, mode: pm.filterLogic) {
+                        self.notifyLibraryChanged()
+                    }
                 }
             } else {
                 print("❌ Error inserting song: \(sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error")")
@@ -800,25 +801,23 @@ class LibraryManager {
         
         // Only notify if membership in current filtered playlist actually toggled
         if let oldSong = oldSong {
-            let filters = PlaylistManager.shared.playlistFilters
-            let mode = PlaylistManager.shared.filterLogic
+            Task { @MainActor in
+                let pm = PlaylistManager.shared
+                let filters = pm.playlistFilters
+                let mode = pm.filterLogic
 
-            let wasMatch = matches(oldSong, filters: filters, mode: mode)
-            let nowMatch = matches(song, filters: filters, mode: mode)
-            let isInCurrentPlaylist = PlaylistManager.shared.currentPlaylist.contains { $0.id == song.id }
+                let wasMatch = self.matches(oldSong, filters: filters, mode: mode)
+                let nowMatch = self.matches(song,    filters: filters, mode: mode)
+                let isInCurrentPlaylist = pm.currentPlaylist.contains { $0.id == song.id }
 
-            switch (wasMatch, nowMatch) {
-            case (false, true):
-                // Newly qualifies → add to filtered set
-                notifyLibraryChanged()
-
-            case (true, false):
-                // No longer qualifies → only notify if it’s actually in the playlist
-                if isInCurrentPlaylist { notifyLibraryChanged() }
-
-            default:
-                // (true, true) or (false, false): membership unchanged → no recompute
-                break
+                switch (wasMatch, nowMatch) {
+                case (false, true):
+                    self.notifyLibraryChanged()
+                case (true, false):
+                    if isInCurrentPlaylist { self.notifyLibraryChanged() }
+                default:
+                    break
+                }
             }
         }
     }
@@ -927,12 +926,13 @@ class LibraryManager {
         // 1) it matched active filters, or
         // 2) it existed in the current playlist (manually queued or filtered)
         if let s = removed {
-            let filters = PlaylistManager.shared.playlistFilters
-            let mode = PlaylistManager.shared.filterLogic
-            let matchedFilters = matches(s, filters: filters, mode: mode)
-            let wasInCurrentPlaylist = PlaylistManager.shared.currentPlaylist.contains { $0.id == s.id }
-            if matchedFilters || wasInCurrentPlaylist {
-                notifyLibraryChanged()
+            Task { @MainActor in
+                let pm = PlaylistManager.shared
+                let matchedFilters = self.matches(s, filters: pm.playlistFilters, mode: pm.filterLogic)
+                let wasInCurrentPlaylist = pm.currentPlaylist.contains { $0.id == s.id }
+                if matchedFilters || wasInCurrentPlaylist {
+                    self.notifyLibraryChanged()
+                }
             }
         }
     }

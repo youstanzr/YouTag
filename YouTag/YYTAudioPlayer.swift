@@ -21,6 +21,7 @@ enum SeekDirection {
     case backward
 }
 
+@MainActor
 class YYTAudioPlayer: NSObject {
 
     weak var delegate: YYTAudioPlayerDelegate?
@@ -52,10 +53,12 @@ class YYTAudioPlayer: NSObject {
     /*
      AVAudioPlayer: An audio player that provides playback of audio data from a file or memory.
     */
+    @MainActor
     func setupPlayer() -> Bool {
         return setupPlayer(withSongAtIndex: 0)
     }
 
+    @MainActor
     func setupPlayer(withSongAtIndex index: Int) -> Bool {
         guard index < PlaylistManager.shared.currentPlaylist.count else {
             print("Invalid song index: \(index)")
@@ -65,6 +68,7 @@ class YYTAudioPlayer: NSObject {
         return setupPlayer(withSong: song)
     }
 
+    @MainActor
     func setupPlayer(withSong song: Song) -> Bool {
         print("🎵 Setting up player with song: \(song.title)")
         unsuspend()
@@ -85,11 +89,14 @@ class YYTAudioPlayer: NSObject {
         setupNowPlaying(song: song)
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         if let avp = avPlayer {
-            avp.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 2), queue: .main) { [weak self] time in
-                guard let self = self, self.duration() > 0 else { return }
-                let currentTime = self.currentTime()
-                self.delegate?.audioPlayerPeriodicUpdate(currentTime: currentTime, duration: self.duration())
-                self.updateNowPlaying(isPaused: !(avp.rate != 0 && avp.timeControlStatus == .playing))
+            avp.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 2), queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self = self, self.duration() > 0 else { return }
+                    let currentTime = self.currentTime()
+                    self.delegate?.audioPlayerPeriodicUpdate(currentTime: currentTime, duration: self.duration())
+                    let isPaused = !((self.avPlayer?.rate ?? 0) != 0 && self.avPlayer?.timeControlStatus == .playing)
+                    self.updateNowPlaying(isPaused: isPaused)
+                }
             }
             NotificationCenter.default.addObserver(
                 self,
@@ -102,6 +109,7 @@ class YYTAudioPlayer: NSObject {
     }
     
     // MARK: - Playback Controls
+    @MainActor
     func play(song: Song) -> Bool {
         guard setupPlayer(withSong: song) else { return false }
         startPlayback()
@@ -129,12 +137,14 @@ class YYTAudioPlayer: NSObject {
         print("⏸️ AVPlayer paused. rate after pause: \(avPlayer?.rate ?? -1)")
     }
 
+    @MainActor
     func next() {
         print("Playing next song")
         PlaylistManager.shared.movePlaylistForward()
         play()
     }
 
+    @MainActor
     func prev() {
         if currentTime() > 5 {
             print("Rewind to start of current song")
@@ -224,9 +234,12 @@ class YYTAudioPlayer: NSObject {
         target = max(0, min(dur, target))
         let time = CMTime(seconds: target, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         avPlayer?.seek(to: time) { [weak self] _ in
-            guard let self = self else { return }
-            self.updateNowPlaying(isPaused: !(self.avPlayer?.timeControlStatus == .playing))
-            self.delegate?.audioPlayerPeriodicUpdate(currentTime: Float(target), duration: self.duration())
+            Task { @MainActor in
+                guard let self = self else { return }
+                let paused = !(self.avPlayer?.timeControlStatus == .playing)
+                self.updateNowPlaying(isPaused: paused)
+                self.delegate?.audioPlayerPeriodicUpdate(currentTime: Float(target), duration: self.duration())
+            }
         }
     }
 
@@ -241,9 +254,12 @@ class YYTAudioPlayer: NSObject {
         target = max(0, min(dur, target))
         let time = CMTime(seconds: target, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         avPlayer?.seek(to: time) { [weak self] _ in
-            guard let self = self else { return }
-            self.updateNowPlaying(isPaused: !(self.avPlayer?.timeControlStatus == .playing))
-            self.delegate?.audioPlayerPeriodicUpdate(currentTime: Float(target), duration: self.duration())
+            Task { @MainActor in
+                guard let self = self else { return }
+                let paused = !(self.avPlayer?.timeControlStatus == .playing)
+                self.updateNowPlaying(isPaused: paused)
+                self.delegate?.audioPlayerPeriodicUpdate(currentTime: Float(target), duration: self.duration())
+            }
         }
     }
     
@@ -265,17 +281,21 @@ class YYTAudioPlayer: NSObject {
         continuousSeekDirection = direction
         // Optional immediate tick
         if performImmediateTick {
-            switch direction {
-            case .forward: seek(by: seekStepSeconds)
-            case .backward: seek(by: -seekStepSeconds)
+            Task { @MainActor in
+                switch direction {
+                case .forward: self.seek(by: self.seekStepSeconds)
+                case .backward: self.seek(by: -self.seekStepSeconds)
+                }
             }
         }
         // Repeat while held
         let timer = Timer(timeInterval: seekRepeatInterval, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            switch direction {
-            case .forward: self.seek(by: self.seekStepSeconds)
-            case .backward: self.seek(by: -self.seekStepSeconds)
+            Task { @MainActor in
+                guard let self = self else { return }
+                switch direction {
+                case .forward: self.seek(by: self.seekStepSeconds)
+                case .backward: self.seek(by: -self.seekStepSeconds)
+                }
             }
         }
         RunLoop.main.add(timer, forMode: .common)
@@ -349,6 +369,7 @@ class YYTAudioPlayer: NSObject {
         info[MPNowPlayingInfoPropertyPlaybackRate] = rate
     }
 
+    @MainActor
     func setupNowPlaying(song: Song) {
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = song.title
@@ -431,14 +452,14 @@ class YYTAudioPlayer: NSObject {
         commandCenter.nextTrackCommand.addTarget { [weak self] event in
             guard let self = self else { return .commandFailed }
             print("Next track command pressed")
-            self.next()
+            Task { @MainActor in self.next() }
             return .success
         }
 
         commandCenter.previousTrackCommand.addTarget { [weak self] event in
             guard let self = self else { return .commandFailed }
             print("Previous track command pressed")
-            self.prev()
+            Task { @MainActor in self.prev() }
             return .success
         }
 

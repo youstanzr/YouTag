@@ -15,6 +15,14 @@ extension Notification.Name {
 
 class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIDocumentPickerDelegate {
     private var pendingRelinkIndexPath: IndexPath?
+
+    private func isLocked(row indexPath: IndexPath) -> Bool {
+        let total = LibraryManager.shared.libraryArray.count
+        guard total > 0 else { return false }
+        // Table shows reversed order: newest at top
+        let originalIndex = total - 1 - indexPath.row
+        return SubscriptionManager.shared.isLocked(index: originalIndex)
+    }
     
     public var allowsPlayContextMenu: Bool = false  // Play context when long press
     
@@ -72,12 +80,28 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         
         cell.refreshCell(with: song, showTags: true)
 
-        // Mark broken links in light red
-        if let url = LibraryManager.shared.urlForSong(song),
-           (try? url.checkResourceIsReachable()) == true {
-            cell.backgroundColor = .clear
+        // Determine states up front
+        let locked = isLocked(row: indexPath)
+        let hasFile: Bool = {
+            if let url = LibraryManager.shared.urlForSong(song) {
+                return (try? url.checkResourceIsReachable()) == true
+            }
+            return false
+        }()
+
+        // Inform the cell about lock state (LibraryCell will overlay a lock icon when true)
+        cell.setLocked(locked)
+
+        // Coloring: locked → gray tint; broken link → red; normal → clear
+        if locked {
+            cell.contentView.backgroundColor = GraphicColors.medGray.withAlphaComponent(0.2)
+            cell.contentView.alpha = 1.0
+        } else if !hasFile {
+            cell.contentView.backgroundColor = GraphicColors.red.withAlphaComponent(0.2)
+            cell.contentView.alpha = 1.0
         } else {
-            cell.backgroundColor = GraphicColors.red.withAlphaComponent(0.2)
+            cell.contentView.backgroundColor = .clear
+            cell.contentView.alpha = 1.0
         }
         return cell
     }
@@ -93,6 +117,16 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let reversedSongs = Array(LibraryManager.shared.libraryArray.reversed())
         let selectedSong = reversedSongs[indexPath.row]
+        
+        // Block locked songs on free tier; offer paywall
+        if isLocked(row: indexPath) {
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+            if let host = UIApplication.getCurrentViewController() {
+                PaywallViewController.present(from: host)
+            }
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
         
         // Check if playable
         if let url = LibraryManager.shared.urlForSong(selectedSong),
@@ -141,6 +175,8 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
 
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         guard allowsPlayContextMenu else { return nil }
+        // No context actions for locked items
+        if isLocked(row: indexPath) { return nil }
         let reversedSongs = Array(LibraryManager.shared.libraryArray.reversed())
         let song = reversedSongs[indexPath.row]
         guard let url = LibraryManager.shared.urlForSong(song),

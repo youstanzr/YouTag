@@ -108,6 +108,18 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
                                                selector: #selector(onPlaylistDidUpdate),
                                                name: .playlistDidUpdate,
                                                object: nil)
+        
+        // Accoutns for cases when subscription is expired while cache show active
+        NotificationCenter.default.addObserver(
+            forName: .subscriptionEntitlementDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor in
+                self.playlistManager.computePlaylistIfNeeded(mode: self.isAndMode ? .and : .or)
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -478,6 +490,7 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
         NotificationCenter.default.removeObserver(self, name: .playlistDidUpdate, object: nil)
         NotificationCenter.default.removeObserver(self, name: .playlistWillUpdate, object: nil)
         NotificationCenter.default.removeObserver(self, name: .playlistControlLyricsToggled, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .subscriptionEntitlementDidChange, object: nil)
     }
     
 }

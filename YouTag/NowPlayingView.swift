@@ -5,9 +5,11 @@
 //  Created by Youstanzr on 8/13/19.
 //  Copyright © 2019 Youstanzr. All rights reserved.
 //
+
 import UIKit
 import MarqueeLabel
 
+@MainActor
 protocol NowPlayingViewDelegate: AnyObject {
     func shufflePlaylist()
     func audioPlayerDidFinishTrack()
