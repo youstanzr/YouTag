@@ -92,14 +92,15 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         return btn
     }()
     let songControlView = UIView()
-    let progressBar: UISlider = {
-        let pBar = UISlider()
-        pBar.tintColor = GraphicColors.orange
-        return pBar
+    let progressBar: YYTSlider = {
+        let s = YYTSlider()
+        s.minimumTrackTintColor = GraphicColors.orange
+        s.maximumTrackTintColor = GraphicColors.darkGray.withAlphaComponent(0.35)
+        return s
     }()
-    
-    var isProgressBarSliding = false
-    
+    private var isProgressBarSliding = false
+    private var pendingSeekTarget: Float? = nil   // 0…1 percent
+
     let playbackRateButton: UIButton = {
         let btn = UIButton()
         btn.backgroundColor = GraphicColors.orange
@@ -154,14 +155,12 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         songControlView.addSubview(timeLeftLabel)
         songControlView.addSubview(playbackRateButton)
 
-        let thumbImage = makeCircleImage(radius: 20.0, color: GraphicColors.medGray, borderColor: .clear, borderWidth: 0.0)
-        let selectedThumbImage = makeCircleImage(radius: 25.0, color: GraphicColors.darkGray, borderColor: .clear, borderWidth: 0.0)
-        progressBar.setThumbImage(thumbImage, for: .normal)
-        progressBar.setThumbImage(selectedThumbImage, for: .highlighted)
-        progressBar.addTarget(self, action: #selector(onSliderValChanged(slider:event:)), for: .valueChanged)
+        progressBar.addTarget(self, action: #selector(sliderTouchDown), for: .touchDown)
+        progressBar.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
+        progressBar.addTarget(self, action: #selector(sliderTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         progressBar.translatesAutoresizingMaskIntoConstraints = false
-        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 5.0).isActive = true
-        progressBar.trailingAnchor.constraint(equalTo: currentTimeLabel.leadingAnchor, constant: -5.0).isActive = true
+        progressBar.leadingAnchor.constraint(equalTo: songControlView.leadingAnchor, constant: 7.5).isActive = true
+        progressBar.trailingAnchor.constraint(equalTo: currentTimeLabel.leadingAnchor, constant: 0).isActive = true
         progressBar.centerYAnchor.constraint(equalTo: songControlView.centerYAnchor).isActive = true
         progressBar.heightAnchor.constraint(equalTo: songControlView.heightAnchor).isActive = true
         
@@ -406,47 +405,53 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         popup.present(over: hostView)
     }
 
-    @objc func onSliderValChanged(slider: UISlider, event: UIEvent) {
-        if let touchEvent = event.allTouches?.first {
-            switch touchEvent.phase {
-            case .began:
-                isProgressBarSliding = true
-                break
-            case .ended:
-                isProgressBarSliding = false
-                guard let _ = currentSong else {
-                    slider.value = 0.0
-                    return
-                }
-                YYTAudioPlayer.shared.seek(toPercentage: slider.value)
-            case .moved:
-                let selectedTime = (slider.value * YYTAudioPlayer.shared.duration()).rounded()
-                let timeLeft = ((1 - slider.value) * YYTAudioPlayer.shared.duration()).rounded()
-                currentTimeLabel.text = TimeInterval(selectedTime).stringFromTimeInterval()
-                timeLeftLabel.text = TimeInterval(timeLeft).stringFromTimeInterval()
-            default:
-                break
-            }
-        }
+    @objc private func sliderTouchDown(_ slider: UISlider) {
+        isProgressBarSliding = true
+    }
+
+    @objc private func sliderValueChanged(_ slider: UISlider) {
+        let dur = YYTAudioPlayer.shared.duration()
+        guard dur > 0 else { return }
+        let selected = (slider.value * dur).rounded()
+        let left = ((1 - slider.value) * dur).rounded()
+        currentTimeLabel.text = TimeInterval(selected).stringFromTimeInterval()
+        timeLeftLabel.text = TimeInterval(left).stringFromTimeInterval()
+    }
+
+    @objc private func sliderTouchUp(_ slider: UISlider) {
+        guard currentSong != nil else { slider.value = 0; return }
+        pendingSeekTarget = slider.value
+        YYTAudioPlayer.shared.seek(toPercentage: slider.value)
     }
     
     // MARK: - Audio Player Delegate
     func audioPlayerPeriodicUpdate(currentTime: Float, duration: Float) {
-        // Refresh Control Center elapsed time
         YYTAudioPlayer.shared.updateNowPlaying(isPaused: !YYTAudioPlayer.shared.isPlaying())
-        if !isProgressBarSliding {
-            if duration == 0 {
-                currentTimeLabel.text = "00:00"
-                timeLeftLabel.text = "00:00"
-                progressBar.value = 0.0
+
+        // Hold UI updates until player reaches the seek target (prevents bounce-back)
+        if let target = pendingSeekTarget, duration > 0 {
+            let pct = currentTime / duration
+            if abs(pct - target) < 0.01 {
+                pendingSeekTarget = nil
+                isProgressBarSliding = false
+            } else {
                 return
             }
-            currentTimeLabel.text = TimeInterval(currentTime).stringFromTimeInterval()
-            timeLeftLabel.text = TimeInterval(duration - currentTime).stringFromTimeInterval()
-            progressBar.value = currentTime / duration
         }
+
+        guard !isProgressBarSliding else { return }
+
+        if duration == 0 {
+            currentTimeLabel.text = "00:00"
+            timeLeftLabel.text = "00:00"
+            progressBar.value = 0.0
+            return
+        }
+        currentTimeLabel.text = TimeInterval(currentTime).stringFromTimeInterval()
+        timeLeftLabel.text = TimeInterval(duration - currentTime).stringFromTimeInterval()
+        progressBar.value = currentTime / duration
     }
-    
+
     func audioPlayerPlayingStatusChanged(isPlaying: Bool) {
         let imageName = isPlaying ? "pause" : "play"
         pausePlayButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -461,28 +466,6 @@ class NowPlayingView: UIView, YYTAudioPlayerDelegate {
         // Format like 1, 1.25, 1.5 (trim trailing zeros)
         let s = String(format: "%.2f", rate)
         return s.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
-    }
-    
-    // MARK: - Helper Function
-    fileprivate func makeCircleImage(radius: CGFloat, color: UIColor,
-                                     borderColor: UIColor, borderWidth: CGFloat) -> UIImage? {
-        let outerSize = CGSize(width: radius, height: radius)
-        let innerSize = CGSize(width: radius - 2.0 * borderWidth, height: radius - 2.0 * borderWidth)
-        UIGraphicsBeginImageContextWithOptions(outerSize, false, 0.0)
-        let context = UIGraphicsGetCurrentContext()
-        let outerBounds = CGRect(origin: .zero, size: outerSize)
-        context?.setFillColor(borderColor.cgColor)
-        context?.setStrokeColor(UIColor.clear.cgColor)
-        context?.addEllipse(in: outerBounds)
-        context?.drawPath(using: .fill)
-        let innerBounds = CGRect(x: borderWidth, y: borderWidth, width: innerSize.width, height: innerSize.height)
-        context?.setFillColor(color.cgColor)
-        context?.setStrokeColor(UIColor.clear.cgColor)
-        context?.addEllipse(in: innerBounds)
-        context?.drawPath(using: .fill)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
     }
     
     // MARK: - External Playlist View Connection
