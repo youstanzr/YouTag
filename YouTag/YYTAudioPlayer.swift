@@ -27,8 +27,10 @@ class YYTAudioPlayer: NSObject {
     static let shared = YYTAudioPlayer()
     weak var delegate: YYTAudioPlayerDelegate?
     private var avPlayer: AVPlayer?
+    private var timeObserver: Any?
     private(set) var isSuspended: Bool = false
     var isSongRepeat: Bool = false
+    private var pausedDueToUnplug = false
     /// Persisted rate to apply when playing
     private var desiredRate: Float = 1.0
     
@@ -47,6 +49,7 @@ class YYTAudioPlayer: NSObject {
         setupRemoteTransportControls()
         setupInterreuptionsNotifications()
         setupRouteChangeNotifications()
+        startObservingMediaServices()
     }
     
     
@@ -72,40 +75,19 @@ class YYTAudioPlayer: NSObject {
     @MainActor
     func setupPlayer(withSong song: Song) -> Bool {
         print("🎵 Setting up player with song: \(song.title)")
-        unsuspend()
-        
-        // Stop any previous playback
-        avPlayer?.pause()
-        avPlayer = nil
 
-        guard let url = LibraryManager.shared.urlForSong(song) else {
-            print("Invalid song data: Could not resolve file URL for song \(song.id)")
+        tearDownPlayer(suspendAfter: false, notifyStopped: false)
+
+        guard let url = LibraryManager.shared.urlForSong(song),
+              FileManager.default.fileExists(atPath: url.path) else {
+            print("Invalid song file for \(song.id)")
             return false
         }
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            print("Invalid song data: File does not exist at \(url.path).")
-            return false
-        }
+
         avPlayer = AVPlayer(url: url)
         setupNowPlaying(song: song)
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
-        if let avp = avPlayer {
-            avp.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 2), queue: .main) { [weak self] _ in
-                Task { @MainActor in
-                    guard let self = self, self.duration() > 0 else { return }
-                    let currentTime = self.currentTime()
-                    self.delegate?.audioPlayerPeriodicUpdate(currentTime: currentTime, duration: self.duration())
-                    let isPaused = !((self.avPlayer?.rate ?? 0) != 0 && self.avPlayer?.timeControlStatus == .playing)
-                    self.updateNowPlaying(isPaused: isPaused)
-                }
-            }
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(playerDidFinishTrack(_:)),
-                name: .AVPlayerItemDidPlayToEndTime,
-                object: avp.currentItem
-            )
-        }
+        attachObservers(for: avPlayer)
         return true
     }
     
@@ -119,6 +101,7 @@ class YYTAudioPlayer: NSObject {
 
     func play() {
         print("▶️ PLAY called. Suspended: \(isSuspended), rate: \(avPlayer?.rate ?? -1)")
+        pausedDueToUnplug = false
         startPlayback()
     }
     
@@ -135,6 +118,7 @@ class YYTAudioPlayer: NSObject {
         avPlayer?.pause()
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
         updateNowPlaying(isPaused: true)
+        pausedDueToUnplug = false
         print("⏸️ AVPlayer paused. rate after pause: \(avPlayer?.rate ?? -1)")
     }
 
@@ -159,43 +143,20 @@ class YYTAudioPlayer: NSObject {
     
     /// Starts or resumes playback at the desired rate and notifies the delegate.
     private func startPlayback() {
-        guard !isSuspended else {
-            print("⚠️ startPlayback blocked because isSuspended == true")
-            return
-        }
+        guard let avp = avPlayer, !isSuspended else { return }
         do {
             try AVAudioSession.sharedInstance().setActive(true)
-            print("🔄 Ensured audio session is active before playback")
         } catch {
             print("Failed to reactivate session before playback: \(error.localizedDescription)")
         }
-        avPlayer?.play()
-        avPlayer?.rate = desiredRate
-        print("▶️ AVPlayer play() called. New rate: \(avPlayer?.rate ?? -1)")
+        avp.play()
+        avp.rate = desiredRate
         delegate?.audioPlayerPlayingStatusChanged(isPlaying: true)
         updateNowPlaying(isPaused: false)
     }
-
+    
     func clearPlayback() {
-        // 1. Pause any ongoing playback
-        avPlayer?.pause()
-        suspend()
-        
-        // 2. Unregister our end‐of‐track observer
-        if let currentItem = avPlayer?.currentItem {
-            NotificationCenter.default.removeObserver(
-                self,
-                name: .AVPlayerItemDidPlayToEndTime,
-                object: currentItem
-            )
-        }
-        
-        // 3. Remove the item from the player and release it
-        avPlayer?.replaceCurrentItem(with: nil)
-        avPlayer = nil
-        
-        // 4. Inform delegate/UI that playback has stopped
-        delegate?.audioPlayerPlayingStatusChanged(isPlaying: false)
+        tearDownPlayer(suspendAfter: true, notifyStopped: true)
     }
 
     func isPlaying() -> Bool {
@@ -325,6 +286,55 @@ class YYTAudioPlayer: NSObject {
         isSuspended = false
     }
 
+    // MARK: Observers
+    private func tearDownPlayer(suspendAfter: Bool, notifyStopped: Bool) {
+        avPlayer?.pause()
+        detachObservers(for: avPlayer)
+        if suspendAfter { suspend() } else { unsuspend() }
+        avPlayer?.replaceCurrentItem(with: nil)
+        avPlayer = nil
+        if notifyStopped { delegate?.audioPlayerPlayingStatusChanged(isPlaying: false) }
+    }
+
+    @MainActor
+    private func handlePeriodicTick() {
+        let dur = duration()
+        guard dur > 0 else { return }
+        let cur = currentTime()
+        delegate?.audioPlayerPeriodicUpdate(currentTime: cur, duration: dur)
+
+        let isPaused = !((avPlayer?.rate ?? 0) != 0 && avPlayer?.timeControlStatus == .playing)
+        updateNowPlaying(isPaused: isPaused)
+    }
+
+    private func attachObservers(for player: AVPlayer?) {
+        guard let player = player else { return }
+
+        timeObserver = player.addPeriodicTimeObserver(
+            forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.handlePeriodicTick() }
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playerDidFinishTrack(_:)),
+            name: .AVPlayerItemDidPlayToEndTime,
+            object: player.currentItem
+        )
+    }
+    
+    private func detachObservers(for player: AVPlayer?) {
+        guard let player = player else { return }
+
+        // Detach time observer
+        if let t = timeObserver { player.removeTimeObserver(t); timeObserver = nil }
+        // Detach end of item observer
+        if let item = player.currentItem {
+            NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: item)
+        }
+    }
 
     // MARK: - Now Playing Info
 
@@ -542,9 +552,15 @@ class YYTAudioPlayer: NSObject {
     }
     
     // MARK: Handle Route Changes
-    /*
-    when you plug a headphone into the phone then the sound will emit on the headphone. But when you unplug the headphone then the sound automatically continue playing on built-in speaker. Maybe this is the behavior that you don’t expect. B/c when you plug the headphone into you want the sound is private to you, and when you unplug it you don’t want it emit out to other people. We will handle it by receiving events when the route change
-    */
+    private func isPrivateOutput(_ port: AVAudioSession.Port) -> Bool {
+        switch port {
+        case .headphones, .bluetoothA2DP, .bluetoothLE, .bluetoothHFP:
+            return true
+        default:
+            return false
+        }
+    }
+
     func setupRouteChangeNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleRouteChange),
@@ -552,40 +568,44 @@ class YYTAudioPlayer: NSObject {
                                                object: nil)
     }
     
-    @objc func handleRouteChange(notification: Notification) {
-        print("🔌 Route change detected: \(String(describing: notification.userInfo))")
-        guard let userInfo = notification.userInfo,
-            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-            let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
-                return
-        }
+    @objc private func handleRouteChange(_ note: Notification) {
+        guard
+            let userInfo = note.userInfo,
+            let reasonRaw = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSession.RouteChangeReason(rawValue: reasonRaw)
+        else { return }
+
+        let session = AVAudioSession.sharedInstance()
 
         switch reason {
-            case .newDeviceAvailable:
-                let session = AVAudioSession.sharedInstance()
-                for output in session.currentRoute.outputs where
-                    (output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
-                    print("headphones connected")
-                    DispatchQueue.main.async { [weak self] in
-                        self?.play()
-                    }
-                    break
+        case .oldDeviceUnavailable:
+            // A device (likely headphones/BT) was unplugged.
+            if let previousRoute = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription {
+                let hadPrivate = previousRoute.outputs.contains { isPrivateOutput($0.portType) }
+                if hadPrivate, isPlaying() {
+                    pause()
+                    pausedDueToUnplug = true     // remember *why* we paused
                 }
-            case .oldDeviceUnavailable:
-                if let previousRoute =
-                    userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription {
-                    for output in previousRoute.outputs where
-                        (output.portType == AVAudioSession.Port.headphones || output.portType == AVAudioSession.Port.bluetoothA2DP) {
-                        print("headphones disconnected")
-                        DispatchQueue.main.async { [weak self] in
-                            self?.pause()
-                        }
-                        break
-                    }
-                }
-            default: ()
+            }
+
+        case .newDeviceAvailable:
+            // New device appeared; resume only if we paused due to an unplug,
+            // and the new route is private again (headphones/BT).
+            guard pausedDueToUnplug else { return }
+            let hasPrivate = session.currentRoute.outputs.contains { isPrivateOutput($0.portType) }
+            if hasPrivate {
+                play()
+                pausedDueToUnplug = false
+            }
+
+        case .categoryChange, .routeConfigurationChange, .override, .wakeFromSleep,
+             .noSuitableRouteForCategory, .unknown:
+            // No special handling; keep current state.
+            break
+
+        @unknown default:
+            break
         }
-        print("🔌 handleRouteChange: reason=\(reason.rawValue)")
     }
     
     @objc private func playerDidFinishTrack(_ notification: Notification) {
@@ -594,7 +614,9 @@ class YYTAudioPlayer: NSObject {
         delegate?.audioPlayerDidFinishTrack()
     }
     
+    @MainActor
     deinit {
+        detachObservers(for: avPlayer)
         NotificationCenter.default.removeObserver(self)
         seekTimer?.invalidate()
         let commandCenter = MPRemoteCommandCenter.shared()
@@ -607,5 +629,38 @@ class YYTAudioPlayer: NSObject {
         commandCenter.seekBackwardCommand.removeTarget(nil)
         commandCenter.skipForwardCommand.removeTarget(nil)
         commandCenter.skipBackwardCommand.removeTarget(nil)
+    }
+    
+    // MARK: Media Services
+    func startObservingMediaServices() {
+        NotificationCenter.default.addObserver(self,
+            selector: #selector(mediaServicesWereReset),
+            name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+
+        NotificationCenter.default.addObserver(self,
+            selector: #selector(mediaServicesWereLost),
+            name: AVAudioSession.mediaServicesWereLostNotification, object: nil)
+    }
+
+    @objc private func mediaServicesWereReset(_ note: Notification) {
+        Task { @MainActor in recoverAfterMediaServicesReset() }
+    }
+
+    @objc private func mediaServicesWereLost(_ note: Notification) {
+        Task { @MainActor in recoverAfterMediaServicesReset() }
+    }
+
+    @MainActor
+    func recoverAfterMediaServicesReset() {
+        // 1) Reconfigure the session
+        do { try AVAudioSession.sharedInstance().setCategory(.playback) } catch { }
+        do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
+
+        // 2) Rebuild AVPlayer if there’s a current song
+        if let current = PlaylistManager.shared.currentPlaylist.last {
+            let wasPlaying = isPlaying()
+            _ = setupPlayer(withSong: current)
+            if wasPlaying { startPlayback() } // resumes if it was playing
+        }
     }
 }
