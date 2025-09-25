@@ -560,7 +560,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250909;
+				CURRENT_PROJECT_VERSION = 20250925;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
@@ -587,7 +587,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20250909;
+				CURRENT_PROJECT_VERSION = 20250925;
 				INFOPLIST_FILE = YouTag/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Batta: Tag Songs. Build Smart Playlists";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
