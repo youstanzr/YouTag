@@ -470,6 +470,31 @@ class LibraryManager {
         return artists
     }
 
+    func getDistinctReleaseYears(forAlbum album: String) -> [String] {
+        var releaseYears: [String] = []
+
+        let query = """
+        SELECT DISTINCT releaseYear
+        FROM Songs
+        WHERE album = ?
+          AND releaseYear IS NOT NULL
+          AND TRIM(releaseYear) <> ''
+        ORDER BY CAST(releaseYear AS INTEGER) ASC, releaseYear ASC;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
+            let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+            sqlite3_bind_text(statement, 1, album, -1, transient)
+            while sqlite3_step(statement) == SQLITE_ROW {
+                if let cstr = sqlite3_column_text(statement, 0) {
+                    releaseYears.append(String(cString: cstr))
+                }
+            }
+        }
+        sqlite3_finalize(statement)
+        return releaseYears
+    }
+    
     func getAllDistinctValues(for column: String) -> [String] {
         var resultList: [String] = []
         var query: String

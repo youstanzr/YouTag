@@ -204,8 +204,13 @@ class SongDetailViewController: UIViewController, UITextFieldDelegate, UITextVie
         // Album
         albumTextField.delegate = self
         albumTextField.itemSelectionHandler = {item, itemPosition in
-            self.albumTextField.text = item[itemPosition].title
+            let selectedAlbum = item[itemPosition].title
+            self.albumTextField.text = selectedAlbum
             self.albumTextField.resignFirstResponder()
+            let releaseYears = LibraryManager.shared.getDistinctReleaseYears(forAlbum: selectedAlbum)
+            if releaseYears.count == 1 && self.releaseYrTextField.text == "" {
+                self.releaseYrTextField.text = releaseYears.first
+            }
         }
         albumTextField.filterStrings(LibraryManager.shared.getAllDistinctValues(for: "album"))
         view.addSubview(albumTextField)
