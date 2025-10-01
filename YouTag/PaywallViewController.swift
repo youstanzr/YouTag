@@ -63,6 +63,7 @@ final class PaywallViewController: UIViewController {
         layoutUI()
         configure()
         Task { @MainActor in
+            activity.startAnimating()
             if SubscriptionManager.shared.isPremium {
                 self.updatePremiumUI()
             }
@@ -70,6 +71,7 @@ final class PaywallViewController: UIViewController {
                 await SubscriptionManager.shared.loadProducts()
             }
             reloadPlans()
+            activity.stopAnimating()
         }
     }
 
@@ -293,6 +295,7 @@ final class PaywallViewController: UIViewController {
             lbl.textAlignment = .center
             lbl.numberOfLines = 0
             stack.addArrangedSubview(lbl)
+            activity.stopAnimating()
             return
         }
 
@@ -309,6 +312,7 @@ final class PaywallViewController: UIViewController {
             stack.addArrangedSubview(b)
         }
         applyEligibilityStyling()
+        activity.stopAnimating()
     }
     
     private func applyEligibilityStyling() {
