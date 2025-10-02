@@ -182,7 +182,7 @@ class LibraryTableView: UITableView, UITableViewDelegate, UITableViewDataSource,
         
         return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { _ in
             let play = UIAction(title: "Play Now", image: UIImage(systemName: "play.fill")) { _ in
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 var list = PlaylistManager.shared.currentPlaylist
                 // Rotate playlist so selected song plays last (mirror PlaylistLibraryView.didSelectRowAt)
                 if !list.isEmpty {
