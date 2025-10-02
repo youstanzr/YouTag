@@ -81,9 +81,25 @@ class PlaylistManager: NSObject, PlaylistLibraryViewDelegate, NowPlayingViewDele
                 }
                 return true
             }
-            // Map by id and update existing playlist entries to their fresh copies (unlocked only)
-            let mapById: [String: Song] = Dictionary(uniqueKeysWithValues: unlockedSongs.map { ($0.id, $0) })
-            let updated = currentPlaylist.compactMap { mapById[$0.id] }
+
+            // Fresh copies for items that are both visible and unlocked
+            let freshById: [String: Song] = Dictionary(uniqueKeysWithValues: unlockedSongs.map { ($0.id, $0) })
+            // Fallback: a full-library index by id (unfiltered)
+            let libById: [String: Song] = Dictionary(uniqueKeysWithValues: LibraryManager.shared.libraryArray.map { ($0.id, $0) })
+
+            // Preserve membership & order; update when possible
+            let updated: [Song] = currentPlaylist.map { old in
+                if let fresh = freshById[old.id] {
+                    return fresh
+                } else if let libCopy = libById[old.id] {
+                    // Song isn’t in the current filter result → keep it, but refresh from library
+                    return libCopy
+                } else {
+                    // Shouldn’t happen, but never drop the item
+                    return old
+                }
+            }
+
             updatePlaylistLibrary(toPlaylist: updated, uiOnly: true)
             return
         }
