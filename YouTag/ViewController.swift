@@ -149,8 +149,9 @@ class ViewController: UIViewController, FilterPickerViewDelegate, YYTTagViewDele
     }
 
     @objc private func onPlaylistDidUpdate(_ note: Notification) {
+        let uiOnly = note.userInfo?["uiOnly"] as! Bool
         // Restore to the correct state based on your flags/orientation
-        print("Playlist did update")
+        print("Playlist did update: \(uiOnly ? "UI Only" : "Full")")
     }
     
     // MARK: - Setup UI
