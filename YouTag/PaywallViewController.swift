@@ -8,6 +8,7 @@
 
 import UIKit
 import StoreKit
+import SafariServices
 
 final class PaywallViewController: UIViewController {
     // MARK: – UI
@@ -48,6 +49,9 @@ final class PaywallViewController: UIViewController {
     private let restoreButton = UIButton(type: .system)
     private let manageButton = UIButton(type: .system)
     private let bottomBar = UIStackView()
+    private let linksStack = UIStackView()
+    private let privacyButton = UIButton(type: .system)
+    private let termsButton = UIButton(type: .system)
     private let activity = UIActivityIndicatorView(style: .large)
     private var planButtons: [UIButton] = []
     private var planProducts: [Product] = []
@@ -142,6 +146,23 @@ final class PaywallViewController: UIViewController {
         bottomBar.distribution = .fillEqually
         bottomBar.spacing = 16
 
+        // Links stack (Privacy Policy + Terms of Use)
+        linksStack.axis = .horizontal
+        linksStack.distribution = .fillEqually
+        linksStack.spacing = 16
+
+        // Privacy Policy
+        privacyButton.setTitle("Privacy Policy", for: .normal)
+        privacyButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        privacyButton.tintColor = GraphicColors.medGray
+        privacyButton.addTarget(self, action: #selector(openPrivacy), for: .touchUpInside)
+
+        // Terms of Use (EULA)
+        termsButton.setTitle("Terms of Use", for: .normal)
+        termsButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        termsButton.tintColor = GraphicColors.medGray
+        termsButton.addTarget(self, action: #selector(openTerms), for: .touchUpInside)
+
         // Activity indicator (hidden by default)
         activity.hidesWhenStopped = true
     }
@@ -157,6 +178,9 @@ final class PaywallViewController: UIViewController {
         bottomBar.translatesAutoresizingMaskIntoConstraints = false
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         activity.translatesAutoresizingMaskIntoConstraints = false
+        linksStack.translatesAutoresizingMaskIntoConstraints = false
+        privacyButton.translatesAutoresizingMaskIntoConstraints = false
+        termsButton.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(container)
         container.addSubview(closeButton)
@@ -166,6 +190,9 @@ final class PaywallViewController: UIViewController {
         container.addSubview(activity)
         container.addSubview(stack)
         container.addSubview(bottomBar)
+        container.addSubview(linksStack)
+        linksStack.addArrangedSubview(privacyButton)
+        linksStack.addArrangedSubview(termsButton)
         
         // Bottom bar contains restore + manage
         bottomBar.addArrangedSubview(restoreButton)
@@ -173,7 +200,7 @@ final class PaywallViewController: UIViewController {
 
         // Stack defaults
         stack.alignment = .fill
-        stack.distribution = .fillEqually
+        stack.distribution = .fill
 
         NSLayoutConstraint.activate([
             // Full screen container
@@ -208,11 +235,17 @@ final class PaywallViewController: UIViewController {
             stack.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             stack.bottomAnchor.constraint(lessThanOrEqualTo: bottomBar.topAnchor, constant: -16),
 
-            // Bottom bar fixed at bottom (always visible)
+            // Bottom bar above the links
             bottomBar.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             bottomBar.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            bottomBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomBar.bottomAnchor.constraint(equalTo: linksStack.topAnchor, constant: -8),
             bottomBar.heightAnchor.constraint(equalToConstant: 44),
+
+            // Links stack pinned to the safe area bottom
+            linksStack.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            linksStack.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            linksStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
+            linksStack.heightAnchor.constraint(equalToConstant: 24),
             
             // Activity centered in container
             activity.centerXAnchor.constraint(equalTo: container.centerXAnchor),
@@ -226,6 +259,8 @@ final class PaywallViewController: UIViewController {
         let isLandscape = traitCollection.verticalSizeClass == .compact
         stack.axis = isLandscape ? .horizontal : .vertical
         stack.spacing = isLandscape ? 16 : 12
+        // In landscape, spread buttons equally horizontally; in portrait, allow natural vertical sizing
+        stack.distribution = isLandscape ? .fillEqually : .fill
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -387,9 +422,15 @@ final class PaywallViewController: UIViewController {
         cfg.subtitle = ""
 
         b.configuration = cfg
-        b.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        // Prefer a comfortable height, but allow shrinking on compact heights
+        let h = b.heightAnchor.constraint(greaterThanOrEqualToConstant: 48)
+        h.priority = .defaultHigh
+        h.isActive = true
         b.layer.cornerRadius = 12
         b.layer.masksToBounds = true
+        // Let the button compress vertically if needed to satisfy the overall layout when rotating
+        b.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        b.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         b.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -625,6 +666,18 @@ final class PaywallViewController: UIViewController {
             }
         }))
         present(alert, animated: true)
+    }
+    
+    @objc private func openPrivacy() {
+        guard let url = URL(string: "https://youstanzr.github.io/YouTag/privacy") else { return }
+        let vc = SFSafariViewController(url: url)
+        present(vc, animated: true)
+    }
+
+    @objc private func openTerms() {
+        guard let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") else { return }
+        let vc = SFSafariViewController(url: url)
+        present(vc, animated: true)
     }
 }
 
